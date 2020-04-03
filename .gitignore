@@ -2,6 +2,8 @@
 
 # dependencies
 api-entilzha/node_modules/
+api-entilzha/src/qanta.sqlite3
+api-entilzha/src/__pycache__
 annotation-app/node_modules/
 annotation-app/src/data/
 api-entilzha/.git/
