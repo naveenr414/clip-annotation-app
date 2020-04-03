@@ -17,20 +17,6 @@ class Entity(BaseModel):
     entities: list
 
 
-@router.get("/read")
-async def read_paste(key: str, response: Response):
-    if key != 'herebedragons':
-        response.status_code = HTTP_401_UNAUTHORIZED
-    else:
-        with open('data/paste_content.json') as f:
-            data = json.load(f)
-            curr_paste = Paste(
-                content=data['content'],
-                is_url=data['is_url']
-            )
-        return curr_paste
-
-
 @router.post("/write")
 async def write_paste(new_paste: Paste, key: str, response: Response):
     if key != 'herebedragons':
