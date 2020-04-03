@@ -1,0 +1,25 @@
+ .Question {
+  padding-left: 20px;
+  font-size: 30px;
+}
+
+.Entity {
+  text-align: center;
+  font-weight: bold;
+  font-size: 24px;
+  padding-top: 20px;
+}
+
+.QuestionText {
+  font-size: 36px;
+}
+
+
+.ellipse{
+  font-size : 36px !important; 
+ 
+}
+
+Mark {
+  border-radius: 100px;
+}
