@@ -17,15 +17,6 @@ class Entity(BaseModel):
     entities: list
 
 
-@router.post("/write")
-async def write_paste(new_paste: Paste, key: str, response: Response):
-    if key != 'herebedragons':
-        response.status_code = HTTP_401_UNAUTHORIZED
-    else:
-        with open('data/paste_content.json', 'w') as f:
-            json.dump(new_paste.dict(), f)
-        return {'success': True}
-
 @router.post("/new_entity")
 async def write_entity(entity: Entity):
     f = json.loads(open("entity.json").read())
