@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Button, Input } from '@material-ui/core';
 import './Question.css';  
 import TaggedInfo from './TaggedInfo';
+import Chip from '@material-ui/core/Chip';
+
 
 export default class Question extends React.Component {  
   state = {
@@ -119,14 +121,10 @@ export default class Question extends React.Component {
         // At the end, when we close, add in the actual entity 
         word+="(" + this.state.entities[entity_pointer]+ ")";
         entity_pointer+=1;
-                
-        let ret = <mark   id={comma_seperated} style={{backgroundColor: "#a6e22d"}}key={i} onClick={(function(i,f) {return function() {f(i)}})(entity_pointer-1,this.editEntity)} > {word}</mark>
         
-        all_tags.push(<mark key={i+0.5} style={{backgroundColor: "white"}}> &nbsp;</mark>);        
+        let ret = <Chip label={word} style={{fontSize: 30}} onClick={(function(i,f) {return function() {f(i)}})(entity_pointer-1,this.editEntity)}  key={i} onDelete={(function(i,f) {return function() {f(i)}})(entity_pointer-1,this.deleteEntity)} color="primary" />
+       
         all_tags.push(ret);
-        all_tags.push(<mark key={i+0.215} style={{backgroundColor: "white"}}> &nbsp;</mark>);        
-        all_tags.push(<mark key={i+0.75} style={{backgroundColor: "#ff00ff" }} onClick={(function(i,f) {return function() {f(i)}})(entity_pointer-1,this.deleteEntity)}>  X </mark>);
-        all_tags.push(<mark key={i+0.55} style={{backgroundColor: "white"}}> &nbsp;</mark>);        
       }
       else if(this.state.currently_tagged.length>0 && i == this.state.currently_tagged[0]) {
         let all_locations = this.state.currently_tagged;
