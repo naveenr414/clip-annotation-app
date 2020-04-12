@@ -5,33 +5,32 @@ name: Lint and Test Quel-API
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
-    - name: Install dependencies
-      working-directory: quel-api
-      run: |
-        python -m pip install --upgrade pip
-        pip install poetry
-        poetry install
-    - name: Lint with pylint
-      if: always()
-      working-directory: quel-api
-      run: poetry run pylint quel
-    - name: Test with pytest
-      if: always()
-      working-directory: quel-api
-      run: |
-        poetry run pytest
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Install dependencies
+        working-directory: quel-api
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
+      - name: Lint with pylint
+        if: always()
+        working-directory: quel-api
+        run: poetry run pylint -E quel
+      - name: Test with pytest
+        if: always()
+        working-directory: quel-api
+        run: |
+          poetry run pytest
