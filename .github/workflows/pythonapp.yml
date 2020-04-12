@@ -32,5 +32,8 @@ jobs:
       - name: Test with pytest
         if: always()
         working-directory: quel-api
-        run: |
-          poetry run pytest
+        run: poetry run pytest
+      - name: Black Formatting Check
+        if: always()
+        working-directory: quel-api
+        run: poetry run black --check .
