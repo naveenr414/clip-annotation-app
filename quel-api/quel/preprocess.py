@@ -33,23 +33,27 @@ def extract_sentences(questions: List[Json]) -> List[Json]:
     return sentences
 
 
-def write_tokenizations(sentences: List[Json], tokenized_sentences: List[Doc], out_path: str):
+def write_tokenizations(
+    sentences: List[Json], tokenized_sentences: List[Doc], out_path: str
+):
     for sent, tokenized in zip(sentences, tokenized_sentences):
         sent_tokens = []
-        for token in tokenized:
+        for token_idx, token in enumerate(tokenized):
             start = token.idx
             end = start + len(token)
             text = token.text
-            sent_tokens.append({'text': text, 'start': start, 'end': end})
-        sent['tokens'] = sent_tokens
+            sent_tokens.append(
+                {"text": text, "start": start, "end": end, "idx": token_idx}
+            )
+        sent["tokens"] = sent_tokens
 
-    with open(out_path, 'w') as f:
-        json.dump({'sentences': sentences}, f)
+    with open(out_path, "w") as f:
+        json.dump({"sentences": sentences}, f)
 
 
 @click.command()
-@click.argument('data_path')
-@click.argument('out_path')
+@click.argument("data_path")
+@click.argument("out_path")
 def main(data_path: str, out_path: str):
     questions = load_questions(path=data_path)
     sentences = extract_sentences(questions)
@@ -62,4 +66,4 @@ def main(data_path: str, out_path: str):
 
 
 if __name__ == "__main__":
-    main() # pylint: disable=no-value-for-parameter
+    main()  # pylint: disable=no-value-for-parameter

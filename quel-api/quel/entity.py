@@ -9,7 +9,7 @@ router = APIRouter()
 
 class Entity(BaseModel):
     question_id: int
-    word_numbers: list 
+    word_numbers: list
     entities: list
 
 
@@ -21,15 +21,15 @@ async def write_entity(entity: Entity):
     print(entity)
     question_id = str(entity.question_id)
     entity_names = entity.entities
-    word_numbers = entity.word_numbers 
+    word_numbers = entity.word_numbers
     f[question_id]["entities"] = entity_names
-    f[question_id]["locations"] = word_numbers 
+    f[question_id]["locations"] = word_numbers
 
     print("Writing {}".format(f))
 
     # context manager/should figure out db stuff here
-    w = open("entity.json","w")
+    w = open("entity.json", "w")
     w.write(json.dumps(f))
     w.close()
-    
-    return {'success': True}
+
+    return {"success": True}
