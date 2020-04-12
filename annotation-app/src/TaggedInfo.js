@@ -52,10 +52,10 @@ export default class Annotation extends React.Component {
           onChange={this.handleChange}
           value={this.props.entity}
        />
-       <Button style={{ fontSize: '30px' }} onClick={this.sub}> 
+       <Button style={{ fontSize: '30px' }} color="primary" onClick={this.sub}> 
         Submit 
        </Button>
-       <Button style={{ fontSize: '30px' }}  onClick={this.undo}> 
+       <Button style={{ fontSize: '30px' }} color="primary" onClick={this.undo}> 
          Undo 
        </Button>     
        </div> 

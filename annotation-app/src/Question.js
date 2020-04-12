@@ -231,6 +231,15 @@ export default class Question extends React.Component {
     });
   }
   
+  get_rotation = () => {
+    if(this.state.preview) {
+      return '';
+    }
+    else {
+      return 'rotate(180deg)';
+    }
+  }
+  
   render () {
     return (
       <div className="Question">
@@ -253,9 +262,14 @@ export default class Question extends React.Component {
         <div className="QuestionText">
           {this.get_question()} 
           <br /> 
-          <Button className="ellipse" onClick={this.switch_preview}> 
-            {"..."} 
-          </Button> 
+           <IconButton
+            style={{transform: this.get_rotation()}}
+            aria-expanded={this.state.preview}
+            onClick={this.switch_preview} 
+            aria-label="show more"
+            >
+            <ExpandMoreIcon />
+          </IconButton>
           <br /> 
         </div>
         <br /> 
