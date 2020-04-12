@@ -1,6 +1,6 @@
 import json
 from fastapi import APIRouter
-from pydantic import BaseModel  # pylint: disable: no-name-in-module
+from pydantic import BaseModel  # pylint: disable=no-name-in-module
 from starlette.responses import Response
 from starlette.status import HTTP_401_UNAUTHORIZED
 
