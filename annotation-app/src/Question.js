@@ -1,38 +1,46 @@
 import * as React from 'react';
-import { Button, Input } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import './Question.css';  
 import TaggedInfo from './TaggedInfo';
 import Chip from '@material-ui/core/Chip';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import IconButton from '@material-ui/core/IconButton';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
 export default class Question extends React.Component {  
   state = {
-    question_text: "",
-    question_id: 0,
     tournament: "",
     entities: [],
+    question_text: "",
+    question_id: 0,
+    answer: "",
     entity_locations: [],
     currently_tagged: [],
-    preview: true,
-    edit: true, 
     current_entity: "",
+    preview: true,
   };
   
-  constructor(props) {
-    super(props);
-    let question_id = props.question_id;
-    this.state.question_id = question_id; 
-    fetch("http://localhost:8000/api/qanta/v1/api/qanta/v1/"+question_id)
+  get_data = () => {
+    fetch("http://localhost:8000/api/qanta/v1/api/qanta/v1/"+this.state.question_id)
       .then(res=>res.json())
       .then((result) => {
         this.setState({
-          question_text: result["text"].toString() +" Answer: "+result["answer"].toString(),
-          tournament: result["tournament"].toString(),
+          question_text: result["text"],
+          answer: result["answer"],
+          tournament: result["tournament"],
           entities: result["entities"],
           entity_locations: result["entity_locations"],
         });
       }
-      );
+    );
+  }
+  
+  constructor(props) {
+    super(props);
+    this.state.question_id = props.question_id;
+    this.get_data();
   }
   
   editEntity = (entity_number) => {
@@ -45,34 +53,29 @@ export default class Question extends React.Component {
   deleteEntity = (entity_number) => {
     this.state.entities.splice(entity_number,1);
     this.state.entity_locations.splice(entity_number,1);
+    this.write_entities();
     this.setState({
-        preview: this.state.preview,
-    });
-    this.write_entities(this.state.question_id,this.state.entity_locations,this.state.entities);          
-
-    
+      preview: this.state.preview,
+    });    
   }
   
   /* Add another word to the current entity */ 
   addToTag = (i) => { 
-  
-    if(this.state.current_entity!="" || this.state.currently_tagged.length == 0) {
+    let new_tag = this.state.current_entity!="";
+    new_tag |=this.state.currently_tagged.length == 0;
+    console.log(new_tag);
+    if(new_tag) {
       this.setState({
         currently_tagged: [i,i],
         current_entity: "",
       });
     }
     else {
-      if(i<this.state.currently_tagged[0]) {
-        this.setState({
-          currently_tagged: [i,this.state.currently_tagged[0]],
-        });
-      }
-      if(i>this.state.currently_tagged[1]) {
-        this.setState({
-          currently_tagged: [this.state.currently_tagged[0],i],
-        });
-      }
+      let lower_bound = Math.min(i,this.state.currently_tagged[0]);
+      let upper_bound = Math.max(i,this.state.currently_tagged[1]);
+      this.setState({
+        currently_tagged: [lower_bound,upper_bound],
+      });      
     }
   }
   
@@ -80,89 +83,102 @@ export default class Question extends React.Component {
     e.target.style.fontWeight = 'bold';
   }
   
-    changeUnbold = (e) => {
+  changeUnbold = (e) => {
     e.target.style.fontWeight = 'normal';
   }
   
+  add_words_between = (l,a,b) => {
+    let s = "";
+    for(var i = a;i<=b;i++) {
+      s+=l[i];
+      if(i!==b) {
+        s+=" ";
+      }
+    }
+    return s;
+  }
+  
+  run_local = (i,f) => {
+    return (function() {f(i)});
+  }
+    
   get_question = () => {
+    
+    let entity_color = "Primary";
+    let tagged_color = "Secondary";
     
     let words = this.state.question_text.split(" ");
     var entity_pointer = 0;
-    var entity_length = this.state.entity_locations.length;
+    let entity_list = this.state.entity_locations;
+    var entity_length = entity_list.length;
         
     let all_tags = [];
+    
+    if(this.state.preview) {
+      words = words.splice(0,20);
+    }
     
     // Loop through each of the words
     // Write it out as an HTML tag 
     let i = 0;
     while(i<words.length) {
-      let fontWeight = "normal";
-
-      if(words[i] == "Answer:") {
-        all_tags.push(<br />);
-        fontWeight = "bold";
-      }
-      // If it's part of an entity, then combine the tags 
-      if(entity_length>entity_pointer && 
-          this.state.entity_locations[entity_pointer][0] == i) {
-        // We let the ID for the tag be comma seperated version of each word #
-        let all_locations = this.state.entity_locations[entity_pointer];
-        let comma_seperated = all_locations.map(String);
-        comma_seperated = comma_seperated.join(",");
-        
-        let word = "";
-        // Add the words in 
-        for(var j = this.state.entity_locations[entity_pointer][0];j<=this.state.entity_locations[entity_pointer][1];j++) {
-          word+=words[j]+" ";
-          i+=1;
-        }
-        
-        
-        // At the end, when we close, add in the actual entity 
+      
+      let is_entity = entity_length>entity_pointer; 
+      is_entity=is_entity && entity_list[entity_pointer][0] == i;
+      
+      let currently_tagged = this.state.currently_tagged.length>0 
+      currently_tagged = currently_tagged && i == this.state.currently_tagged[0]
+      
+      if(is_entity) {
+        // Create a list of words with the entity itself 
+        let word = this.add_words_between(words,entity_list[entity_pointer][0],
+        entity_list[entity_pointer][1]);        
         word+="(" + this.state.entities[entity_pointer]+ ")";
+        i = entity_list[entity_pointer][1]+1;
+                
+        let ret = <Chip label={word} 
+          className="chip"
+          onClick={this.run_local(entity_pointer,this.editEntity)}  
+          key={i-1} 
+          onDelete={this.run_local(entity_pointer,this.deleteEntity)} 
+          color={entity_color}/>
         entity_pointer+=1;
-        
-        let ret = <Chip label={word} style={{fontSize: 30}} onClick={(function(i,f) {return function() {f(i)}})(entity_pointer-1,this.editEntity)}  key={i} onDelete={(function(i,f) {return function() {f(i)}})(entity_pointer-1,this.deleteEntity)} color="primary" />
-       
         all_tags.push(ret);
       }
-      else if(this.state.currently_tagged.length>0 && i == this.state.currently_tagged[0]) {
-        let all_locations = this.state.currently_tagged;
-        let comma_seperated = all_locations.map(String);
-        comma_seperated = comma_seperated.join(",");
-        
-        let word = "";
-        
-        // Add the words in 
-        for(var j = this.state.currently_tagged[0];j<=this.state.currently_tagged[1];j++) {
-          word+=words[j]+" ";
-          i+=1;
-        }
-                        
-        let ret = <mark   id={comma_seperated} style={{backgroundColor: "#ff0000",fontWeight: "normal" }}key={i+0.125}> {word}</mark>
+      else if(currently_tagged) {        
+        let word = this.add_words_between(words, this.state.currently_tagged[0],this.state.currently_tagged[1]);
+        i = this.state.currently_tagged[1]+1;
+        let ret = <Chip label={word} 
+          className="chip"
+          key={i-1}
+          color={tagged_color} /> 
         all_tags.push(ret);
       }
       else {
-        let ret=<mark id={i} key={i+2/3} onMouseEnter={this.changeBold} onMouseLeave={this.changeUnbold} style={{backgroundColor: "white", fontWeight:fontWeight}} onClick={(function(i,f) {return function() {f(i)}})(i,this.addToTag)}> {words[i]} </mark> ;
+        let ret=<span key={i} 
+        onMouseEnter={this.changeBold} 
+        onMouseLeave={this.changeUnbold} 
+        style={{backgroundColor: "white"}} 
+        onClick={this.run_local(i,this.addToTag)}> 
+          {words[i]+" "} 
+        </span> ;
         i+=1;
         all_tags.push(ret);
       }
     }
-    
-    if(this.state.preview) {
-      return all_tags.slice(0,20);
-    }
-    
     return all_tags;
   }
   
-  write_entities = (question_id, word_locations,entity_list) => {
-      var xhr = new XMLHttpRequest();
-     xhr.open('POST', 'http://localhost:8000/api/paste/v1/new_entity');
-        xhr.send(JSON.stringify({ question_id: this.state.question_id,
-        word_numbers:word_locations,
-         entities: entity_list }));
-      
+  write_entities = () => {
+    var xhr = new XMLHttpRequest();
+    let question_id = this.state.question_id 
+    let word_locations = this.state.entity_locations;
+    let entity_list = this.state.entities;
+    xhr.open('POST', 'http://localhost:8000/api/paste/v1/new_entity');
+    xhr.send(JSON.stringify({ question_id: question_id,
+      word_numbers:word_locations,
+      entities: entity_list,
+    }));  
   }
 
   
@@ -172,10 +188,8 @@ export default class Question extends React.Component {
     });
   }
   
+  // We've subimtted some new entity 
   callbackFunction = (new_entity) => {
-    function removeDuplicates(array) {
-      return array.filter((a, b) => array.indexOf(a) === b)
-    };
     function titleCase(str) {
       str = str.toLowerCase().split(' ');
       for (var i = 0; i < str.length; i++) {
@@ -185,31 +199,32 @@ export default class Question extends React.Component {
     }
 
     if(new_entity != "") {
-        new_entity = titleCase(new_entity);
-          let new_array = this.state.currently_tagged.slice(0);
-          // Write the new entity 
-          // Find out where in the list to write it
-          let found = false;
-          for(var i = 0;i<this.state.entity_locations.length;i++) {
-            if(this.state.entity_locations[i][0] == this.state.currently_tagged[0]) {
-             this.state.entities[i] = new_entity;
-             found = true;
-             break;
-            }
-            else if(this.state.entity_locations[i][0]>this.state.currently_tagged[0]) {
-              this.state.entity_locations.splice(i,0,new_array);
-              this.state.entities.splice(i,0,new_entity);
-              found = true;
-              break;
-            }
-          }
-          if(!found) {
-            this.state.entity_locations.push(new_array);
-            this.state.entities.push(new_entity);
-          }
-              
-          this.write_entities(this.state.question_id,this.state.entity_locations,this.state.entities);          
+      new_entity = titleCase(new_entity);
+      let new_array = this.state.currently_tagged;
+      // Write the new entity 
+      // Find out where in the list to write it
+      let found = false;
+      for(var i = 0;i<this.state.entity_locations.length;i++) {
+        if(this.state.entity_locations[i][0] == this.state.currently_tagged[0]) {
+         this.state.entities[i] = new_entity;
+         found = true;
+         break;
+        }
+        else if(this.state.entity_locations[i][0]>this.state.currently_tagged[0]) {
+          this.state.entity_locations.splice(i,0,new_array);
+          this.state.entities.splice(i,0,new_entity);
+          found = true;
+          break;
+        }
+      }
+      if(!found) {
+        this.state.entity_locations.push(new_array);
+        this.state.entities.push(new_entity);
+      }
+          
+      this.write_entities();          
     }
+    
     this.setState({
         currently_tagged: [],
         current_entity: "",
@@ -217,27 +232,37 @@ export default class Question extends React.Component {
   }
   
   render () {
-const trigger = <Button>Open Modal</Button>;
-
     return (
       <div className="Question">
-        <h3> {this.state.tournament} </h3> 
+      <Card variant="outlined"> 
+        <CardContent> 
+        <Chip label={"Tournament: "+this.state.tournament} 
+          style={{fontSize: 30, marginRight: 20, paddingBottom: 10, paddingTop: 10}} 
+          color="secondary" />
+        <Chip label={"Answer: "+this.state.answer} 
+          style={{fontSize: 30, marginRight: 20, paddingBottom: 10, paddingTop: 10}} 
+          color="secondary" />
         <br /> 
-        <b> Entities: </b> {this.state.entities.join(",")}
+        <Chip label={"Entities: "+this.state.entities.join(",")} 
+          style={{fontSize: 30, marginRight: 20, paddingBottom: 10, paddingTop: 10}} 
+          color="primary" />
         <br /> 
         <TaggedInfo callbackFunction={this.callbackFunction} question_text={this.state.question_text} tags={this.state.currently_tagged} entity={this.state.current_entity} /> 
         <br />
         
         <div className="QuestionText">
-        {this.get_question()} <Button className="ellipse" onClick={this.switch_preview}> {"..."} </Button> 
-
-        <br /> 
+          {this.get_question()} 
+          <br /> 
+          <Button className="ellipse" onClick={this.switch_preview}> 
+            {"..."} 
+          </Button> 
+          <br /> 
         </div>
         <br /> 
-
-
+        </CardContent> 
+      </Card> 
       </div>
-            
+
     );
   }
 }

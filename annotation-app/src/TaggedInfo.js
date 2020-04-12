@@ -4,15 +4,14 @@ import './Question.css';
 import TextField from '@material-ui/core/TextField';
 import MyAutoSuggest from './AutoSuggest';
 import { Button, Input } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
 
 export default class Annotation extends React.Component {  
   state = {
     value: '',
     current_tags: [],
   };
-  
-  
-  
+ 
   constructor(props) {
     super(props);
   }
@@ -45,24 +44,25 @@ export default class Annotation extends React.Component {
   
   getInput = () => {
     if(this.props.tags.length>0){ 
-      return <div > What entity is this:
-       <MyAutoSuggest
+      return <div > 
+      <Typography style={{fontSize:30}}>  What entity is this: </Typography> 
+      <MyAutoSuggest
           id="type-c"
           placeholder=""
           onChange={this.handleChange}
           value={this.props.entity}
-        />
-         <Button style={{ fontSize: '30px' }} onClick={this.sub}> Submit </Button>
-    <Button  style={{ fontSize: '30px' }}  onClick={this.undo}> Undo </Button>      </div> 
+       />
+       <Button style={{ fontSize: '30px' }} onClick={this.sub}> 
+        Submit 
+       </Button>
+       <Button style={{ fontSize: '30px' }}  onClick={this.undo}> 
+         Undo 
+       </Button>     
+       </div> 
      }
-  }
-  
-  getList = () => {
-    let l = [];
-    for(var i = 1;i<=10000;i++) {
-      l.push(i.toString());
-    }
-    return l;
+     else {
+       return <div> <br /> <br /> <br /> <br />  </div> 
+     }
   }
   
   onChange(id, newValue) {
@@ -80,9 +80,10 @@ export default class Annotation extends React.Component {
   render () {
     return (
       <div> 
-        <h3> {this.getStatus()} {this.getTags()} </h3> 
-          {this.getInput()}
-
+        <Typography color="textSecondary" style={{fontSize: 30}}>
+          {this.getStatus()} {this.getTags()} 
+        </Typography> 
+         {this.getInput()}
       </div> 
     );
   }

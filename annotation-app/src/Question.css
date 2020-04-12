@@ -1,5 +1,8 @@
  .Question {
   padding-left: 20px;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  padding-right: 20px;
   font-size: 30px;
 }
 
@@ -25,4 +28,12 @@ Mark {
   width: 100%;
   border-radius: 20px;
   padding-right: 5px;
+}
+
+.chip {
+  font-size: 30px !important;
+  padding-bottom: 20px !important; 
+  padding-top: 20px !important;
+  height: 20px !important;
+  margin-right: 10px !important;
 }
