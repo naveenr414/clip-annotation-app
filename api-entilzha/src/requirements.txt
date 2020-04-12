@@ -1,9 +1,0 @@
-ipython
-click
-pytest
-pip
-uvicorn
-litecli
-fastapi
-sqlalchemy
-pytest

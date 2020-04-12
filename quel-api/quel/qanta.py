@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 
 
 Base = declarative_base()
-engine = create_engine('sqlite:///qanta.sqlite3')
+engine = create_engine('sqlite:///data/qanta.2018.04.18.sqlite3')
 Session = sessionmaker(bind=engine)
 
 @contextmanager
