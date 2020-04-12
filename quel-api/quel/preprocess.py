@@ -52,12 +52,13 @@ def write_tokenizations(
 
 
 @click.command()
+@click.option("--spacy-model", default="en_core_web_sm")
 @click.argument("data_path")
 @click.argument("out_path")
-def main(data_path: str, out_path: str):
+def main(spacy_model: str, data_path: str, out_path: str):
     questions = load_questions(path=data_path)
     sentences = extract_sentences(questions)
-    nlp = spacy.load("en_core_web_sm")
+    nlp = spacy.load(spacy_model)
     sentence_texts = [s["text"] for s in sentences]
     tokenized_sentences = list(
         nlp.pipe(tqdm(sentence_texts), n_process=-1, batch_size=512)
