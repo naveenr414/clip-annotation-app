@@ -104,8 +104,8 @@ export default class Question extends React.Component {
     
   get_question = () => {
     
-    let entity_color = "Primary";
-    let tagged_color = "Secondary";
+    let entity_color = "primary";
+    let tagged_color = "secondary";
     
     let words = this.state.question_text.split(" ");
     var entity_pointer = 0;

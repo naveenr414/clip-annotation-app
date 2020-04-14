@@ -1,7 +1,8 @@
 import json
 from contextlib import contextmanager
 import random
-import json 
+import json
+import sqlite3
 
 from fastapi import APIRouter
 from sqlalchemy import Column, Integer, String, Boolean, create_engine
@@ -81,3 +82,20 @@ def get_question(qanta_id: int):
     question_dict['entities'] = all_entities[str(qanta_id)]['entities']
     question_dict['entity_locations'] = all_entities[str(qanta_id)]['locations']
     return question_dict
+
+@router.get('/api/qanta/autocorrect/{text}')
+def get_autocorrect(text: str):
+    conn = sqlite3.connect("qanta.sqlite3")
+    c = conn.cursor()
+
+    lower_bound = text.lower()
+    upper_bound = text+chr(255)
+    
+    c.execute('SELECT NAME FROM ENTITIES WHERE NAME>=? AND NAME<=? LIMIT 0,5',[lower_bound,upper_bound])
+
+    answer= [a[0] for a in c.fetchall()]
+    conn.commit()
+    conn.close()
+
+    return answer
+        

@@ -10,6 +10,7 @@ export default class Annotation extends React.Component {
   state = {
     value: '',
     current_tags: [],
+    autocorrect: [],
   };
  
   constructor(props) {
@@ -25,7 +26,7 @@ export default class Annotation extends React.Component {
     
     return words.join(" ");
   }
-  
+    
   sub = () => {
     this.props.callbackFunction(this.state.value);
   }
@@ -40,24 +41,72 @@ export default class Annotation extends React.Component {
     });
     this.props.callbackFunction("");
   }
+  
+  updateAutocorrect = (e) => {
+    this.setState({
+      value: e.currentTarget.value,
+    });
+    
+    this.setState({autocorrect: []});
+    
+    if(e.currentTarget.value!=="") {
+      fetch("http://localhost:8000/api/qanta/v1/api/qanta/autocorrect/"+e.currentTarget.value.toLowerCase())
+        .then(res => res.json()).then 
+        ((res) => {
+          this.setState({autocorrect: res});
+      });
+    }
+    
 
+        
+
+  }
+  
+  setValue = (i) => {
+    this.setState({
+      value: i, 
+      autocorrect: [],
+    });
+  }
+  
+  run_local = (i,f) => {
+    return (function() {f(i)});
+  } 
+  
+  getAutocorrect = () => {
+    let ret = [];
+    let arr = this.state.autocorrect;
+    for(var i = 0;i<arr.length;i++) {
+      ret.push(<div onClick={this.run_local(arr[i],this.setValue)}> 
+        <strong> {arr[i].substr(0,this.state.value.length)}</strong>{arr[i].substr(this.state.value.length)} 
+        <input type='hidden' value={arr[i]} />
+        </div>);
+    }
+    
+    while(ret.length<5) {
+      ret.push(<div> </div>);
+    }
+    
+    return ret; 
+  }
+
+  clearAutocorrect = () => {
+    this.setState({autocorrect: []});
+  }
   
   getInput = () => {
     if(this.props.tags.length>0){ 
       return <div > 
       <Typography style={{fontSize:30}}>  What entity is this: </Typography> 
-      <MyAutoSuggest
-          id="type-c"
-          placeholder=""
-          onChange={this.handleChange}
-          value={this.props.entity}
-       />
-       <Button style={{ fontSize: '30px' }} color="primary" onClick={this.sub}> 
+      <Input style={{fontSize: 30}} value={this.state.value} onChange ={this.updateAutocorrect} />
+               <Button style={{ fontSize: '30px' }} color="primary" onClick={this.sub}> 
         Submit 
        </Button>
        <Button style={{ fontSize: '30px' }} color="primary" onClick={this.undo}> 
          Undo 
        </Button>     
+
+        {this.getAutocorrect()}
        </div> 
      }
      else {
