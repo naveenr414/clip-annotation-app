@@ -1,36 +1,35 @@
 import json
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel  # pylint: disable=no-name-in-module
 from starlette.responses import Response
 from starlette.status import HTTP_401_UNAUTHORIZED
-import json 
 
 router = APIRouter()
 
-class Paste(BaseModel):
-    content: str
-    is_url: bool
 
 class Entity(BaseModel):
     question_id: int
-    word_numbers: list 
+    word_numbers: list
     entities: list
 
 
 @router.post("/new_entity")
 async def write_entity(entity: Entity):
+    # should use a context manager, eg with
     f = json.loads(open("entity.json").read())
+    # should eventually setup logging with logging module
     print(entity)
     question_id = str(entity.question_id)
     entity_names = entity.entities
-    word_numbers = entity.word_numbers 
+    word_numbers = entity.word_numbers
     f[question_id]["entities"] = entity_names
-    f[question_id]["locations"] = word_numbers 
+    f[question_id]["locations"] = word_numbers
 
     print("Writing {}".format(f))
 
-    w = open("entity.json","w")
+    # context manager/should figure out db stuff here
+    w = open("entity.json", "w")
     w.write(json.dumps(f))
     w.close()
-    
-    return {'success': True}
+
+    return {"success": True}

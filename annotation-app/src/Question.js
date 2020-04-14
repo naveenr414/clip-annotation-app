@@ -174,7 +174,7 @@ export default class Question extends React.Component {
     let question_id = this.state.question_id 
     let word_locations = this.state.entity_locations;
     let entity_list = this.state.entities;
-    xhr.open('POST', 'http://localhost:8000/api/paste/v1/new_entity');
+    xhr.open('POST', 'http://localhost:8000/api/entity/v1/new_entity');
     xhr.send(JSON.stringify({ question_id: question_id,
       word_numbers:word_locations,
       entities: entity_list,
