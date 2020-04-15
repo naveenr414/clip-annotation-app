@@ -4,6 +4,8 @@
 
 Download the following files to `data/` from [datasets.qanta.org](http://datasets.qanta.org)
 
+You can manually download them or use the download script `python quel/download.py`
+
 - [`qanta.2018.04.18.sqlite3`](https://s3-us-west-2.amazonaws.com/pinafore-us-west-2/qanta-jmlr-datasets/qanta.2018.04.18.sqlite3)
 - [`qanta.mapped.2018.04.18.json`](https://s3-us-west-2.amazonaws.com/pinafore-us-west-2/qanta-jmlr-datasets/qanta.mapped.2018.04.18.json)
 
