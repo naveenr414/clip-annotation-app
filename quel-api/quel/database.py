@@ -25,7 +25,7 @@ class Database:
         Base.metadata.create_all(self._engine)
 
     def drop_all(self):
-        Base.metadata.drop_all(self._enging)
+        Base.metadata.drop_all(self._engine)
 
     def reset_all(self):
         self.drop_all()

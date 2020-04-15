@@ -23,7 +23,7 @@ def download(remote_file: str, local_file: str):
 
 
 def download_all(overwrite=False):
-    os.makedirs('data/', exist_ok=True)
+    os.makedirs("data/", exist_ok=True)
     for remote_file, local_file in FILES:
         if os.path.exists(local_file):
             if overwrite:
@@ -40,5 +40,5 @@ def cli(overwrite_data: bool):
     download_all(overwrite=overwrite_data)
 
 
-if __name__ == '__main__':
-    cli()
+if __name__ == "__main__":
+    cli()  # pylint: disable=no-value-for-parameter
