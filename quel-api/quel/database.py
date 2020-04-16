@@ -58,12 +58,17 @@ class Database:
             question = session.query(Question).filter_by(qanta_id=qanta_id).first()
             return question.to_dict()
 
-    def get_autocorrect(self,text: str):
+    def get_autocorrect(self, text: str):
         with self._session_scope as session:
             lower_bound = text.lower()
-            upper_bound = text+chr(255)
-            results = session.query(Entity).filter(and_(Entity.name>=lower_bound,Entity.name<=upper_bound)).order_by(Entity.name).limit(5)
-            return [str(i) for i in results]            
+            upper_bound = text + chr(255)
+            results = (
+                session.query(Entity)
+                .filter(and_(Entity.name >= lower_bound, Entity.name <= upper_bound))
+                .order_by(Entity.name)
+                .limit(5)
+            )
+            return [str(i) for i in results]
 
 
 class Question(Base):
@@ -103,8 +108,9 @@ class Question(Base):
             "proto_id": self.proto_id,
             "qdb_id": self.proto_id,
             "dataset": self.dataset,
-            "tokens":self.tokens,
+            "tokens": self.tokens,
         }
+
 
 class Entity(Base):
     __tablename__ = "ENTITIES"
@@ -114,6 +120,7 @@ class Entity(Base):
     def __str__(self):
         return self.name
 
+
 class Mention:
     __tablename__ = "MENTIONS"
     entity = Column(String)
@@ -122,5 +129,3 @@ class Mention:
     end = Column(Integer)
     edited = Column(Integer)
     score = Column(Float)
-    
-
