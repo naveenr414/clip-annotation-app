@@ -21,6 +21,7 @@ def get_question(qanta_id: int):
     question_dict["entity_locations"] = all_entities[str(qanta_id)]["locations"]
     return question_dict
 
-@router.get('/api/qanta/autocorrect/{text}')
+
+@router.get("/api/qanta/autocorrect/{text}")
 def autocorrect(text: str):
     return db.get_autocorrect(text)
