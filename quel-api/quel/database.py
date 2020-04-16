@@ -2,7 +2,7 @@ import json
 import random
 from contextlib import contextmanager
 
-from sqlalchemy import Column, Integer, String, Boolean, Float, create_engine
+from sqlalchemy import Column, Integer, String, Boolean, Float, create_engine, and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -57,6 +57,13 @@ class Database:
         with self._session_scope as session:
             question = session.query(Question).filter_by(qanta_id=qanta_id).first()
             return question.to_dict()
+
+    def get_autocorrect(self,text: str):
+        with self._session_scope as session:
+            lower_bound = text.lower()
+            upper_bound = text+chr(255)
+            results = session.query(Entity).filter(and_(Entity.name>=lower_bound,Entity.name<=upper_bound)).order_by(Entity.name).limit(5)
+            return [str(i) for i in results]            
 
 
 class Question(Base):
