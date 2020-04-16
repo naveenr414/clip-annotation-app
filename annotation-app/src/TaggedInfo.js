@@ -100,7 +100,7 @@ export default class Annotation extends React.Component {
       <Typography style={{fontSize:30}}>  What entity is this: </Typography> 
       <Input style={{fontSize: 30}} value={this.state.value} onChange ={this.updateAutocorrect} />
                <Button style={{ fontSize: '30px' }} color="primary" onClick={this.sub}> 
-        Submit 
+        Save 
        </Button>
        <Button style={{ fontSize: '30px' }} color="primary" onClick={this.undo}> 
          Undo 
