@@ -1,6 +1,5 @@
 annotation-app/node_modules/
 annotation-app/src/data/
 .vscode
-quel-api/qanta.sqlite3
-quel-api/quel/data_files
+quel-api/data/
 api-entilzha/

@@ -2,7 +2,6 @@ import * as React from 'react';
 import Question from './Question';
 import './Question.css';
 import TextField from '@material-ui/core/TextField';
-import MyAutoSuggest from './AutoSuggest';
 import { Button, Input } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 
