@@ -2,7 +2,7 @@ import json
 import random
 from contextlib import contextmanager
 
-from sqlalchemy import Column, Integer, String, Boolean, create_engine
+from sqlalchemy import Column, Integer, String, Boolean, Float, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -77,6 +77,7 @@ class Question(Base):
     proto_id = Column(Integer)
     qdb_id = Column(Integer)
     dataset = Column(String)
+    tokens = Column(String)
 
     def to_dict(self):
         return {
@@ -95,4 +96,24 @@ class Question(Base):
             "proto_id": self.proto_id,
             "qdb_id": self.proto_id,
             "dataset": self.dataset,
+            "tokens":self.tokens,
         }
+
+class Entity(Base):
+    __tablename__ = "ENTITIES"
+    name = Column(String, primary_key=True)
+    link = Column(String)
+
+    def __str__(self):
+        return self.name
+
+class Mention:
+    __tablename__ = "MENTIONS"
+    entity = Column(String)
+    question_id = Column(Integer)
+    start = Column(Integer)
+    end = Column(Integer)
+    edited = Column(Integer)
+    score = Column(Float)
+    
+
