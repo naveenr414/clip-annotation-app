@@ -1,12 +1,14 @@
 from database import Question, Database, Entity, Mention
 import json
-import html
+from sqlalchemy import Table, Column, Integer, String, MetaData,create_engine
+from sqlalchemy.ext.declarative import declarative_base
+import click
 
+def write_questions(db,question_file="data/qanta.mapped.2018.04.18.json"):
+    info = json.loads(open(question_file).read())["questions"]
+    db.write_questions(info)
 
-def write_tokens(token_file, database):
-    conn = sqlite3.connect(database)
-    c = conn.cursor()
-
+def write_tokens(db,token_file="tmp/qanta_tokenized.json"):
     tokens = json.loads(open(token_file).read())
     by_qanta_id = {}
 
@@ -15,59 +17,38 @@ def write_tokens(token_file, database):
         if sent["qanta_id"] not in by_qanta_id:
             by_qanta_id[sent["qanta_id"]] = []
         by_qanta_id[sent["qanta_id"]].append(sent["tokens"])
-    for qanta_id in by_qanta_id:
-        c.execute(
-            "UPDATE QUESTIONS SET TOKENS=? WHERE QANTA_ID=?",
-            [json.dumps(by_qanta_id[qanta_id]), qanta_id],
-        )
-        if qanta_id % 1000 == 0:
-            print(qanta_id)
-    conn.commit()
-    conn.close()
 
+    db.add_tokens(by_qanta_id)
+        
 
-def write_entities(entity_location, database):
-    conn = sqlite3.connect(database)
-    c = conn.cursor()
+    return True
 
-    c.execute("CREATE TABLE ENTITIES (NAME TEXT, LINK TEXT)")
-
+def write_entities(db,entity_location="data/wikipedia-titles.2018.04.18.json"):
     entities = json.loads(open(entity_location).read())
-    total_entities = len(entities)
-
-    on = 0
-    written = 0
-
-    for i in entities:
-        name = html.unescape(i.replace("_", " "))
-        name = name.lower()
-
-        c.execute("INSERT OR IGNORE INTO ENTITIES (NAME,LINK) VALUES (?,?)", [name, i])
-        on += 1
-
-        if on % 1000 == 0:
-            print(on, total_entities)
-    conn.commit()
-    conn.close()
+    db.write_entities(entities)
+    return True
 
 
-def write_mentions(mention_location, database):
-    conn = sqlite3.connect(database)
-    c = conn.cursor()
-
+def write_mentions(db,mention_location="data/qanta.question_w_mentions.train.json"):
     mentions = json.loads(open(mention_location).read())
-    for mention in mentions:
-        question_id = mention["qanta_id"]
+    db.write_mentions(mentions)
 
-        for sentence in mention["mentions"]:
-            for entity in sentence:
-                start = entity["span"][0]
-                end = entity["span"][1]
-                score = entity["score"]
-                name = entity["entity"].replace("_", " ")
-                c.execute(
-                    "INSERT INTO MENTIONS (ENTITY,QUESTION_ID,START,END,EDITED,SCORE) VALUES (?,?,?,?,0,?)",
-                    [name, question_id, start, end, score],
-                )
-    conn.commit()
-    conn.close()
+    return True
+
+@click.command()
+def main():
+    
+    db = Database(find_questions=False)
+    db.create_all()
+    print("Writing questions")
+    write_questions(db)
+    print("Writing tokens")
+    write_tokens(db)
+    print("Writing entities")
+    write_entities(db)
+    print("Writing mentions")
+    write_mentions(db)
+
+if __name__ == "__main__":
+    main()  
+

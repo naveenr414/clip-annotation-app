@@ -17,8 +17,7 @@ def get_question(qanta_id: int):
     all_entities = json.loads(open("entity.json").read())
     question_dict = db.get_question_by_id(qanta_id)
     question_dict["text"] = question_dict["text"].replace(chr(160), " ")
-    question_dict["entities"] = all_entities[str(qanta_id)]["entities"]
-    question_dict["entity_locations"] = all_entities[str(qanta_id)]["locations"]
+    question_dict["entities"] = db.get_entities(qanta_id)
     return question_dict
 
 
