@@ -24,8 +24,6 @@ export default class Annotation extends React.Component {
       <div style={{marginTop: 50}}> 
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
         <Question question_id="1" /> 
-        <Question question_id="2" /> 
-        <Question question_id="3" /> 
       </div> 
     );
   }

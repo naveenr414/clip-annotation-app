@@ -63,8 +63,22 @@ class Database:
             question = session.query(Question).filter_by(qanta_id=qanta_id).first()
             return question.to_dict()
 
+    def flatten_tokens(self,question_dict):
+        tokens = json.loads(question_dict["tokens"])
+        sentences = question_dict["tokenizations"]
+
+        new_tokens = []
+        for i in range(len(tokens)):
+            for j in range(len(tokens[i])):
+                shift = sentences[i][0]
+                new_tokens.append({'start':tokens[i][j]['start']+shift,
+                                   'end':tokens[i][j]['end']+shift,
+                                   'text':tokens[i][j]['text']})
+        return new_tokens
+
     def get_autocorrect(self, text: str):
         with self._session_scope as session:
+            start = time.time()
             lower_bound = text.lower()
             upper_bound = text + chr(255)
             results = (
@@ -73,7 +87,10 @@ class Database:
                 .order_by(Entity.name)
                 .limit(5)
             )
-            return [str(i) for i in results]
+
+            l =[str(i) for i in results]
+            print("Took {} time to autocorrect".format(time.time()-start))
+            return l
 
     def write_questions(self,info):
         start = time.time()
@@ -132,36 +149,62 @@ class Database:
 
 
     def write_mentions(self,mentions):
-        start=  time.time()
+        start_time =  time.time()
         total_mentions = len(mentions)
         with self._session_scope as session:
             mention_list = []
             for i,mention in enumerate(mentions):
                 question_id = mention["qanta_id"]
 
-                for sentence in mention["mentions"]:
+                sentence_starts = mention["tokenizations"]
+                sentence_starts = [k[0] for k in sentence_starts]
+
+                for j,sentence in enumerate(mention["mentions"]):
                     for entity in sentence:
-                        start = entity["span"][0]
-                        end = entity["span"][1]
+                        start = entity["span"][0]+sentence_starts[j]
+                        end = entity["span"][1]+sentence_starts[j]
                         score = entity["score"]
-                        name = entity["entity"].replace("_", " ")
-                        mention_list.append({'start':start,'end':end,'score':score,'name':name,'question_id':question_id,'edited':0})
+                        name = entity["entity"].replace("_", " ").lower()
+                        mention_list.append({'start':start,'end':end,'score':score,'entity':name,'question_id':question_id,'edited':0})
 
             session.bulk_insert_mappings(Mention,mention_list)
 
-        print("Took {} time to write metions".format(time.time()-start))
+        print("Took {} time to write metions".format(time.time()-start_time))
 
     def get_entities(self,question_id):
         with self._session_scope as session:
             results =session.query(Mention).filter(Mention.question_id == question_id)
             l = results.all()
-            l = [{'start':i.start,'end':i.end,'entity':i.entity} for i in l]
+            l = [{'start':i.start,'end':i.end,'entity':i.entity,'id':i.mention_id,'score':i.score} for i in l]
             l = sorted(l,key=lambda x: x['start'])
             return l
 
 
     def create_all_tables(self):
         Base.metadata.create_all(self._engine)
+
+    def update_edited(self,mention_ids):
+        with self._session_scope as session:
+            session.query(Mention).filter(Mention.mention_id in mention_ids).update({"edited":1})
+
+    def write_new_mentions(self,mentions,question_id):
+        edited= 1
+        score = -1
+        with self._session_scope as session:
+            mention_list = []
+            for i in range(len(mentions)):
+                d = mentions[i]
+                d['entity'] = d['entity'].lower()
+                d['edited'] = edited
+                d['score'] = score
+                d['question_id'] = question_id
+                mention_list.append(d)
+            session.bulk_insert_mappings(Mention,mention_list)
+
+    def update_updated_mentions(self,update_list):
+        with self._session_scope as session:
+            for mention_id,new_entity in update_list:
+                session.query(Mention).filter(Mention.mention_id == mention_id).update({'entity':new_entity})
 
 class Question(Base):
     __tablename__ = "questions"
@@ -211,7 +254,7 @@ class Question(Base):
 class Entity(Base):
     __tablename__ = "entities"
     entity_id = Column(Integer,primary_key=True)
-    name = Column(String)
+    name = Column(String,index=True)
     link = Column(String)
 
     def __str__(self):
