@@ -1,3 +1,13 @@
+# QUEL Readme
+
+To run the frontend:
+
+1. Install `yarn`, `npm`, etc
+2. Inside of `annotation-app`, run `npm install`
+3. To start web server run `yarn start`
+
+# Copied Readme from React create-app
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

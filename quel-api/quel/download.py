@@ -8,9 +8,12 @@ import click
 S3_PATH = "https://s3-us-west-2.amazonaws.com/pinafore-us-west-2/qanta-jmlr-datasets/"
 FILES = [
     (S3_PATH + "qanta.2018.04.18.sqlite3", "data/qanta.2018.04.18.sqlite3"),
-    (S3_PATH+"qanta.mapped.2018.04.18.json","data/qanta.mapped.2018.04.18.json"),
-    (S3_PATH + "wikipedia/wikipedia-titles.2018.04.18.json","data/wikipedia/wikipedia-titles.2018.04.18.json"),
-    (S3_PATH + "qanta.mapped.2018.04.18.json","data/qanta.mapped.2018.04.18.json"),
+    (S3_PATH + "qanta.mapped.2018.04.18.json", "data/qanta.mapped.2018.04.18.json"),
+    (
+        S3_PATH + "wikipedia/wikipedia-titles.2018.04.18.json",
+        "data/wikipedia/wikipedia-titles.2018.04.18.json",
+    ),
+    (S3_PATH + "qanta.mapped.2018.04.18.json", "data/qanta.mapped.2018.04.18.json"),
 ]
 
 
