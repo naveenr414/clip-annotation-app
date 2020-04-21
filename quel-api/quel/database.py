@@ -1,4 +1,5 @@
 import json
+import time
 import random
 from contextlib import contextmanager
 import html
@@ -18,11 +19,12 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
-
 from sqlalchemy.orm.scoping import ScopedSession
 
-import time
+from quel.log import get_logger
 
+
+log = get_logger(__name__)
 
 Base = declarative_base()  # pylint: disable=invalid-name
 
@@ -107,7 +109,7 @@ class Database:
             )
 
             l = [str(i) for i in results]
-            print("Took {} time to autocorrect".format(time.time() - start))
+            log.info("Took %s time to autocorrect", time.time() - start)
             return l
 
     def write_questions(self, info):
@@ -127,7 +129,7 @@ class Database:
 
             session.bulk_insert_mappings(Question, question_list)
 
-        print("Took {} time to write questions".format(time.time() - start))
+        log.info("Took %s time to write questions", time.time() - start)
 
     def add_tokens(self, by_qanta_id):
         start = time.time()
@@ -144,15 +146,12 @@ class Database:
                 )
                 written += 1
 
-        print("Took {} time to write tokens".format(time.time() - start))
+        log.info("Took %s time to write tokens", time.time() - start)
 
     def write_entities(self, entities):
         start = time.time()
 
         with self._session_scope as session:
-            on = 0
-            total_entities = len(entities)
-
             entity_list = []
 
             for i in entities:
@@ -162,15 +161,14 @@ class Database:
 
             session.bulk_insert_mappings(Entity, entity_list)
 
-            print("Finished writing entities, now saving")
-        print("Took {} time to write entities".format(time.time() - start))
+            log.info("Finished writing entities, now saving")
+        log.info("Took %s time to write entities", time.time() - start)
 
     def write_mentions(self, mentions):
         start_time = time.time()
-        total_mentions = len(mentions)
         with self._session_scope as session:
             mention_list = []
-            for i, mention in enumerate(mentions):
+            for mention in mentions:
                 question_id = mention["qanta_id"]
 
                 sentence_starts = mention["tokenizations"]
@@ -195,7 +193,7 @@ class Database:
 
             session.bulk_insert_mappings(Mention, mention_list)
 
-        print("Took {} time to write metions".format(time.time() - start_time))
+        log.info("Took %s time to write mentions", time.time() - start_time)
 
     def get_entities(self, question_id):
         with self._session_scope as session:
@@ -228,13 +226,13 @@ class Database:
         score = -1
         with self._session_scope as session:
             mention_list = []
-            for i in range(len(mentions)):
-                d = mentions[i]
-                d["entity"] = d["entity"].lower()
-                d["edited"] = edited
-                d["score"] = score
-                d["question_id"] = question_id
-                mention_list.append(d)
+            for ment in mentions:
+                ment = ment.copy()
+                ment["entity"] = ment["entity"].lower()
+                ment["edited"] = edited
+                ment["score"] = score
+                ment["question_id"] = question_id
+                mention_list.append(ment)
             session.bulk_insert_mappings(Mention, mention_list)
 
     def update_updated_mentions(self, update_list):

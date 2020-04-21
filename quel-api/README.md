@@ -17,6 +17,15 @@ To preprocess the data for the web api, follow these instructions
 $ python quel/preprocess.py data/qanta.mapped.2018.04.18.json /tmp/qanta_tokenized.json
 ```
 
+## Populating the Database
+
+Before the web app will work, you'll need to populate the database with questions, mentions, and such.
+This can be accomplished by running
+
+```bash
+$ python quel/populate.py
+```
+
 ## Running
 
 To run the web API do:

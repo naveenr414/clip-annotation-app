@@ -1,17 +1,25 @@
-from database import Question, Database, Entity, Mention
 import json
+import click
+
 from sqlalchemy import Table, Column, Integer, String, MetaData, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-import click
+
+from quel.database import Question, Database, Entity, Mention
+from quel.log import get_logger
+
+
+log = get_logger(__name__)
 
 
 def write_questions(db, question_file="data/qanta.mapped.2018.04.18.json"):
-    info = json.loads(open(question_file).read())["questions"]
-    db.write_questions(info)
+    with open(question_file) as f:
+        questions = json.load(f)["questions"]
+    db.write_questions(questions)
 
 
-def write_tokens(db, token_file="tmp/qanta_tokenized.json"):
-    tokens = json.loads(open(token_file).read())
+def write_tokens(db, token_file="data/qanta_tokenized.json"):
+    with open(token_file) as f:
+        tokens = json.load(f)
     by_qanta_id = {}
 
     all_sentences = tokens["sentences"]
@@ -22,34 +30,33 @@ def write_tokens(db, token_file="tmp/qanta_tokenized.json"):
 
     db.add_tokens(by_qanta_id)
 
-    return True
-
 
 def write_entities(db, entity_location="data/wikipedia-titles.2018.04.18.json"):
-    entities = json.loads(open(entity_location).read())
+    with open(entity_location) as f:
+        entities = json.load(f)
     db.write_entities(entities)
-    return True
 
 
 def write_mentions(db, mention_location="data/qanta.question_w_mentions.train.json"):
-    mentions = json.loads(open(mention_location).read())
+    with open(mention_location) as f:
+        mentions = json.load(f)
     db.write_mentions(mentions)
-
-    return True
 
 
 @click.command()
 def main():
-
     db = Database(find_questions=False)
     db.create_all()
-    print("Writing questions")
+    log.info("Writing questions")
     write_questions(db)
-    print("Writing tokens")
+
+    log.info("Writing tokens")
     write_tokens(db)
-    print("Writing entities")
+
+    log.info("Writing entities")
     write_entities(db)
-    print("Writing mentions")
+
+    log.info("Writing mentions")
     write_mentions(db)
 
 
