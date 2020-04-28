@@ -43,7 +43,7 @@ class Database:
                 ]
 
     def create_all(self):
-        Base.metadata.create_all(self._engine)
+        Base.metadata.create_all(self._engine,checkfirst=True)
 
     def drop_all(self):
         Base.metadata.drop_all(self._engine)
@@ -242,6 +242,23 @@ class Database:
                     {"entity": new_entity}
                 )
 
+    def get_password(self,email):
+        with self._session_scope as session:
+            results = session.query(User).filter(User.email == email).first()
+
+            if results:
+                return results.password
+            return None
+
+    def insert_email_password(self,email,password):
+        with self._session_scope as session:
+            session.bulk_insert_mappings(User, [{'email':email,'password':password}])
+            return True
+
+    def get_all_emails(self):
+        with self._session_scope as session:
+            return [i.email for i in list(session.query(User).all())]
+
 
 class Question(Base):
     __tablename__ = "questions"
@@ -307,3 +324,11 @@ class Mention(Base):
     end = Column(Integer)
     edited = Column(Integer)
     score = Column(Float)
+
+class User(Base):
+    __tablename__ = "users"
+    email = Column(String,primary_key=True)
+    password = Column(String)
+
+    def __str__(self):
+        return self.email 

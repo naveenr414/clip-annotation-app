@@ -96,12 +96,12 @@ export default class Annotation extends React.Component {
   getInput = () => {
     if(this.props.tags.length>0){ 
       return <div > 
-      <Typography style={{fontSize:30}}>  What entity is this: </Typography> 
-      <Input style={{fontSize: 30}} value={this.state.value} onChange ={this.updateAutocorrect} />
-               <Button style={{ fontSize: '30px' }} color="primary" onClick={this.sub}> 
+      <Typography style={{fontSize:24}}>  What entity is this: </Typography> 
+      <Input style={{fontSize: 24}} value={this.state.value} onChange ={this.updateAutocorrect} />
+               <Button style={{ fontSize: 24 }} color="primary" onClick={this.sub}> 
         Save 
        </Button>
-       <Button style={{ fontSize: '30px' }} color="primary" onClick={this.undo}> 
+       <Button style={{ fontSize: 24 }} color="primary" onClick={this.undo}> 
          Undo 
        </Button>     
 
@@ -128,7 +128,7 @@ export default class Annotation extends React.Component {
   render () {
     return (
       <div> 
-        <Typography color="textSecondary" style={{fontSize: 30}}>
+        <Typography color="textSecondary" style={{fontSize: 24}}>
           {this.getStatus()} {this.getTags()} 
         </Typography> 
          {this.getInput()}

@@ -1,7 +1,7 @@
 import json
 from fastapi import APIRouter
 from quel.database import Database
-
+import quel.security as security 
 
 db = Database()
 router = APIRouter()
@@ -14,6 +14,7 @@ def get_random_question():
 
 @router.get("/api/qanta/v1/{qanta_id}")
 def get_question(qanta_id: int):
+    
     question_dict = db.get_question_by_id(qanta_id)
 
     CUTOFF = 0.2

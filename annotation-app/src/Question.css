@@ -1,9 +1,9 @@
  .Question {
-  padding-left: 20px;
-  padding-bottom: 20px;
+  padding-left: 50px;
+  padding-bottom: 50px;
   padding-top: 20px;
-  padding-right: 20px;
-  font-size: 30px;
+  padding-right: 50px;
+  font-size: 24px;
 }
 
 
@@ -15,12 +15,12 @@
 }
 
 .QuestionText {
-  font-size: 36px;
+  font-size: 24px;
 }
 
 
 .ellipse{
-  font-size : 36px !important; 
+  font-size : 24px !important; 
  
 }
 
@@ -31,9 +31,9 @@ Mark {
 }
 
 .chip {
-  font-size: 30px !important;
-  padding-bottom: 20px !important; 
-  padding-top: 20px !important;
-  height: 20px !important;
+  font-size: 24px !important;
+  padding-bottom: 10px !important; 
+  padding-top: 10px !important;
+  height: 30px !important;
   margin-right: 10px !important;
 }

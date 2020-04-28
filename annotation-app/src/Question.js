@@ -7,16 +7,18 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Typography from '@material-ui/core/Typography';
 
 
 export default class Question extends React.Component {  
   state = {
     tournament: "",
     entities: [],
+    entity_locations: [],
     question_text: "",
     question_id: 0,
     answer: "",
-    entity_locations: [],
+    tokens: [],
     currently_tagged: [],
     current_entity: "",
     preview: true,
@@ -32,6 +34,7 @@ export default class Question extends React.Component {
           tournament: result["tournament"],
           entities: result["entities"],
           entity_locations: result["entity_locations"],
+          tokens: result["tokens"],
         });
       }
     );
@@ -87,11 +90,20 @@ export default class Question extends React.Component {
     e.target.style.fontWeight = 'normal';
   }
   
-  add_words_between = (l,a,b) => {
+  titleCase = (string) => {
+    var sentence = string.toLowerCase().split(" ");
+    for(var i = 0; i< sentence.length; i++){
+       sentence[i] = sentence[i][0].toUpperCase() + sentence[i].slice(1);
+       sentence[i] = sentence[i][0]=="("?"("+sentence[i][1].toUpperCase()+sentence[i].slice(2):sentence[i];
+    }
+   return sentence.join(" ");
+  }
+  
+  add_tokens_between = (l,spaces,a,b) => {
     let s = "";
     for(var i = a;i<=b;i++) {
       s+=l[i];
-      if(i!==b) {
+      if(i!==b && spaces[i]) {
         s+=" ";
       }
     }
@@ -107,21 +119,40 @@ export default class Question extends React.Component {
     let entity_color = "primary";
     let tagged_color = "secondary";
     
-    let words = this.state.question_text.split(" ");
+    let tokens = [];
+    let has_space = [];
+        
+    for(let i = 0;i<this.state.tokens.length;i++) {
+      tokens.push(this.state.tokens[i]["text"]);
+      if(i == this.state.tokens.length-1 || this.state.tokens[i]["end"]!=this.state.tokens[i+1]["start"]) {
+        has_space.push(true);
+      }
+      else {
+        has_space.push(false);
+      } 
+    }
+        
     var entity_pointer = 0;
     let entity_list = this.state.entity_locations;
     var entity_length = entity_list.length;
-        
+            
     let all_tags = [];
     
     if(this.state.preview) {
-      words = words.splice(0,20);
+      tokens = tokens.splice(0,20);
     }
-    
+            
     // Loop through each of the words
     // Write it out as an HTML tag 
     let i = 0;
-    while(i<words.length) {
+    
+    console.log(tokens);
+    console.log(entity_list);
+    
+    while(i<tokens.length) {
+      let current_token = tokens[i];
+      
+      console.log(i);
       
       let is_entity = entity_length>entity_pointer; 
       is_entity=is_entity && entity_list[entity_pointer][0] == i;
@@ -131,9 +162,9 @@ export default class Question extends React.Component {
       
       if(is_entity) {
         // Create a list of words with the entity itself 
-        let word = this.add_words_between(words,entity_list[entity_pointer][0],
+        let word = this.add_tokens_between(tokens,has_space,entity_list[entity_pointer][0],
         entity_list[entity_pointer][1]);        
-        word+="(" + this.state.entities[entity_pointer]+ ")";
+        word+=" (" + this.titleCase(this.state.entities[entity_pointer])+ ")";
         i = entity_list[entity_pointer][1]+1;
                 
         let ret = <Chip label={word} 
@@ -146,7 +177,7 @@ export default class Question extends React.Component {
         all_tags.push(ret);
       }
       else if(currently_tagged) {        
-        let word = this.add_words_between(words, this.state.currently_tagged[0],this.state.currently_tagged[1]);
+        let word = this.add_tokens_between(tokens, has_space,this.state.currently_tagged[0],this.state.currently_tagged[1]);
         i = this.state.currently_tagged[1]+1;
         let ret = <Chip label={word} 
           className="chip"
@@ -155,12 +186,17 @@ export default class Question extends React.Component {
         all_tags.push(ret);
       }
       else {
+        let space = "";
+        if(has_space[i]) {
+            space = " ";
+        }
+
         let ret=<span key={i} 
         onMouseEnter={this.changeBold} 
         onMouseLeave={this.changeUnbold} 
         style={{backgroundColor: "white"}} 
         onClick={this.run_local(i,this.addToTag)}> 
-          {words[i]+" "} 
+          {tokens[i]+space} 
         </span> ;
         i+=1;
         all_tags.push(ret);
@@ -240,27 +276,31 @@ export default class Question extends React.Component {
     }
   }
   
+  get_entities = () => {
+    let ret = []
+    for(var i = 0;i<this.state.entities.length;i++) {
+      ret.push(<Chip label={this.state.entities[i]} 
+          style={{fontSize: 24, marginRight: 20, paddingBottom: 10, paddingTop: 10}} 
+          color="primary" />);
+    }
+    
+    return ret; 
+  }
+  
   render () {
     return (
       <div className="Question">
       <Card variant="outlined"> 
         <CardContent> 
-        <Chip label={"Tournament: "+this.state.tournament} 
-          style={{fontSize: 30, marginRight: 20, paddingBottom: 10, paddingTop: 10}} 
-          color="secondary" />
-        <Chip label={"Answer: "+this.state.answer} 
-          style={{fontSize: 30, marginRight: 20, paddingBottom: 10, paddingTop: 10}} 
-          color="secondary" />
-        <br /> 
-        <Chip label={"Entities: "+this.state.entities.join(",")} 
-          style={{fontSize: 30, marginRight: 20, paddingBottom: 10, paddingTop: 10}} 
-          color="primary" />
-        <br /> 
+          <Typography style={{fontSize: 24,}}> <span style={{fontWeight:"bold"}}> Tournament: </span> {this.state.tournament} </Typography> 
+          <Typography style={{fontSize: 24,}}> <span style={{fontWeight:"bold"}}> Answer: </span> {this.state.answer} </Typography> 
+        <Typography style={{fontSize: 24}}> Entities: {this.get_entities()} </Typography>
+        
         <TaggedInfo callbackFunction={this.callbackFunction} question_text={this.state.question_text} tags={this.state.currently_tagged} entity={this.state.current_entity} /> 
-        <br />
         
         <div className="QuestionText">
           {this.get_question()} 
+
           <br /> 
            <IconButton
             style={{transform: this.get_rotation()}}
