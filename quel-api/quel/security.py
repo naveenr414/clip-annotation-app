@@ -5,7 +5,7 @@ from quel.database import Database
 from passlib.context import CryptContext
 import jwt
 from datetime import datetime, timedelta
-from security_config import *
+from quel.security_config import *
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
