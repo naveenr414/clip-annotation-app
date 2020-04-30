@@ -33,7 +33,8 @@ def authenticate_user(username,password):
     return verify_password(password,hashed_password)
 
 def decode_token(token):
-    return token 
+    decoded_jwt = jwt.decode(token,SECRET_KEY,algorithm=ALGORITHM)
+    return decoded_jwt['sub']
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     print("Token {}".format(token))
@@ -53,6 +54,9 @@ async def read_users_me(current_user: str = Depends(get_current_user)):
 @router.post("/")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     print("Got request!")
+
+    print(form_data.username,form_data.password)
+    
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(

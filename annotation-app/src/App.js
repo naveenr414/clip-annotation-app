@@ -6,7 +6,7 @@ import Login from './Login';
 import { Link, BrowserRouter  as Router, Switch, Route } from 'react-router-dom';
 
 
-function App() {
+function App() {  
   return (
   <Router>
     <Switch>

@@ -5,7 +5,7 @@ import './Question.css';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import { Link, BrowserRouter  as Router, Switch, Route } from 'react-router-dom';
+import { Redirect, Link, BrowserRouter  as Router, Switch, Route } from 'react-router-dom';
 
 
 export default class Annotation extends React.Component {  
@@ -23,9 +23,21 @@ export default class Annotation extends React.Component {
        entity: 'Cajal Bodies'
     });
   }
+  
+  logout = () => {
+    window.sessionStorage.removeItem('token');
+    alert("Logged out");
+  }
 
 
   render () {
+  
+    console.log("Token "+window.sessionStorage.getItem('token'));
+  
+    if(window.sessionStorage.getItem('token') == null) {
+      return ( <Redirect to="/login" />); 
+    }
+ 
     return (
       
       <div> 
@@ -34,6 +46,7 @@ export default class Annotation extends React.Component {
             <Router> 
               <Typography style={{fontSize: 24}}> Home </Typography>
               <Typography style={{fontSize: 24, color: "white"}}> <a href="/login">  Login </a> </Typography> 
+              <Typography style={{fontSize: 24, color: "white"}} onClick={this.logout}>  Logout </Typography> 
             </Router> 
           </Toolbar> 
         </AppBar> 

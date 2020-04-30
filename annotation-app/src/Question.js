@@ -287,6 +287,16 @@ export default class Question extends React.Component {
     return ret; 
   }
   
+  getUsername = () => {
+    return fetch("http://localhost:8000/token/users/me",{method:'GET',headers:{'accept':'application/json',
+    'Authorization':'Bearer '+window.sessionStorage.getItem('token')}})
+      .then(res=>res.json())
+      .then((result) => {
+        return result;
+      }
+    );
+  }
+  
   render () {
     return (
       <div className="Question">
