@@ -28,7 +28,7 @@ def write_tokens(db, token_file="data/qanta_tokenized.json"):
             by_qanta_id[sent["qanta_id"]] = []
         by_qanta_id[sent["qanta_id"]].append(sent["tokens"])
 
-    db.add_tokens(by_qanta_id)
+    db.write_tokens(by_qanta_id)
 
 
 def write_entities(db, entity_location="data/wikipedia-titles.2018.04.18.json"):

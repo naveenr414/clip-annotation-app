@@ -131,17 +131,18 @@ class Database:
 
         log.info("Took %s time to write questions", time.time() - start)
 
-    def add_tokens(self, by_qanta_id):
+    def write_tokens(self, id_to_tokens):
         start = time.time()
 
         with self._session_scope as session:
-            total_tokens = len(by_qanta_id)
+            total_tokens = len(id_to_tokens)
             written = 0
 
             for qanta_id in by_qanta_id:
                 question_id = qanta_id
                 tokens = json.dumps(by_qanta_id[qanta_id])
-                session.query(Question).filter(Question.qanta_id == question_id).update(
+                session.query(Question).filter(
+                    Question.qanta_id == question_id).update(
                     {"tokens": tokens}
                 )
                 written += 1
@@ -161,7 +162,6 @@ class Database:
 
             session.bulk_insert_mappings(Entity, entity_list)
 
-            log.info("Finished writing entities, now saving")
         log.info("Took %s time to write entities", time.time() - start)
 
     def write_mentions(self, mentions):
@@ -212,18 +212,22 @@ class Database:
             l = sorted(l, key=lambda x: x["start"])
             return l
 
-    def create_all_tables(self):
-        Base.metadata.create_all(self._engine)
-
-    def update_edited(self, mention_ids):
+    def edited_mentions(self, mention_ids):
         with self._session_scope as session:
             session.query(Mention).filter(Mention.mention_id in mention_ids).update(
                 {"edited": 1}
             )
 
+    def deleted_mentions(self, mention_ids):
+        with self._session_scope as session:
+            session.query(Mention).filter(Mention.mention_id in mention_ids).update(
+                {"deleted": 1}
+            )
+
     def write_new_mentions(self, mentions, question_id):
         edited = 1
         score = -1
+        deleted = -1
         with self._session_scope as session:
             mention_list = []
             for ment in mentions:
@@ -232,20 +236,13 @@ class Database:
                 ment["edited"] = edited
                 ment["score"] = score
                 ment["question_id"] = question_id
+                ment["deleted"] = deleted
                 mention_list.append(ment)
             session.bulk_insert_mappings(Mention, mention_list)
-
-    def update_updated_mentions(self, update_list):
-        with self._session_scope as session:
-            for mention_id, new_entity in update_list:
-                session.query(Mention).filter(Mention.mention_id == mention_id).update(
-                    {"entity": new_entity}
-                )
 
     def get_password(self,email):
         with self._session_scope as session:
             results = session.query(User).filter(User.email == email).first()
-
             if results:
                 return results.password
             return None
@@ -254,10 +251,6 @@ class Database:
         with self._session_scope as session:
             session.bulk_insert_mappings(User, [{'email':email,'password':password}])
             return True
-
-    def get_all_emails(self):
-        with self._session_scope as session:
-            return [i.email for i in list(session.query(User).all())]
 
 
 class Question(Base):
