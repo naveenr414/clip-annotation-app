@@ -138,9 +138,9 @@ class Database:
             total_tokens = len(id_to_tokens)
             written = 0
 
-            for qanta_id in by_qanta_id:
+            for qanta_id in id_to_tokens:
                 question_id = qanta_id
-                tokens = json.dumps(by_qanta_id[qanta_id])
+                tokens = json.dumps(id_to_tokens[qanta_id])
                 session.query(Question).filter(
                     Question.qanta_id == question_id).update(
                     {"tokens": tokens}
@@ -164,8 +164,11 @@ class Database:
 
         log.info("Took %s time to write entities", time.time() - start)
 
-    def write_mentions(self, mentions):
+    def write_mentions(self, mentions,source_name):
         start_time = time.time()
+
+        self.insert_email_password(source_name,"")
+        
         with self._session_scope as session:
             mention_list = []
             for mention in mentions:
@@ -187,7 +190,9 @@ class Database:
                                 "score": score,
                                 "entity": name,
                                 "question_id": question_id,
-                                "edited": 0,
+                                "deleted": 0,
+                                "user_id": source_name,
+                                "machine_tagged": 1
                             }
                         )
 
@@ -197,46 +202,82 @@ class Database:
 
     def get_entities(self, question_id):
         with self._session_scope as session:
-            results = session.query(Mention).filter(Mention.question_id == question_id)
-            l = results.all()
-            l = [
+            results = session.query(Mention).filter(Mention.question_id == question_id).filter(Mention.deleted != 1)
+            CUTOFF = 0.2
+
+            question_dict = self.get_question_by_id(question_id)
+            new_tokens = self.flatten_tokens(question_dict)
+
+            results = results.all()
+            results = [
                 {
                     "start": i.start,
                     "end": i.end,
                     "entity": i.entity,
                     "id": i.mention_id,
                     "score": i.score,
+                    "machine_tagged":i.machine_tagged
                 }
-                for i in l
+                for i in results
             ]
-            l = sorted(l, key=lambda x: x["start"])
-            return l
+            results = sorted(results, key=lambda x: x["start"])
+            results = [i for i in results if i["machine_tagged"]!=1 or i["score"]>CUTOFF]
 
-    def edited_mentions(self, mention_ids):
+            entity_list = []
+            entity_locations = []
+            entity_ids = []
+            entity_pointer = 0
+            i = 0
+            while i < len(new_tokens) and entity_pointer < len(results):
+
+                while (
+                    entity_pointer < len(results)
+                    and results[entity_pointer]["start"]
+                    < new_tokens[i]["start"]
+                ):
+                    entity_pointer += 1
+
+                if entity_pointer == len(results):
+                    break
+
+                if results[entity_pointer]["start"] == new_tokens[i]["start"]:
+                    start = i
+                    while (
+                        results[entity_pointer]["end"] > new_tokens[i]["end"]
+                    ):
+                        i += 1
+                    end = i
+
+                    entity_list.append(results[entity_pointer]["entity"])
+                    entity_locations.append([start, end])
+                    entity_ids.append(results[entity_pointer]["id"])
+
+                    entity_pointer += 1
+                    i += 1
+                else:
+                    i += 1
+
+            return entity_list, entity_locations, entity_ids
+
+
+    def delete_mentions(self, mention_ids):
         with self._session_scope as session:
-            session.query(Mention).filter(Mention.mention_id in mention_ids).update(
-                {"edited": 1}
-            )
+            for i in mention_ids:
+                session.query(Mention).filter(Mention.mention_id==i).update(
+                    {"deleted": 1}
+                    )
 
-    def deleted_mentions(self, mention_ids):
-        with self._session_scope as session:
-            session.query(Mention).filter(Mention.mention_id in mention_ids).update(
-                {"deleted": 1}
-            )
-
-    def write_new_mentions(self, mentions, question_id):
-        edited = 1
-        score = -1
-        deleted = -1
+    def write_new_mentions(self, mentions, question_id,user_id):
         with self._session_scope as session:
             mention_list = []
             for ment in mentions:
                 ment = ment.copy()
                 ment["entity"] = ment["entity"].lower()
-                ment["edited"] = edited
-                ment["score"] = score
+                ment["score"] = 0
                 ment["question_id"] = question_id
-                ment["deleted"] = deleted
+                ment["deleted"] = 0
+                ment["machine_tagged"] = 0
+                ment["user_id"] = user_id
                 mention_list.append(ment)
             session.bulk_insert_mappings(Mention, mention_list)
 
@@ -249,9 +290,14 @@ class Database:
 
     def insert_email_password(self,email,password):
         with self._session_scope as session:
-            session.bulk_insert_mappings(User, [{'email':email,'password':password}])
-            return True
+            if not session.query(User).filter(User.email == email).first():
+                session.bulk_insert_mappings(User, [{'email':email,'password':password}])
+                return True
+            return False 
 
+    def reset_users(self):
+        with self._session_scope as session:
+            session.query(User).filter(User.password!='').delete()
 
 class Question(Base):
     __tablename__ = "questions"
@@ -315,8 +361,10 @@ class Mention(Base):
     question_id = Column(Integer, ForeignKey("questions.qanta_id"))
     start = Column(Integer)
     end = Column(Integer)
-    edited = Column(Integer)
     score = Column(Float)
+    machine_tagged = Column(Integer)
+    user_id = Column(String,ForeignKey("users.email"))
+    deleted = Column(Integer)
 
 class User(Base):
     __tablename__ = "users"

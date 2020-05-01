@@ -1,8 +1,11 @@
 import json
 import click
+import os
+import sys
 
 from sqlalchemy import Table, Column, Integer, String, MetaData, create_engine
 from sqlalchemy.ext.declarative import declarative_base
+
 
 from quel.database import Question, Database, Entity, Mention
 from quel.log import get_logger
@@ -40,7 +43,7 @@ def write_entities(db, entity_location="data/wikipedia-titles.2018.04.18.json"):
 def write_mentions(db, mention_location="data/qanta.question_w_mentions.train.json"):
     with open(mention_location) as f:
         mentions = json.load(f)
-    db.write_mentions(mentions)
+    db.write_mentions(mentions,"tagme")
 
 
 @click.command()

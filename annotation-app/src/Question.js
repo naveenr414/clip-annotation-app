@@ -214,6 +214,7 @@ export default class Question extends React.Component {
     xhr.send(JSON.stringify({ question_id: question_id,
       word_numbers:word_locations,
       entities: entity_list,
+      user_id: window.sessionStorage.getItem("token"),
     }));  
   }
 

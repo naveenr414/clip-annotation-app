@@ -27,13 +27,12 @@ export default class Annotation extends React.Component {
   logout = () => {
     window.sessionStorage.removeItem('token');
     alert("Logged out");
+    this.setState({});
   }
 
 
   render () {
-  
-    console.log("Token "+window.sessionStorage.getItem('token'));
-  
+    
     if(window.sessionStorage.getItem('token') == null) {
       return ( <Redirect to="/login" />); 
     }

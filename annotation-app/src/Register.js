@@ -1,7 +1,7 @@
-import React from 'react';  
-import {Redirect, Link} from 'react-router-dom';
+ import React from 'react';  
+import {Redirect} from 'react-router-dom';
 
-export default class Login extends React.Component {
+export default class Register extends React.Component {
   constructor(props) {
     super(props);
     this.state = {username: '',
@@ -22,7 +22,7 @@ export default class Login extends React.Component {
   
   handleSubmit(event) {
     let data = 'username='+encodeURIComponent(this.state.username)+'&password='+encodeURIComponent(this.state.password);
-    fetch('http://localhost:8000/token', {
+    fetch('http://localhost:8000/token/register', {
       method: 'POST',
       headers: {'Content-Type': 'application/x-www-form-urlencoded',
       'accept':'application/json'},
@@ -50,11 +50,8 @@ export default class Login extends React.Component {
     }
     
    return (
-   
       <form onSubmit={this.handleSubmit}>
-      <h3> Login </h3> 
-      
-        <a href="/register"> Register here! </a> 
+        <h3> Register </h3> 
         <label>
           Email:   
 
