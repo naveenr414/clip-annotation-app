@@ -26,7 +26,6 @@ export default class Annotation extends React.Component {
   
   logout = () => {
     window.sessionStorage.removeItem('token');
-    alert("Logged out");
     this.setState({});
   }
 
@@ -43,9 +42,9 @@ export default class Annotation extends React.Component {
         <AppBar position="static">
           <Toolbar>
             <Router> 
-              <Typography style={{fontSize: 24}}> Home </Typography>
-              <Typography style={{fontSize: 24, color: "white"}}> <a href="/login">  Login </a> </Typography> 
-              <Typography style={{fontSize: 24, color: "white"}} onClick={this.logout}>  Logout </Typography> 
+              <Typography style={{fontSize: 24,marginLeft: 50,}}> <Link href="/" style={{color:"white", textDecoration: "none", textAlign: "right"}}> Home </Link> </Typography>
+              <Typography style={{fontSize: 24, marginLeft: 50,}}> <Link href="/login" style={{color:"white", textDecoration: "none", textAlign: "right"}}>  Login </Link> </Typography> 
+              <Typography style={{fontSize: 24, marginLeft: 50,}}> <Link onClick={this.logout} href="/login" style={{color:"white", textDecoration: "none", textAlign: "right"}}>  Logout </Link> </Typography> 
             </Router> 
           </Toolbar> 
         </AppBar> 
