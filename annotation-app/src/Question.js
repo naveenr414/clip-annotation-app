@@ -163,26 +163,32 @@ export default class Question extends React.Component {
       if(is_entity) {
         // Create a list of words with the entity itself 
         let word = this.add_tokens_between(tokens,has_space,entity_list[entity_pointer][0],
-        entity_list[entity_pointer][1]);        
-        word+=" (" + this.titleCase(this.state.entities[entity_pointer])+ ")";
+        entity_list[entity_pointer][1]);  
+        
+        let e = this.titleCase(this.state.entities[entity_pointer]);
+        
+        //word+=" (" + this.titleCase(this.state.entities[entity_pointer])+ ")";
         i = entity_list[entity_pointer][1]+1;
                 
-        let ret = <Chip label={word} 
+        let ret = (<div style={{height: 75}}> <div class="half"> <span                 style={{backgroundColor: "white"}} 
+> 
+{word} 
+        </span> </div> <div class="half"> <Chip label={e} 
           className="chip"
           onClick={this.run_local(entity_pointer,this.editEntity)}  
           key={i-1} 
           onDelete={this.run_local(entity_pointer,this.deleteEntity)} 
-          color={entity_color}/>
+          color={entity_color}/>  </div>  </div>);
         entity_pointer+=1;
         all_tags.push(ret);
       }
       else if(currently_tagged) {        
         let word = this.add_tokens_between(tokens, has_space,this.state.currently_tagged[0],this.state.currently_tagged[1]);
         i = this.state.currently_tagged[1]+1;
-        let ret = <Chip label={word} 
+        let ret = (<div style={{height: 75}}> <div class="half"> <Chip label={word} 
           className="chip"
           key={i-1}
-          color={tagged_color} /> 
+          color={tagged_color} />  </div> <div class="half"> </div> </div>);
         all_tags.push(ret);
       }
       else {
@@ -191,13 +197,13 @@ export default class Question extends React.Component {
             space = " ";
         }
 
-        let ret=<span key={i} 
+        let ret= (<div style={{height: 75}}> <div class="half"> <span key={i} 
         onMouseEnter={this.changeBold} 
         onMouseLeave={this.changeUnbold} 
         style={{backgroundColor: "white"}} 
         onClick={this.run_local(i,this.addToTag)}> 
           {tokens[i]+space} 
-        </span> ;
+        </span> </div> <div class="half"> </div> </div>) ;
         i+=1;
         all_tags.push(ret);
       }

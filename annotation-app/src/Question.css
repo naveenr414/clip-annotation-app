@@ -16,6 +16,8 @@
 
 .QuestionText {
   font-size: 24px;
+  display: grid;
+  grid-template-columns: 125px 125px 125px 125px 125px 125px 125px 125px;
 }
 
 
@@ -28,6 +30,10 @@ Mark {
   width: 100%;
   border-radius: 20px;
   padding-right: 5px;
+}
+
+.half {
+  height: 50%;
 }
 
 .chip {
