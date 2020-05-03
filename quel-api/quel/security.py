@@ -5,7 +5,7 @@ from quel.database import Database
 from passlib.context import CryptContext
 import jwt
 from datetime import datetime, timedelta
-from quel.security_config import *
+import quel.security_config_dev as security_config
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token/")
@@ -20,7 +20,7 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, security_config.SECRET_KEY, algorithm=security_config.ALGORITHM)
     return encoded_jwt
 
 def verify_password(plain_password, hashed_password):
@@ -33,7 +33,7 @@ def authenticate_user(username,password):
     return verify_password(password,hashed_password)
 
 def decode_token(token):
-    decoded_jwt = jwt.decode(token,SECRET_KEY,algorithm=ALGORITHM)
+    decoded_jwt = jwt.decode(token,security_config.SECRET_KEY,algorithm=security_config.ALGORITHM)
     return decoded_jwt['sub']
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
@@ -59,7 +59,7 @@ def get_access_token(form_data):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=security_config.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": form_data.username}, expires_delta=access_token_expires
     )
