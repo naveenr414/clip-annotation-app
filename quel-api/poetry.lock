@@ -325,9 +325,6 @@ parso = ">=0.5.2"
 qa = ["flake8 (3.7.9)"]
 testing = ["colorama (0.4.1)", "docopt", "pytest (>=3.9.0,<5.0.0)"]
 
-[package.dependencies]
-cryptography = ">=2.2.2,<3"
-
 [[package]]
 category = "dev"
 description = "A fast and thorough lazy object proxy."
