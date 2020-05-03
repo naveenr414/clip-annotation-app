@@ -3,7 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from quel import entity
 from quel import qanta
-from quel import security 
+from quel import security
 
 
 app = FastAPI()
@@ -22,4 +22,4 @@ app.add_middleware(
 
 app.include_router(entity.router, prefix="/api/entity/v1")
 app.include_router(qanta.router, prefix="/api/qanta/v1")
-app.include_router(security.router,prefix="/token")
+app.include_router(security.router, prefix="/token")

@@ -43,7 +43,7 @@ def write_entities(db, entity_location="data/wikipedia-titles.2018.04.18.json"):
 def write_mentions(db, mention_location="data/qanta.question_w_mentions.train.json"):
     with open(mention_location) as f:
         mentions = json.load(f)
-    db.write_mentions(mentions,"tagme")
+    db.write_mentions(mentions, "tagme")
 
 
 @click.command()

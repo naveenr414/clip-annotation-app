@@ -1,7 +1,7 @@
 import json
 from fastapi import APIRouter
 from quel.database import Database
-import quel.security as security 
+import quel.security as security
 
 db = Database()
 router = APIRouter()

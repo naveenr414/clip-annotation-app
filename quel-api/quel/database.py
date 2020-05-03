@@ -43,7 +43,7 @@ class Database:
                 ]
 
     def create_all(self):
-        Base.metadata.create_all(self._engine,checkfirst=True)
+        Base.metadata.create_all(self._engine, checkfirst=True)
 
     def drop_all(self):
         Base.metadata.drop_all(self._engine)
@@ -141,8 +141,7 @@ class Database:
             for qanta_id in id_to_tokens:
                 question_id = qanta_id
                 tokens = json.dumps(id_to_tokens[qanta_id])
-                session.query(Question).filter(
-                    Question.qanta_id == question_id).update(
+                session.query(Question).filter(Question.qanta_id == question_id).update(
                     {"tokens": tokens}
                 )
                 written += 1
@@ -164,11 +163,11 @@ class Database:
 
         log.info("Took %s time to write entities", time.time() - start)
 
-    def write_mentions(self, mentions,source_name):
+    def write_mentions(self, mentions, source_name):
         start_time = time.time()
 
-        self.insert_email_password(source_name,"")
-        
+        self.insert_email_password(source_name, "")
+
         with self._session_scope as session:
             mention_list = []
             for mention in mentions:
@@ -192,7 +191,7 @@ class Database:
                                 "question_id": question_id,
                                 "deleted": 0,
                                 "user_id": source_name,
-                                "machine_tagged": 1
+                                "machine_tagged": 1,
                             }
                         )
 
@@ -202,7 +201,11 @@ class Database:
 
     def get_entities(self, question_id):
         with self._session_scope as session:
-            results = session.query(Mention).filter(Mention.question_id == question_id).filter(Mention.deleted != 1)
+            results = (
+                session.query(Mention)
+                .filter(Mention.question_id == question_id)
+                .filter(Mention.deleted != 1)
+            )
             CUTOFF = 0.2
 
             question_dict = self.get_question_by_id(question_id)
@@ -216,12 +219,14 @@ class Database:
                     "entity": i.entity,
                     "id": i.mention_id,
                     "score": i.score,
-                    "machine_tagged":i.machine_tagged
+                    "machine_tagged": i.machine_tagged,
                 }
                 for i in results
             ]
             results = sorted(results, key=lambda x: x["start"])
-            results = [i for i in results if i["machine_tagged"]!=1 or i["score"]>CUTOFF]
+            results = [
+                i for i in results if i["machine_tagged"] != 1 or i["score"] > CUTOFF
+            ]
 
             entity_list = []
             entity_locations = []
@@ -232,8 +237,7 @@ class Database:
 
                 while (
                     entity_pointer < len(results)
-                    and results[entity_pointer]["start"]
-                    < new_tokens[i]["start"]
+                    and results[entity_pointer]["start"] < new_tokens[i]["start"]
                 ):
                     entity_pointer += 1
 
@@ -242,9 +246,7 @@ class Database:
 
                 if results[entity_pointer]["start"] == new_tokens[i]["start"]:
                     start = i
-                    while (
-                        results[entity_pointer]["end"] > new_tokens[i]["end"]
-                    ):
+                    while results[entity_pointer]["end"] > new_tokens[i]["end"]:
                         i += 1
                     end = i
 
@@ -259,15 +261,14 @@ class Database:
 
             return entity_list, entity_locations, entity_ids
 
-
     def delete_mentions(self, mention_ids):
         with self._session_scope as session:
             for i in mention_ids:
-                session.query(Mention).filter(Mention.mention_id==i).update(
+                session.query(Mention).filter(Mention.mention_id == i).update(
                     {"deleted": 1}
-                    )
+                )
 
-    def write_new_mentions(self, mentions, question_id,user_id):
+    def write_new_mentions(self, mentions, question_id, user_id):
         with self._session_scope as session:
             mention_list = []
             for ment in mentions:
@@ -281,23 +282,26 @@ class Database:
                 mention_list.append(ment)
             session.bulk_insert_mappings(Mention, mention_list)
 
-    def get_password(self,email):
+    def get_password(self, email):
         with self._session_scope as session:
             results = session.query(User).filter(User.email == email).first()
             if results:
                 return results.password
             return None
 
-    def insert_email_password(self,email,password):
+    def insert_email_password(self, email, password):
         with self._session_scope as session:
             if not session.query(User).filter(User.email == email).first():
-                session.bulk_insert_mappings(User, [{'email':email,'password':password}])
+                session.bulk_insert_mappings(
+                    User, [{"email": email, "password": password}]
+                )
                 return True
-            return False 
+            return False
 
     def reset_users(self):
         with self._session_scope as session:
-            session.query(User).filter(User.password!='').delete()
+            session.query(User).filter(User.password != "").delete()
+
 
 class Question(Base):
     __tablename__ = "questions"
@@ -363,13 +367,14 @@ class Mention(Base):
     end = Column(Integer)
     score = Column(Float)
     machine_tagged = Column(Integer)
-    user_id = Column(String,ForeignKey("users.email"))
+    user_id = Column(String, ForeignKey("users.email"))
     deleted = Column(Integer)
+
 
 class User(Base):
     __tablename__ = "users"
-    email = Column(String,primary_key=True)
+    email = Column(String, primary_key=True)
     password = Column(String)
 
     def __str__(self):
-        return self.email 
+        return self.email
