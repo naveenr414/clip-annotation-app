@@ -10,11 +10,13 @@ app = FastAPI()
 origins = [
     "http://localhost:8000",
     "http://localhost:3000",
+    "http://localhost:2020",
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex="https://.*\.ngrok\.io",
     allow_credentials=True,
     allow_methods=["*", "POST"],
     allow_headers=["*", "POST"],
