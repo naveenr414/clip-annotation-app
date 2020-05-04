@@ -1,21 +1,24 @@
 import * as React from 'react';
 import Question from './Question';
 import Login from './Login';
-import './Question.css';
+import * as question_css from './Question.css';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { Redirect, Link, BrowserRouter  as Router, Switch, Route } from 'react-router-dom';
+import * as t from './Annotation.css';
 
+interface State {
+	entity: string;
+}
 
-export default class Annotation extends React.Component {  
-  state = {
-    entity:''
-  };
-  
-  constructor(props) {
+interface Props {
+
+}
+
+export default class Annotation extends React.Component<Props,State> {  
+  constructor(props: Props) {
     super(props);
-
   }
   
   componentDidMount() {
@@ -31,7 +34,8 @@ export default class Annotation extends React.Component {
 
 
   render () {
-    
+    console.log(t);
+    console.log(question_css);
     if(window.sessionStorage.getItem('token') == null) {
       return ( <Redirect to="/login" />); 
     }
@@ -42,9 +46,9 @@ export default class Annotation extends React.Component {
         <AppBar position="static">
           <Toolbar>
             <Router> 
-              <Typography style={{fontSize: 24,marginLeft: 50,}}> <Link href="/" style={{color:"white", textDecoration: "none", textAlign: "right"}}> Home </Link> </Typography>
-              <Typography style={{fontSize: 24, marginLeft: 50,}}> <Link href="/login" style={{color:"white", textDecoration: "none", textAlign: "right"}}>  Login </Link> </Typography> 
-              <Typography style={{fontSize: 24, marginLeft: 50,}}> <Link onClick={this.logout} href="/login" style={{color:"white", textDecoration: "none", textAlign: "right"}}>  Logout </Link> </Typography> 
+              <Typography style={{fontSize: 24,marginLeft: 50,}}> <Link to="/" href="/" style={{color:"white", textDecoration: "none", textAlign: "right"}}> Home </Link> </Typography>
+              <Typography style={{fontSize: 24, marginLeft: 50,}}> <Link to="/" href="/login" style={{color:"white", textDecoration: "none", textAlign: "right"}}>  Login </Link> </Typography> 
+              <Typography style={{fontSize: 24, marginLeft: 50,}}> <Link to="/" onClick={this.logout} href="/login" style={{color:"white", textDecoration: "none", textAlign: "right"}}>  Logout </Link> </Typography> 
             </Router> 
           </Toolbar> 
         </AppBar> 

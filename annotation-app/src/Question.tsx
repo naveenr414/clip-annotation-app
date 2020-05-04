@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Button } from '@material-ui/core';
-import './Question.css';  
+import * as p from './Question.css';  
 import TaggedInfo from './TaggedInfo';
 import Chip from '@material-ui/core/Chip';
 import Card from '@material-ui/core/Card';
@@ -8,10 +8,29 @@ import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Typography from '@material-ui/core/Typography';
+import * as PropTypes from 'prop-types';
 
+interface State {
+	tournament: string;
+	entities: string[];
+	entity_locations: number[][];
+	question_text: string;
+	question_id: number;
+	answer: string;
 
-export default class Question extends React.Component {  
-  state = {
+	// It's a list of dictionaries
+	tokens: any;
+	currently_tagged: number[];
+	current_entity: string;
+	preview: boolean; 
+}
+
+interface Props {
+	question_id: string;
+}
+
+export default class Question extends React.Component<Props,State> {  
+  state: State = {
     tournament: "",
     entities: [],
     entity_locations: [],
@@ -40,20 +59,20 @@ export default class Question extends React.Component {
     );
   }
   
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
-    this.state.question_id = props.question_id;
+    this.state.question_id = parseInt(props.question_id);
     this.get_data();
   }
   
-  editEntity = (entity_number) => {
+  editEntity = (entity_number: number) => {
     this.setState({
       currently_tagged: this.state.entity_locations[entity_number], 
       current_entity:  this.state.entities[entity_number],
     });
   }
   
-  deleteEntity = (entity_number) => {
+  deleteEntity = (entity_number: number) => {
     this.state.entities.splice(entity_number,1);
     this.state.entity_locations.splice(entity_number,1);
     this.write_entities();
@@ -63,9 +82,9 @@ export default class Question extends React.Component {
   }
   
   /* Add another word to the current entity */ 
-  addToTag = (i) => { 
+  addToTag = (i: number) => { 
     let new_tag = this.state.current_entity!="";
-    new_tag |=this.state.currently_tagged.length == 0;
+    new_tag = new_tag || this.state.currently_tagged.length == 0;
     console.log(new_tag);
     if(new_tag) {
       this.setState({
@@ -82,15 +101,17 @@ export default class Question extends React.Component {
     }
   }
   
-  changeBold = (e) => {
-    e.target.style.fontWeight = 'bold';
+  changeBold = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+    let ele = e.target as HTMLSpanElement; 
+    ele.style.fontWeight = 'bold';
   }
   
-  changeUnbold = (e) => {
-    e.target.style.fontWeight = 'normal';
+  changeUnbold = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+    let ele = e.target as HTMLSpanElement; 
+    ele.style.fontWeight = 'normal';
   }
   
-  titleCase = (string) => {
+  titleCase = (string: string) => {
     var sentence = string.toLowerCase().split(" ");
     for(var i = 0; i< sentence.length; i++){
        sentence[i] = sentence[i][0].toUpperCase() + sentence[i].slice(1);
@@ -99,7 +120,7 @@ export default class Question extends React.Component {
    return sentence.join(" ");
   }
   
-  add_tokens_between = (l,spaces,a,b) => {
+  add_tokens_between = (l: string[],spaces: boolean[],a: number,b: number) => {
     let s = "";
     for(var i = a;i<=b;i++) {
       s+=l[i];
@@ -110,14 +131,14 @@ export default class Question extends React.Component {
     return s;
   }
   
-  run_local = (i,f) => {
+  run_local = (i: any,f: any) => {
     return (function() {f(i)});
   }
     
   get_question = () => {
     
-    let entity_color = "primary";
-    let tagged_color = "secondary";
+    let entity_color = 'primary';
+    let tagged_color = 'secondary';
     
     let tokens = [];
     let has_space = [];
@@ -170,25 +191,25 @@ export default class Question extends React.Component {
         //word+=" (" + this.titleCase(this.state.entities[entity_pointer])+ ")";
         i = entity_list[entity_pointer][1]+1;
                 
-        let ret = (<div style={{height: 75}}> <div class="half"> <span                 style={{backgroundColor: "white"}} 
+        let ret = (<div style={{height: 75}}> <div className="half"> <span                 style={{backgroundColor: "white"}} 
 > 
 {word} 
-        </span> </div> <div class="half"> <Chip label={e} 
+        </span> </div> <div className="half"> <Chip label={e} 
           className="chip"
           onClick={this.run_local(entity_pointer,this.editEntity)}  
           key={i-1} 
           onDelete={this.run_local(entity_pointer,this.deleteEntity)} 
-          color={entity_color}/>  </div>  </div>);
+          color={'primary'}/>  </div>  </div>);
         entity_pointer+=1;
         all_tags.push(ret);
       }
       else if(currently_tagged) {        
         let word = this.add_tokens_between(tokens, has_space,this.state.currently_tagged[0],this.state.currently_tagged[1]);
         i = this.state.currently_tagged[1]+1;
-        let ret = (<div style={{height: 75}}> <div class="half"> <Chip label={word} 
+        let ret = (<div style={{height: 75}}> <div className="half"> <Chip label={word} 
           className="chip"
           key={i-1}
-          color={tagged_color} />  </div> <div class="half"> </div> </div>);
+          color={'secondary'} />  </div> <div className="half"> </div> </div>);
         all_tags.push(ret);
       }
       else {
@@ -197,13 +218,13 @@ export default class Question extends React.Component {
             space = " ";
         }
 
-        let ret= (<div style={{height: 75}}> <div class="half"> <span key={i} 
+        let ret= (<div style={{height: 75}}> <div className="half"> <span key={i} 
         onMouseEnter={this.changeBold} 
         onMouseLeave={this.changeUnbold} 
         style={{backgroundColor: "white"}} 
         onClick={this.run_local(i,this.addToTag)}> 
           {tokens[i]+space} 
-        </span> </div> <div class="half"> </div> </div>) ;
+        </span> </div> <div className="half"> </div> </div>) ;
         i+=1;
         all_tags.push(ret);
       }
@@ -232,13 +253,13 @@ export default class Question extends React.Component {
   }
   
   // We've subimtted some new entity 
-  callbackFunction = (new_entity) => {
-    function titleCase(str) {
-      str = str.toLowerCase().split(' ');
-      for (var i = 0; i < str.length; i++) {
-        str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1); 
+  callbackFunction = (new_entity: string) => {
+    function titleCase(str: string) {
+      let split_str = str.toLowerCase().split(' ');
+      for (var i = 0; i < split_str.length; i++) {
+        split_str[i] = split_str[i].charAt(0).toUpperCase() + split_str[i].slice(1); 
       }
-      return str.join(' ');
+      return split_str.join(' ');
     }
 
     if(new_entity != "") {
@@ -305,6 +326,7 @@ export default class Question extends React.Component {
   }
   
   render () {
+    console.log(p);
     return (
       <div className="Question">
       <Card variant="outlined"> 

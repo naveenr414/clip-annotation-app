@@ -1,4 +1,4 @@
-import React from 'react';  
+import * as React from 'react';  
 import {Redirect, Link} from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -12,10 +12,20 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import './Login.css';
+import * as p from './Login.css';
 
-export default class Register extends React.Component {
-  constructor(props) {
+interface Props {
+
+}
+
+interface State {
+        username: string,
+        password: string,
+        token: string,
+}
+
+export default class Register extends React.Component<Props,State> {
+  constructor(props: Props) {
     super(props);
     this.state = {username: '',
     password: '',token:''};
@@ -24,16 +34,16 @@ export default class Register extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
   
-  handleUsername(event) {
+  handleUsername(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({username: event.target.value});
   }
   
-  handlePassword(event) {
+  handlePassword(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({password: event.target.value});
   }
   
   
-  handleSubmit(event) {
+  handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     let data = 'username='+encodeURIComponent(this.state.username)+'&password='+encodeURIComponent(this.state.password);
     fetch('http://localhost:8000/token/register', {
       method: 'POST',
@@ -61,6 +71,8 @@ export default class Register extends React.Component {
     if(window.sessionStorage.getItem("token")) {
       return ( <Redirect to="/" />);
     }
+    
+    console.log(p);
     
    return (
     <Container maxWidth="xs">

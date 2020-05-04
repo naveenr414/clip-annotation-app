@@ -1,18 +1,29 @@
 import * as React from 'react';
 import Question from './Question';
-import './Question.css';
+import * as t from './Question.css';
 import TextField from '@material-ui/core/TextField';
 import { Button, Input } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 
-export default class Annotation extends React.Component {  
-  state = {
+interface State {
+  value: string;
+  autocorrect: string[];
+}
+
+interface Props {
+  tags: number[];
+  question_text: string;
+  entity: string; 
+  callbackFunction: any;
+}
+
+export default class TaggedInfo extends React.Component<Props,State> {  
+  state: State = {
     value: '',
-    current_tags: [],
     autocorrect: [],
   };
  
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
   }
   
@@ -30,7 +41,7 @@ export default class Annotation extends React.Component {
     this.props.callbackFunction(this.state.value);
   }
   
-  handleChange = (id, newValue) => {
+  handleChange = (id: any, newValue: string) => {
     this.setState({value: newValue});
   }
   
@@ -41,7 +52,7 @@ export default class Annotation extends React.Component {
     this.props.callbackFunction("");
   }
   
-  updateAutocorrect = (e) => {
+  updateAutocorrect = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       value: e.currentTarget.value,
     });
@@ -61,14 +72,14 @@ export default class Annotation extends React.Component {
 
   }
   
-  setValue = (i) => {
+  setValue = (i: string) => {
     this.setState({
       value: i, 
       autocorrect: [],
     });
   }
   
-  run_local = (i,f) => {
+  run_local = (i: any,f: any) => {
     return (function() {f(i)});
   } 
   
@@ -113,7 +124,7 @@ export default class Annotation extends React.Component {
      }
   }
   
-  onChange(id, newValue) {
+  onChange(id: any, newValue: string) {
   }
 
   getStatus = () => {
@@ -126,6 +137,7 @@ export default class Annotation extends React.Component {
   }
   
   render () {
+    console.log(t);
     return (
       <div> 
         <Typography color="textSecondary" style={{fontSize: 24}}>

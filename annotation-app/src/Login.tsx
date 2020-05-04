@@ -1,5 +1,5 @@
-import React from 'react';  
-import {Redirect, Link} from 'react-router-dom';
+import * as React from 'react';  
+import {Redirect} from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -10,13 +10,21 @@ import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import './Login.css';
+import * as login_css from './Login.css';
 
+interface Props {
 
-export default class Login extends React.Component {
-  constructor(props) {
+}
+
+interface State {
+	username: string,
+	password: string,
+	token: string,
+}
+
+export default class Login extends React.Component<Props,State> {
+  constructor(props:Props) {
     super(props);
     this.state = {username: '',
     password: '',token:''};
@@ -25,16 +33,16 @@ export default class Login extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
   
-  handleUsername(event) {
+  handleUsername(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({username: event.target.value});
   }
   
-  handlePassword(event) {
+  handlePassword(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({password: event.target.value});
   }
   
   
-  handleSubmit(event) {
+  handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     let data = 'username='+encodeURIComponent(this.state.username)+'&password='+encodeURIComponent(this.state.password);
     fetch('http://localhost:8000/token', {
       method: 'POST',
@@ -62,6 +70,8 @@ export default class Login extends React.Component {
     if(window.sessionStorage.getItem("token")) {
       return ( <Redirect to="/" />);
     }
+    
+    console.log(login_css);
     
     return (
     <Container maxWidth="xs">
