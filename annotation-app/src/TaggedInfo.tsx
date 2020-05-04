@@ -1,9 +1,9 @@
-import * as React from 'react';
-import Question from './Question';
-import * as t from './Question.css';
-import TextField from '@material-ui/core/TextField';
-import { Button, Input } from '@material-ui/core';
-import Typography from '@material-ui/core/Typography';
+import * as React from "react";
+import Question from "./Question";
+import * as t from "./Question.css";
+import TextField from "@material-ui/core/TextField";
+import { Button, Input } from "@material-ui/core";
+import Typography from "@material-ui/core/Typography";
 
 interface State {
   value: string;
@@ -13,139 +13,153 @@ interface State {
 interface Props {
   tags: number[];
   question_text: string;
-  entity: string; 
+  entity: string;
   callbackFunction: any;
 }
 
-export default class TaggedInfo extends React.Component<Props,State> {  
+export default class TaggedInfo extends React.Component<Props, State> {
   state: State = {
-    value: '',
+    value: "",
     autocorrect: [],
   };
- 
+
   constructor(props: Props) {
     super(props);
   }
-  
+
   getTags = () => {
     let indices = this.props.tags;
     let words = [];
-    for(var i = indices[0];i<=indices[1];i++) {
+    for (var i = indices[0]; i <= indices[1]; i++) {
       words.push(this.props.question_text.split(" ")[i]);
     }
-    
+
     return words.join(" ");
-  }
-    
+  };
+
   sub = () => {
     this.props.callbackFunction(this.state.value);
-  }
-  
+  };
+
   handleChange = (id: any, newValue: string) => {
-    this.setState({value: newValue});
-  }
-  
+    this.setState({ value: newValue });
+  };
+
   undo = () => {
     this.setState({
       value: "",
     });
     this.props.callbackFunction("");
-  }
-  
+  };
+
   updateAutocorrect = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       value: e.currentTarget.value,
     });
-    
-    this.setState({autocorrect: []});
-    
-    if(e.currentTarget.value!=="") {
-      fetch("http://localhost:8000/api/qanta/v1/api/qanta/autocorrect/"+e.currentTarget.value.toLowerCase())
-        .then(res => res.json()).then 
-        ((res) => {
-          this.setState({autocorrect: res});
-      });
+
+    this.setState({ autocorrect: [] });
+
+    if (e.currentTarget.value !== "") {
+      fetch(
+        "http://localhost:8000/api/qanta/v1/api/qanta/autocorrect/" +
+          e.currentTarget.value.toLowerCase()
+      )
+        .then((res) => res.json())
+        .then((res) => {
+          this.setState({ autocorrect: res });
+        });
     }
-    
+  };
 
-        
-
-  }
-  
   setValue = (i: string) => {
     this.setState({
-      value: i, 
+      value: i,
       autocorrect: [],
     });
-  }
-  
-  run_local = (i: any,f: any) => {
-    return (function() {f(i)});
-  } 
-  
+  };
+
+  run_local = (i: any, f: any) => {
+    return function () {
+      f(i);
+    };
+  };
+
   getAutocorrect = () => {
     let ret = [];
     let arr = this.state.autocorrect;
-    for(var i = 0;i<arr.length;i++) {
-      ret.push(<div onClick={this.run_local(arr[i],this.setValue)}> 
-        <strong> {arr[i].substr(0,this.state.value.length)}</strong>{arr[i].substr(this.state.value.length)} 
-        <input type='hidden' value={arr[i]} />
-        </div>);
+    for (var i = 0; i < arr.length; i++) {
+      ret.push(
+        <div onClick={this.run_local(arr[i], this.setValue)}>
+          <strong> {arr[i].substr(0, this.state.value.length)}</strong>
+          {arr[i].substr(this.state.value.length)}
+          <input type="hidden" value={arr[i]} />
+        </div>
+      );
     }
-    
-    while(ret.length<5) {
+
+    while (ret.length < 5) {
       ret.push(<div> </div>);
     }
-    
-    return ret; 
-  }
+
+    return ret;
+  };
 
   clearAutocorrect = () => {
-    this.setState({autocorrect: []});
-  }
-  
-  getInput = () => {
-    if(this.props.tags.length>0){ 
-      return <div > 
-      <Typography style={{fontSize:24}}>  What entity is this: </Typography> 
-      <Input style={{fontSize: 24}} value={this.state.value} onChange ={this.updateAutocorrect} />
-               <Button style={{ fontSize: 24 }} color="primary" onClick={this.sub}> 
-        Save 
-       </Button>
-       <Button style={{ fontSize: 24 }} color="primary" onClick={this.undo}> 
-         Undo 
-       </Button>     
+    this.setState({ autocorrect: [] });
+  };
 
-        {this.getAutocorrect()}
-       </div> 
-     }
-     else {
-       return <div> <br /> <br /> <br /> <br />  </div> 
-     }
-  }
-  
-  onChange(id: any, newValue: string) {
-  }
+  getInput = () => {
+    if (this.props.tags.length > 0) {
+      return (
+        <div>
+          <Typography style={{ fontSize: 24 }}>
+            {" "}
+            What entity is this:{" "}
+          </Typography>
+          <Input
+            style={{ fontSize: 24 }}
+            value={this.state.value}
+            onChange={this.updateAutocorrect}
+          />
+          <Button style={{ fontSize: 24 }} color="primary" onClick={this.sub}>
+            Save
+          </Button>
+          <Button style={{ fontSize: 24 }} color="primary" onClick={this.undo}>
+            Undo
+          </Button>
+
+          {this.getAutocorrect()}
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          {" "}
+          <br /> <br /> <br /> <br />{" "}
+        </div>
+      );
+    }
+  };
+
+  onChange(id: any, newValue: string) {}
 
   getStatus = () => {
-    if(this.props.tags.length>0) {
+    if (this.props.tags.length > 0) {
       return "Current Tags:";
-    }
-    else {
+    } else {
       return "Nothing currently tagged";
     }
-  }
-  
-  render () {
+  };
+
+  render() {
     console.log(t);
     return (
-      <div> 
-        <Typography color="textSecondary" style={{fontSize: 24}}>
-          {this.getStatus()} {this.getTags()} 
-        </Typography> 
-         {this.getInput()}
-      </div> 
+      <div>
+        <Typography color="textSecondary" style={{ fontSize: 24 }}>
+          {this.getStatus()} {this.getTags()}
+        </Typography>
+        {this.getInput()}
+      </div>
     );
   }
 }
-
