@@ -199,7 +199,7 @@ export default class Question extends React.Component<
     for (let i = 0; i < this.state.entity_locations.length; i++) {
       let span = this.state.entity_locations[i];
       let title = this.state.entities[i];
-      for (let ment_idx = span[0]; ment_idx < span[1]; ment_idx++) {
+      for (let ment_idx = span[0]; ment_idx <= span[1]; ment_idx++) {
         position_to_mention.set(ment_idx, title);
       }
     }
