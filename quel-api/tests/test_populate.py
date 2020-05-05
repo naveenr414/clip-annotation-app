@@ -15,6 +15,6 @@ def test_merge_question_sentences():
     print(tokens)
     text = question["text"]
     for t in tokens:
-        start = t["start"]
-        end = t["end"]
+        start = t["char_start"]
+        end = t["char_end"]
         assert t["text"] == text[start:end]
