@@ -4,7 +4,6 @@ from pydantic import BaseModel  # pylint: disable=no-name-in-module
 from starlette.responses import Response
 from starlette.status import HTTP_401_UNAUTHORIZED
 from quel.database import Database
-import json
 import quel.security as security
 
 db = Database()
@@ -24,7 +23,7 @@ async def write_entity(entity: Entity):
     qanta_id = entity.question_id
     old_entities, old_entity_locations, old_entity_ids = db.get_entities(qanta_id)
     question_dict = db.get_question_by_id(qanta_id)
-    tokens = db.flatten_tokens(question_dict)
+    tokens = question_dict["tokens"]
     # Convert our current entities into a better format
 
     old_entity_tuples = []

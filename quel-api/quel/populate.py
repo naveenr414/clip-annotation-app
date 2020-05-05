@@ -1,37 +1,63 @@
 import json
+from typing import List, Tuple
+from collections import defaultdict
+
 import click
-import os
-import sys
 
-from sqlalchemy import Table, Column, Integer, String, MetaData, create_engine
-from sqlalchemy.ext.declarative import declarative_base
-
-
-from quel.database import Question, Database, Entity, Mention
+from quel.database import Database
 from quel.log import get_logger
 
 
 log = get_logger(__name__)
 
 
-def write_questions(db, question_file="data/qanta.mapped.2018.04.18.json"):
+def write_questions(
+    db,
+    question_file="data/qanta.mapped.2018.04.18.json",
+    token_file="data/qanta_tokenized.json",
+):
     with open(question_file) as f:
-        questions = json.load(f)["questions"]
-    db.write_questions(questions)
+        questions = {q["qanta_id"]: q for q in json.load(f)["questions"]}
 
-
-def write_tokens(db, token_file="data/qanta_tokenized.json"):
     with open(token_file) as f:
-        tokens = json.load(f)
-    by_qanta_id = {}
+        question_sentences = json.load(f)["sentences"]
 
-    all_sentences = tokens["sentences"]
-    for sent in all_sentences:
-        if sent["qanta_id"] not in by_qanta_id:
-            by_qanta_id[sent["qanta_id"]] = []
-        by_qanta_id[sent["qanta_id"]].append(sent["tokens"])
+    sentences_by_qanta_id = defaultdict(list)
+    for sent in question_sentences:
+        sentences_by_qanta_id[sent["qanta_id"]].append(sent)
 
-    db.write_tokens(by_qanta_id)
+    db_rows = []
+    for qanta_id in sentences_by_qanta_id:
+        sentences = sorted(
+            sentences_by_qanta_id[qanta_id], key=lambda x: x["sentence_idx"]
+        )
+        question = questions[qanta_id]
+        question["tokens"] = merge_question_sentences(
+            question["tokenizations"], sentences
+        )
+        db_rows.append(question)
+
+    db.write_questions(db_rows)
+
+
+def merge_question_sentences(tokenizations: List[Tuple[int, int]], sentences: List):
+    token_position = 0
+    tokens = []
+    for (start, _), sent in zip(tokenizations, sentences):
+        sentence_idx = sent["sentence_idx"]
+        for t in sent["tokens"]:
+            tokens.append(
+                {
+                    "text": t["text"],
+                    "char_start": start + t["start"],
+                    "char_end": start + t["end"],
+                    "token_idx": token_position,
+                    "sentence_idx": sentence_idx,
+                }
+            )
+            token_position += 1
+
+    return tokens
 
 
 def write_entities(db, entity_location="data/wikipedia-titles.2018.04.18.json"):
@@ -52,9 +78,6 @@ def main():
     db.create_all()
     log.info("Writing questions")
     write_questions(db)
-
-    log.info("Writing tokens")
-    write_tokens(db)
 
     log.info("Writing entities")
     write_entities(db)

@@ -15,8 +15,7 @@ def get_random_question():
 @router.get("/api/qanta/v1/{qanta_id}")
 def get_question(qanta_id: int):
     question_dict = db.get_question_by_id(qanta_id)
-    new_tokens = db.flatten_tokens(question_dict)
-    question_dict["tokens"] = new_tokens
+
     question_dict["text"] = question_dict["text"].replace(chr(160), " ")
     entity_list, entity_locations, _ = db.get_entities(qanta_id)
 

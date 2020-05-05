@@ -10,7 +10,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Typography from "@material-ui/core/Typography";
 import * as PropTypes from "prop-types";
 
-interface State {
+interface QuestionState {
   tournament: string;
   entities: string[];
   entity_locations: number[][];
@@ -25,12 +25,79 @@ interface State {
   preview: boolean;
 }
 
-interface Props {
+interface QuestionProps {
   question_id: string;
 }
 
-export default class Question extends React.Component<Props, State> {
-  state: State = {
+interface WordWithMentionProps {
+  text: string;
+  title: string | null;
+  token_idx: number;
+  in_span: boolean;
+  starting_span: boolean;
+  // TODO: Fix the types on this
+  edit_entity: any;
+  delete_entity: any;
+  add_to_tag: any;
+}
+
+class WordWithMention extends React.Component<WordWithMentionProps, {}> {
+  state = {};
+  constructor(props: WordWithMentionProps) {
+    super(props);
+  }
+  changeBold = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+    let ele = e.target as HTMLSpanElement;
+    ele.style.backgroundColor = "yellow";
+  };
+
+  changeUnbold = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+    let ele = e.target as HTMLSpanElement;
+    ele.style.backgroundColor = "white";
+  };
+  run_local = (i: any, f: any) => {
+    return function () {
+      f(i);
+    };
+  };
+  render() {
+    var mention_text = this.props.title;
+    if (this.props.in_span && !this.props.starting_span) {
+      mention_text = "";
+    }
+    let mention =
+      this.props.title == undefined ? (
+        <Chip className="hidden" />
+      ) : (
+        <Chip
+          label={mention_text}
+          className="chip"
+          //onClick={this.run_local(entity_pointer, this.editEntity)}
+          //onDelete={this.run_local(entity_pointer, this.deleteEntity)}
+          color={"primary"}
+        />
+      );
+    return (
+      <div key={this.props.token_idx} className="word">
+        <div
+          className="word-text"
+          onMouseEnter={this.changeBold}
+          onMouseLeave={this.changeUnbold}
+          // onClick={this.run_local(this.props.token_idx, this.addToTag)}
+        >
+          {this.props.text}
+        </div>
+        <div className="word-mention">{mention}</div>
+      </div>
+    );
+  }
+}
+
+export default class Question extends React.Component<
+  QuestionProps,
+  QuestionState
+> {
+  state: QuestionState = {
     tournament: "",
     entities: [],
     entity_locations: [],
@@ -43,6 +110,7 @@ export default class Question extends React.Component<Props, State> {
     preview: true,
   };
 
+  // TODO: Should pull this out into the caller of Question
   get_data = () => {
     fetch(
       "http://localhost:8000/api/qanta/v1/api/qanta/v1/" +
@@ -50,6 +118,7 @@ export default class Question extends React.Component<Props, State> {
     )
       .then((res) => res.json())
       .then((result) => {
+        console.debug(result);
         this.setState({
           question_text: result["text"],
           answer: result["answer"],
@@ -61,7 +130,7 @@ export default class Question extends React.Component<Props, State> {
       });
   };
 
-  constructor(props: Props) {
+  constructor(props: QuestionProps) {
     super(props);
     this.state.question_id = parseInt(props.question_id);
     this.get_data();
@@ -103,16 +172,6 @@ export default class Question extends React.Component<Props, State> {
     }
   };
 
-  changeBold = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
-    let ele = e.target as HTMLSpanElement;
-    ele.style.fontWeight = "bold";
-  };
-
-  changeUnbold = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
-    let ele = e.target as HTMLSpanElement;
-    ele.style.fontWeight = "normal";
-  };
-
   titleCase = (string: string) => {
     var sentence = string.toLowerCase().split(" ");
     for (var i = 0; i < sentence.length; i++) {
@@ -125,165 +184,71 @@ export default class Question extends React.Component<Props, State> {
     return sentence.join(" ");
   };
 
-  add_tokens_between = (
-    l: string[],
-    spaces: boolean[],
-    a: number,
-    b: number
-  ) => {
-    let s = "";
-    for (var i = a; i <= b; i++) {
-      s += l[i];
-      if (i !== b && spaces[i]) {
-        s += " ";
-      }
-    }
-    return s;
-  };
-
   run_local = (i: any, f: any) => {
     return function () {
       f(i);
     };
   };
 
-  get_question = () => {
-    let entity_color = "primary";
-    let tagged_color = "secondary";
-
-    let tokens = [];
-    let has_space = [];
-
-    for (let i = 0; i < this.state.tokens.length; i++) {
-      tokens.push(this.state.tokens[i]["text"]);
-      if (
-        i == this.state.tokens.length - 1 ||
-        this.state.tokens[i]["end"] != this.state.tokens[i + 1]["start"]
-      ) {
-        has_space.push(true);
-      } else {
-        has_space.push(false);
+  get_tokens_with_mention = () => {
+    let position_to_mention = new Map();
+    for (let i = 0; i < this.state.entity_locations.length; i++) {
+      let span = this.state.entity_locations[i];
+      let title = this.state.entities[i];
+      for (let ment_idx = span[0]; ment_idx < span[1]; ment_idx++) {
+        position_to_mention.set(ment_idx, title);
       }
     }
-
-    var entity_pointer = 0;
-    let entity_list = this.state.entity_locations;
-    var entity_length = entity_list.length;
-
-    let all_tags = [];
-
-    if (this.state.preview) {
-      tokens = tokens.splice(0, 20);
-    }
-
-    // Loop through each of the words
-    // Write it out as an HTML tag
-    let i = 0;
-
-    console.log(tokens);
-    console.log(entity_list);
-
-    while (i < tokens.length) {
-      let current_token = tokens[i];
-
-      console.log(i);
-
-      let is_entity = entity_length > entity_pointer;
-      is_entity = is_entity && entity_list[entity_pointer][0] == i;
-
-      let currently_tagged = this.state.currently_tagged.length > 0;
-      currently_tagged =
-        currently_tagged && i == this.state.currently_tagged[0];
-
-      if (is_entity) {
-        // Create a list of words with the entity itself
-        let word = this.add_tokens_between(
-          tokens,
-          has_space,
-          entity_list[entity_pointer][0],
-          entity_list[entity_pointer][1]
-        );
-
-        let e = this.titleCase(this.state.entities[entity_pointer]);
-
-        //word+=" (" + this.titleCase(this.state.entities[entity_pointer])+ ")";
-        i = entity_list[entity_pointer][1] + 1;
-
-        let ret = (
-          <div style={{ height: 75 }}>
-            {" "}
-            <div className="half">
-              {" "}
-              <span style={{ backgroundColor: "white" }}>{word}</span>{" "}
-            </div>{" "}
-            <div className="half">
-              {" "}
-              <Chip
-                label={e}
-                className="chip"
-                onClick={this.run_local(entity_pointer, this.editEntity)}
-                key={i - 1}
-                onDelete={this.run_local(entity_pointer, this.deleteEntity)}
-                color={"primary"}
-              />{" "}
-            </div>{" "}
-          </div>
-        );
-        entity_pointer += 1;
-        all_tags.push(ret);
-      } else if (currently_tagged) {
-        let word = this.add_tokens_between(
-          tokens,
-          has_space,
-          this.state.currently_tagged[0],
-          this.state.currently_tagged[1]
-        );
-        i = this.state.currently_tagged[1] + 1;
-        let ret = (
-          <div style={{ height: 75 }}>
-            {" "}
-            <div className="half">
-              {" "}
-              <Chip
-                label={word}
-                className="chip"
-                key={i - 1}
-                color={"secondary"}
-              />{" "}
-            </div>{" "}
-            <div className="half"> </div>{" "}
-          </div>
-        );
-        all_tags.push(ret);
-      } else {
-        let space = "";
-        if (has_space[i]) {
-          space = " ";
+    var in_span = false;
+    var starting_span = false;
+    var current_title = undefined;
+    let tokens_w_title = [];
+    var token_idx = 0;
+    for (token_idx = 0; token_idx < this.state.tokens.length; token_idx++) {
+      let text: string = this.state.tokens[token_idx]["text"];
+      let token_title = position_to_mention.get(token_idx);
+      if (token_title == undefined) {
+        if (current_title == undefined) {
+          in_span = false;
+          starting_span = false;
+        } else {
+          current_title = token_title;
+          in_span = true;
+          starting_span = true;
         }
-
-        let ret = (
-          <div style={{ height: 75 }}>
-            {" "}
-            <div className="half">
-              {" "}
-              <span
-                key={i}
-                onMouseEnter={this.changeBold}
-                onMouseLeave={this.changeUnbold}
-                style={{ backgroundColor: "white" }}
-                onClick={this.run_local(i, this.addToTag)}
-              >
-                {tokens[i] + space}
-              </span>{" "}
-            </div>{" "}
-            <div className="half"> </div>{" "}
-          </div>
-        );
-        i += 1;
-        all_tags.push(ret);
+        // TODO: This does not handle the case where there are two separate mentions
+        // of the same title, right after one another. Need mention instead of title for
+        // this
+      } else {
+        if (token_title == current_title) {
+          in_span = true;
+          starting_span = false;
+        } else {
+          in_span = true;
+          current_title = token_title;
+          starting_span = true;
+        }
       }
+      tokens_w_title.push(
+        // TODO: How to pass edit events? I know you can do it, but dont remember
+        <WordWithMention
+          token_idx={token_idx}
+          text={text}
+          in_span={in_span}
+          starting_span={starting_span}
+          title={current_title}
+          edit_entity={undefined}
+          delete_entity={undefined}
+          add_to_tag={undefined}
+        />
+      );
     }
-    return all_tags;
+    return tokens_w_title;
+  };
+
+  get_question = () => {
+    let tokens_with_mention = this.get_tokens_with_mention();
+    return tokens_with_mention;
   };
 
   write_entities = () => {
@@ -404,18 +369,19 @@ export default class Question extends React.Component<Props, State> {
         <Card variant="outlined">
           <CardContent>
             <Typography style={{ fontSize: 24 }}>
-              {" "}
-              <span style={{ fontWeight: "bold" }}> Tournament: </span>{" "}
-              {this.state.tournament}{" "}
+              <span style={{ fontWeight: "bold" }}> Tournament: </span>
+              {this.state.tournament}
             </Typography>
             <Typography style={{ fontSize: 24 }}>
-              {" "}
-              <span style={{ fontWeight: "bold" }}> Answer: </span>{" "}
-              {this.state.answer}{" "}
+              <span style={{ fontWeight: "bold" }}> Answer: </span>
+              {this.state.answer}
             </Typography>
             <Typography style={{ fontSize: 24 }}>
-              {" "}
-              Entities: {this.get_entities()}{" "}
+              <span style={{ fontWeight: "bold" }}> Qanta ID: </span>
+              {this.props.question_id}
+            </Typography>
+            <Typography style={{ fontSize: 24 }}>
+              Entities: {this.get_entities()}
             </Typography>
 
             <TaggedInfo
@@ -427,8 +393,6 @@ export default class Question extends React.Component<Props, State> {
 
             <div className="QuestionText">
               {this.get_question()}
-
-              <br />
               <IconButton
                 style={{ transform: this.get_rotation() }}
                 aria-expanded={this.state.preview}
@@ -437,7 +401,6 @@ export default class Question extends React.Component<Props, State> {
               >
                 <ExpandMoreIcon />
               </IconButton>
-              <br />
             </div>
             <br />
           </CardContent>

@@ -1,3 +1,4 @@
+from typing import Dict, List, Any
 import json
 import time
 import random
@@ -32,7 +33,8 @@ Base = declarative_base()  # pylint: disable=invalid-name
 class Database:
     def __init__(self, find_questions=True):
         self._engine = create_engine(
-            "sqlite:///data/qanta.2018.04.18.sqlite3"
+            # Separate name to avoid confusing it with the unmodified qanta db
+            "sqlite:///data/quel_db.sqlite3"
         )  # pylint: disable=invalid-name
         Base.metadata.bind = self._engine
 
@@ -79,23 +81,6 @@ class Database:
             question = session.query(Question).filter_by(qanta_id=qanta_id).first()
             return question.to_dict()
 
-    def flatten_tokens(self, question_dict):
-        tokens = json.loads(question_dict["tokens"])
-        sentences = question_dict["tokenizations"]
-
-        new_tokens = []
-        for i in range(len(tokens)):
-            for j in range(len(tokens[i])):
-                shift = sentences[i][0]
-                new_tokens.append(
-                    {
-                        "start": tokens[i][j]["start"] + shift,
-                        "end": tokens[i][j]["end"] + shift,
-                        "text": tokens[i][j]["text"],
-                    }
-                )
-        return new_tokens
-
     def get_autocorrect(self, text: str):
         with self._session_scope as session:
             start = time.time()
@@ -112,41 +97,19 @@ class Database:
             log.info("Took %s time to autocorrect", time.time() - start)
             return l
 
-    def write_questions(self, info):
+    def write_questions(self, questions: Dict[str, Any]):
         start = time.time()
 
         with self._session_scope as session:
-            num_written = 0
-            total = len(info)
-
             question_list = []
-
-            for question in info:
-                num_written += 1
+            for question in questions:
                 question["tokenizations"] = str(question["tokenizations"])
-                question["tokens"] = ""
+                question["tokens"] = json.dumps(question["tokens"])
                 question_list.append(question)
 
             session.bulk_insert_mappings(Question, question_list)
 
         log.info("Took %s time to write questions", time.time() - start)
-
-    def write_tokens(self, id_to_tokens):
-        start = time.time()
-
-        with self._session_scope as session:
-            total_tokens = len(id_to_tokens)
-            written = 0
-
-            for qanta_id in id_to_tokens:
-                question_id = qanta_id
-                tokens = json.dumps(id_to_tokens[qanta_id])
-                session.query(Question).filter(Question.qanta_id == question_id).update(
-                    {"tokens": tokens}
-                )
-                written += 1
-
-        log.info("Took %s time to write tokens", time.time() - start)
 
     def write_entities(self, entities):
         start = time.time()
@@ -209,7 +172,7 @@ class Database:
             CUTOFF = 0.2
 
             question_dict = self.get_question_by_id(question_id)
-            new_tokens = self.flatten_tokens(question_dict)
+            tokens = question_dict["tokens"]
 
             results = results.all()
             results = [
@@ -233,20 +196,20 @@ class Database:
             entity_ids = []
             entity_pointer = 0
             i = 0
-            while i < len(new_tokens) and entity_pointer < len(results):
+            while i < len(tokens) and entity_pointer < len(results):
 
                 while (
                     entity_pointer < len(results)
-                    and results[entity_pointer]["start"] < new_tokens[i]["start"]
+                    and results[entity_pointer]["start"] < tokens[i]["char_start"]
                 ):
                     entity_pointer += 1
 
                 if entity_pointer == len(results):
                     break
 
-                if results[entity_pointer]["start"] == new_tokens[i]["start"]:
+                if results[entity_pointer]["start"] == tokens[i]["char_start"]:
                     start = i
-                    while results[entity_pointer]["end"] > new_tokens[i]["end"]:
+                    while results[entity_pointer]["end"] > tokens[i]["char_end"]:
                         i += 1
                     end = i
 
@@ -344,7 +307,7 @@ class Question(Base):
             "proto_id": self.proto_id,
             "qdb_id": self.proto_id,
             "dataset": self.dataset,
-            "tokens": self.tokens,
+            "tokens": json.loads(self.tokens),
         }
 
 

@@ -15,12 +15,11 @@
 
 .QuestionText {
   font-size: 24px;
-  display: grid;
-  grid-template-columns: 125px 125px 125px 125px 125px 125px 125px 125px;
+  display: inline-block;
 }
 
 .ellipse {
-  font-size: 24px !important;
+  font-size: 24px;
 }
 
 Mark {
@@ -33,10 +32,18 @@ Mark {
   height: 50%;
 }
 
-.chip {
-  font-size: 24px !important;
-  padding-bottom: 10px !important;
-  padding-top: 10px !important;
-  height: 30px !important;
-  margin-right: 10px !important;
+.word {
+  height: 60px;
+  display: inline-block;
+  margin-bottom: 10px;
+  margin-right: 5px;
+}
+.word-mention {
+  border-radius: 5px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  height: 35px;
+}
+.hidden {
+  visibility: hidden;
 }
