@@ -5,6 +5,8 @@ import * as question_css from "./Question.css";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
+import Container from "@material-ui/core/Container";
+import Grid from "@material-ui/core/Grid";
 import {
   Redirect,
   Link,
@@ -101,9 +103,18 @@ export default class Annotation extends React.Component<Props, State> {
           rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
         />
-        <Question question_id="2" />
-        <Question question_id="3" />
-        <Question question_id="4" />
+        <Container maxWidth="lg">
+          <Grid
+            container
+            direction="column"
+            justify="center"
+            alignItems="center"
+          >
+            <Question question_id="2" />
+            <Question question_id="3" />
+            <Question question_id="4" />
+          </Grid>
+        </Container>
       </div>
     );
   }

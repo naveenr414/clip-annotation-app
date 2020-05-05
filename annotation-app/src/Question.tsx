@@ -8,6 +8,10 @@ import CardContent from "@material-ui/core/CardContent";
 import IconButton from "@material-ui/core/IconButton";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Typography from "@material-ui/core/Typography";
+import Divider from "@material-ui/core/Divider";
+import CardHeader from "@material-ui/core/CardHeader";
+import Collapse from "@material-ui/core/Collapse";
+import CardActions from "@material-ui/core/CardActions";
 import * as PropTypes from "prop-types";
 
 interface QuestionState {
@@ -246,11 +250,6 @@ export default class Question extends React.Component<
     return tokens_w_title;
   };
 
-  get_question = () => {
-    let tokens_with_mention = this.get_tokens_with_mention();
-    return tokens_with_mention;
-  };
-
   write_entities = () => {
     var xhr = new XMLHttpRequest();
     let question_id = this.state.question_id;
@@ -363,10 +362,15 @@ export default class Question extends React.Component<
   };
 
   render() {
-    console.log(p);
+    let tokens_with_mention = this.get_tokens_with_mention();
     return (
       <div className="Question">
         <Card variant="outlined">
+          <CardHeader
+            title={"Qanta Question: " + this.props.question_id}
+            className="question-header"
+          />
+          <Divider />
           <CardContent>
             <Typography style={{ fontSize: 24 }}>
               <span style={{ fontWeight: "bold" }}> Tournament: </span>
@@ -380,30 +384,36 @@ export default class Question extends React.Component<
               <span style={{ fontWeight: "bold" }}> Qanta ID: </span>
               {this.props.question_id}
             </Typography>
+            <Divider />
             <Typography style={{ fontSize: 24 }}>
               Entities: {this.get_entities()}
             </Typography>
-
             <TaggedInfo
               callbackFunction={this.callbackFunction}
               question_text={this.state.question_text}
               tags={this.state.currently_tagged}
               entity={this.state.current_entity}
             />
-
-            <div className="QuestionText">
-              {this.get_question()}
-              <IconButton
-                style={{ transform: this.get_rotation() }}
-                aria-expanded={this.state.preview}
-                onClick={this.switch_preview}
-                aria-label="show more"
-              >
-                <ExpandMoreIcon />
-              </IconButton>
-            </div>
-            <br />
+            <Divider />
           </CardContent>
+
+          <Collapse
+            className="QuestionText"
+            collapsedHeight="200px"
+            in={!this.state.preview}
+          >
+            <CardContent>{tokens_with_mention}</CardContent>
+          </Collapse>
+          <CardActions disableSpacing>
+            <IconButton
+              onClick={this.switch_preview}
+              aria-expanded={!this.state.preview}
+              aria-label="show more"
+              className="center"
+            >
+              <ExpandMoreIcon />
+            </IconButton>
+          </CardActions>
         </Card>
       </div>
     );

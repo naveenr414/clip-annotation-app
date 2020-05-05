@@ -47,3 +47,10 @@ Mark {
 .hidden {
   visibility: hidden;
 }
+
+.center {
+  margin: 0 auto !important;
+}
+.question-header {
+  background-color: #dbdbdb;
+}
