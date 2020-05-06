@@ -40,10 +40,9 @@ interface WordWithMentionProps {
   in_span: boolean;
   starting_span: boolean;
   tagged: boolean
-  // TODO: Fix the types on this
-  edit_entity: any;
-  delete_entity: any;
-  add_to_tag: any;
+  edit_entity: (arg0: number) => void ;
+  delete_entity: (arg0: number) => void;
+  add_to_tag: (arg0: number) => void;
 }
 
 class WordWithMention extends React.Component<WordWithMentionProps, {}> {
@@ -244,7 +243,9 @@ export default class Question extends React.Component<
     var current_title = undefined;
     let tokens_w_title = [];
     var token_idx = 0;
-    for (token_idx = 0; token_idx < this.state.tokens.length; token_idx++) {
+    let entity_pointer = 0;
+    
+    for (token_idx = 0; token_idx < this.state.tokens.length; token_idx++) {      
       let text: string = this.state.tokens[token_idx]["text"];
       let token_title = position_to_mention.get(token_idx);
       if (token_title == undefined) {
@@ -256,11 +257,9 @@ export default class Question extends React.Component<
           in_span = true;
           starting_span = true;
         }
-        // TODO: This does not handle the case where there are two separate mentions
-        // of the same title, right after one another. Need mention instead of title for
-        // this
       } else {
-        if (token_title == current_title) {
+        if (token_title == current_title && !(entity_pointer<this.state.entities.length && 
+      this.state.entity_locations[entity_pointer][0] == token_idx)) {
           in_span = true;
           starting_span = false;
         } else {
@@ -268,6 +267,11 @@ export default class Question extends React.Component<
           current_title = token_title;
           starting_span = true;
         }
+      }
+      
+      if(entity_pointer<this.state.entities.length && 
+      this.state.entity_locations[entity_pointer][0] == token_idx) {
+        entity_pointer+=1;
       }
       
       let tagged = false;
