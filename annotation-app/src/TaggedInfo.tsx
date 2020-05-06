@@ -40,6 +40,9 @@ export default class TaggedInfo extends React.Component<Props, State> {
 
   sub = () => {
     this.props.callbackFunction(this.state.value);
+    this.setState({
+      value: "",
+    });
   };
 
   handleChange = (id: any, newValue: string) => {
@@ -109,7 +112,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
     this.setState({ autocorrect: [] });
   };
 
-  getInput = () => {
+  getInput = () => {   
     if (this.props.tags.length > 0) {
       return (
         <div>

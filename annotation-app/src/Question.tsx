@@ -74,7 +74,6 @@ class WordWithMention extends React.Component<WordWithMentionProps, {}> {
     }
     let style = {};
     if(this.props.tagged) {
-      console.log("TAGGED!!! "+this.props.token_idx);
       style = {fontWeight:"bold"};
     }
     
@@ -178,9 +177,19 @@ export default class Question extends React.Component<
    
   }
   
-  edit_entity = (entity_number: number) => {
-    alert(entity_number);
-  }
+  edit_entity = (token_number: number) => {
+   let entity_number = -1;
+   for(var i = 0;i<this.state.entity_locations.length;i++) {
+     if(token_number>=this.state.entity_locations[i][0]&&
+     token_number<=this.state.entity_locations[i][1]) {
+       entity_number = i;
+     }
+   }
+   
+    this.setState({
+      currently_tagged: this.state.entity_locations[entity_number],
+      current_entity: this.state.entities[entity_number],
+    });  }
   
   deleteEntity = (entity_number: number) => {
     this.state.entities.splice(entity_number, 1);
@@ -194,21 +203,18 @@ export default class Question extends React.Component<
   /* Add another word to the current entity */
 
   add_to_tag = (i: number) => {
-    let new_tag = this.state.current_entity != "";
-    new_tag = new_tag || this.state.currently_tagged.length == 0;
-    console.log(new_tag);
-    if (new_tag) {
-      this.setState({
-        currently_tagged: [i, i],
-        current_entity: "",
-      });
-    } else {
+    if(this.state.currently_tagged.length == 0) {
+      this.setState({currently_tagged: [i,i],current_entity:""});
+    }
+    else {
       let lower_bound = Math.min(i, this.state.currently_tagged[0]);
       let upper_bound = Math.max(i, this.state.currently_tagged[1]);
       this.setState({
         currently_tagged: [lower_bound, upper_bound],
       });
     }
+    
+    console.log(this.state.currently_tagged);
   };
 
   titleCase = (string: string) => {
@@ -315,7 +321,8 @@ export default class Question extends React.Component<
         entities: entity_list,
         user_id: window.sessionStorage.getItem("token"),
       })
-    );
+    );      
+      
   };
 
   switch_preview = () => {
@@ -338,6 +345,21 @@ export default class Question extends React.Component<
     if (new_entity != "") {
       new_entity = titleCase(new_entity);
       let new_array = this.state.currently_tagged;
+      alert(new_array);
+      // Remove all intersecting entities, entity locations 
+      let to_splice = []
+      for(var i = 0;i<this.state.entity_locations.length;i++) {
+        if(!(this.state.entity_locations[i][0]>new_array[1] || this.state.entity_locations[i][1]<new_array[0])) {
+          console.log("Going to remove "+i + " with location "+this.state.entity_locations[i]);
+          to_splice.push(i);
+        }
+      }
+      for(var i = to_splice.length-1;i>=0;i--) {
+        this.state.entity_locations.splice(i,1);
+        this.state.entities.splice(i,1);
+      }
+      
+      
       // Write the new entity
       // Find out where in the list to write it
       let found = false;
