@@ -64,6 +64,8 @@ class WordWithMention extends React.Component<WordWithMentionProps, {}> {
       f(i);
     };
   };
+ 
+  
   render() {
     var mention_text = this.props.title;
     if (this.props.in_span && !this.props.starting_span) {
@@ -72,15 +74,20 @@ class WordWithMention extends React.Component<WordWithMentionProps, {}> {
     let mention =
       this.props.title == undefined ? (
         <Chip className="hidden" />
-      ) : (
+      ) : (mention_text == "" ? (
         <Chip
           label={mention_text}
           className="chip"
           //onClick={this.run_local(entity_pointer, this.editEntity)}
-          //onDelete={this.run_local(entity_pointer, this.deleteEntity)}
+          //onDelete={this.run_local(this.props.token_idx, this.props.delete_entity)}
           color={"primary"}
-        />
-      );
+        />) : (<Chip
+          label={mention_text}
+          className="chip"
+          //onClick={this.run_local(entity_pointer, this.editEntity)}
+          onDelete={this.run_local(this.props.token_idx, this.props.delete_entity)}
+          color={"primary"}
+        />));
     return (
       <div key={this.props.token_idx} className="word">
         <div
@@ -147,6 +154,22 @@ export default class Question extends React.Component<
     });
   };
 
+  delete_entity = (token_number: number) => {
+   let entity_number = -1;
+   for(var i = 0;i<this.state.entity_locations.length;i++) {
+     if(token_number>=this.state.entity_locations[i][0]&&
+     token_number<=this.state.entity_locations[i][1]) {
+       entity_number = i;
+     }
+   }
+   
+   this.state.entity_locations.splice(entity_number,1);
+   this.state.entities.splice(entity_number,1);
+   this.write_entities();
+   this.setState({});
+   
+  }
+  
   deleteEntity = (entity_number: number) => {
     this.state.entities.splice(entity_number, 1);
     this.state.entity_locations.splice(entity_number, 1);
@@ -242,7 +265,7 @@ export default class Question extends React.Component<
           starting_span={starting_span}
           title={current_title}
           edit_entity={undefined}
-          delete_entity={undefined}
+          delete_entity={this.delete_entity}
           add_to_tag={undefined}
         />
       );
