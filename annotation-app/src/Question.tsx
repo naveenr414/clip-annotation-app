@@ -39,6 +39,7 @@ interface WordWithMentionProps {
   token_idx: number;
   in_span: boolean;
   starting_span: boolean;
+  tagged: boolean
   // TODO: Fix the types on this
   edit_entity: any;
   delete_entity: any;
@@ -59,6 +60,7 @@ class WordWithMention extends React.Component<WordWithMentionProps, {}> {
     let ele = e.target as HTMLSpanElement;
     ele.style.backgroundColor = "white";
   };
+  
   run_local = (i: any, f: any) => {
     return function () {
       f(i);
@@ -71,6 +73,12 @@ class WordWithMention extends React.Component<WordWithMentionProps, {}> {
     if (this.props.in_span && !this.props.starting_span) {
       mention_text = "";
     }
+    let style = {};
+    if(this.props.tagged) {
+      console.log("TAGGED!!! "+this.props.token_idx);
+      style = {fontWeight:"bold"};
+    }
+    
     let mention =
       this.props.title == undefined ? (
         <Chip className="hidden" />
@@ -84,17 +92,18 @@ class WordWithMention extends React.Component<WordWithMentionProps, {}> {
         />) : (<Chip
           label={mention_text}
           className="chip"
-          //onClick={this.run_local(entity_pointer, this.editEntity)}
+          onClick={this.run_local(this.props.token_idx, this.props.edit_entity)}
           onDelete={this.run_local(this.props.token_idx, this.props.delete_entity)}
           color={"primary"}
         />));
     return (
       <div key={this.props.token_idx} className="word">
         <div
+        style={style}
           className="word-text"
           onMouseEnter={this.changeBold}
           onMouseLeave={this.changeUnbold}
-          // onClick={this.run_local(this.props.token_idx, this.addToTag)}
+          onClick={this.run_local(this.props.token_idx, this.props.add_to_tag)}
         >
           {this.props.text}
         </div>
@@ -170,6 +179,10 @@ export default class Question extends React.Component<
    
   }
   
+  edit_entity = (entity_number: number) => {
+    alert(entity_number);
+  }
+  
   deleteEntity = (entity_number: number) => {
     this.state.entities.splice(entity_number, 1);
     this.state.entity_locations.splice(entity_number, 1);
@@ -181,7 +194,7 @@ export default class Question extends React.Component<
 
   /* Add another word to the current entity */
 
-  addToTag = (i: number) => {
+  add_to_tag = (i: number) => {
     let new_tag = this.state.current_entity != "";
     new_tag = new_tag || this.state.currently_tagged.length == 0;
     console.log(new_tag);
@@ -256,6 +269,17 @@ export default class Question extends React.Component<
           starting_span = true;
         }
       }
+      
+      let tagged = false;
+      console.log("Tokenidx "+token_idx +" "+text);
+      if(this.state.currently_tagged.length == 2 &&
+      token_idx>=this.state.currently_tagged[0] &&
+      this.state.currently_tagged[1]>=token_idx) {
+        console.log(text+" was tagged");
+        tagged = true;
+      }
+     
+      
       tokens_w_title.push(
         // TODO: How to pass edit events? I know you can do it, but dont remember
         <WordWithMention
@@ -264,9 +288,10 @@ export default class Question extends React.Component<
           in_span={in_span}
           starting_span={starting_span}
           title={current_title}
-          edit_entity={undefined}
+          edit_entity={this.edit_entity}
           delete_entity={this.delete_entity}
-          add_to_tag={undefined}
+          add_to_tag={this.add_to_tag}
+          tagged={tagged}
         />
       );
     }
@@ -384,7 +409,15 @@ export default class Question extends React.Component<
       });
   };
 
+
   render() {
+      
+    let token_list = [];
+    
+    console.log(this.state.tokens[0]);
+    for(var i = 0;i<this.state.tokens.length;i++) {
+      token_list.push(this.state.tokens[i]["text"]);
+    }
     let tokens_with_mention = this.get_tokens_with_mention();
     return (
       <div className="Question">
@@ -416,6 +449,7 @@ export default class Question extends React.Component<
               question_text={this.state.question_text}
               tags={this.state.currently_tagged}
               entity={this.state.current_entity}
+              tokens={token_list}
             />
             <Divider />
           </CardContent>

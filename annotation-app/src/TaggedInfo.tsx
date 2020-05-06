@@ -15,6 +15,7 @@ interface Props {
   question_text: string;
   entity: string;
   callbackFunction: any;
+  tokens: string[];
 }
 
 export default class TaggedInfo extends React.Component<Props, State> {
@@ -31,7 +32,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
     let indices = this.props.tags;
     let words = [];
     for (var i = indices[0]; i <= indices[1]; i++) {
-      words.push(this.props.question_text.split(" ")[i]);
+      words.push(this.props.tokens[i]);
     }
 
     return words.join(" ");
