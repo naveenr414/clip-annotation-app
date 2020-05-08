@@ -54,6 +54,7 @@ export default class Span extends React.Component<SpanProps, {}> {
           onClick={this.run_local(this.props.token_idx, this.props.edit_entity)}
           onDelete={this.run_local(this.props.token_idx, this.props.delete_entity)}
           color={"primary"}
+          title={this.props.title?this.props.title:""}
         />);
     return (
       <div key={this.props.token_idx} className="word">
