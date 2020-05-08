@@ -12,7 +12,7 @@ import Divider from "@material-ui/core/Divider";
 import CardHeader from "@material-ui/core/CardHeader";
 import Collapse from "@material-ui/core/Collapse";
 import CardActions from "@material-ui/core/CardActions";
-import WordWithMention from "./WordWithMention";
+import Span from "./Span";
 
 interface QuestionState {
   tournament: string;
@@ -138,48 +138,34 @@ export default class Question extends React.Component<
       }
     }
     var in_span = false;
-    var starting_span = false;
     var current_title = undefined;
     let tokens_w_title = [];
     var token_idx = 0;
     let entity_pointer = 0;
-
-    for (token_idx = 0; token_idx < this.state.tokens.length; token_idx++) {
+    
+    while(token_idx < this.state.tokens.length) {
       let text: string = this.state.tokens[token_idx]["text"];
       let token_title = position_to_mention.get(token_idx);
+      let next_token = token_idx+1;
+      
+      // Is it a labeled entity 
       if (token_title === undefined) {
-        if (current_title === undefined) {
-          in_span = false;
-          starting_span = false;
-        } else {
-          current_title = token_title;
-          in_span = true;
-          starting_span = true;
-        }
+        in_span = false;
+         current_title = "";
       } else {
-        if (
-          token_title === current_title &&
-          !(
-            entity_pointer < this.state.entities.length &&
-            this.state.entity_locations[entity_pointer][0] === token_idx
-          )
-        ) {
-          in_span = true;
-          starting_span = false;
-        } else {
-          in_span = true;
-          current_title = token_title;
-          starting_span = true;
+        text = "";
+        in_span = true; 
+        for(var i = this.state.entity_locations[entity_pointer][0];
+          i<=this.state.entity_locations[entity_pointer][1];i++) {
+            text+=this.state.tokens[i]["text"] + " ";
         }
-      }
-
-      if (
-        entity_pointer < this.state.entities.length &&
-        this.state.entity_locations[entity_pointer][0] === token_idx
-      ) {
+          
+        next_token = i;
+        current_title = titleCase(this.state.entities[entity_pointer]);
         entity_pointer += 1;
       }
 
+      
       let tagged = false;
       if (
         this.state.currently_tagged.length === 2 &&
@@ -190,11 +176,10 @@ export default class Question extends React.Component<
       }
 
       tokens_w_title.push(
-        <WordWithMention
+        <Span
           token_idx={token_idx}
           text={text}
           in_span={in_span}
-          starting_span={starting_span}
           title={current_title}
           edit_entity={this.edit_entity}
           delete_entity={this.delete_entity}
@@ -202,6 +187,8 @@ export default class Question extends React.Component<
           tagged={tagged}
         />
       );
+      
+      token_idx = next_token;
     }
     return tokens_w_title;
   };
