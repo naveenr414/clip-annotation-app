@@ -3,7 +3,7 @@ import * as s from "./App.css";
 import Annotation from "./Annotation";
 import Login from "./Login";
 import Register from "./Register";
-import { Link, BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 function App() {
   console.log(s);

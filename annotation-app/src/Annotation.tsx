@@ -1,19 +1,12 @@
 import * as React from "react";
 import Question from "./Question";
-import Login from "./Login";
 import * as question_css from "./Question.css";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
-import {
-  Redirect,
-  Link,
-  BrowserRouter as Router,
-  Switch,
-  Route,
-} from "react-router-dom";
+import { Redirect, Link, BrowserRouter as Router } from "react-router-dom";
 import * as t from "./Annotation.css";
 
 interface State {
@@ -23,10 +16,6 @@ interface State {
 interface Props {}
 
 export default class Annotation extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-  }
-
   componentDidMount() {
     this.setState({
       entity: "Cajal Bodies",

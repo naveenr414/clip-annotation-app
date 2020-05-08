@@ -1,7 +1,5 @@
 import * as React from "react";
-import Question from "./Question";
 import * as t from "./Question.css";
-import TextField from "@material-ui/core/TextField";
 import { Button, Input } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 
@@ -23,10 +21,6 @@ export default class TaggedInfo extends React.Component<Props, State> {
     value: "",
     autocorrect: [],
   };
-
-  constructor(props: Props) {
-    super(props);
-  }
 
   getTags = () => {
     let indices = this.props.tags;
