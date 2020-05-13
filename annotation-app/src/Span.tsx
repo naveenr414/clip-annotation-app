@@ -42,7 +42,7 @@ export default class Span extends React.Component<SpanProps, {}> {
     
     let style = {};
     if(this.props.tagged) {
-      style = {fontWeight:"bold"};
+      style = {textDecorationLine:"underline"};
     }
     
     let mention =

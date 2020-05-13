@@ -59,7 +59,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
 
     if (e.currentTarget.value !== "") {
       fetch(
-        "http://localhost:8000/api/qanta/v1/api/qanta/autocorrect/" +
+        "/api/qanta/v1/api/qanta/autocorrect/" +
           e.currentTarget.value.toLowerCase()
       )
         .then((res) => res.json())

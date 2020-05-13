@@ -11,7 +11,7 @@ export function titleCase(string: string) {
 }
 
 export function getUsername() {
-  return fetch("http://localhost:8000/token/users/me", {
+  return fetch("/token/users/me", {
     method: "GET",
     headers: {
       accept: "application/json",
@@ -30,7 +30,7 @@ export function write_entities(
   entity_list: string[]
 ) {
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", "http://localhost:8000/api/entity/v1/new_entity");
+  xhr.open("POST", "/api/entity/v1/new_entity");
   xhr.send(
     JSON.stringify({
       question_id: question_id,

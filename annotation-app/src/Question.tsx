@@ -53,7 +53,7 @@ export default class Question extends React.Component<
   // TODO: Should pull this out into the caller of Question
   get_data = () => {
     fetch(
-      "http://localhost:8000/api/qanta/v1/api/qanta/v1/" +
+      "/api/qanta/v1/api/qanta/v1/" +
         this.state.question_id
     )
       .then((res) => res.json())

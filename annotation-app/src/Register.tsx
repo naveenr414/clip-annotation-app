@@ -41,7 +41,7 @@ export default class Register extends React.Component<Props, State> {
       encodeURIComponent(this.state.username) +
       "&password=" +
       encodeURIComponent(this.state.password);
-    fetch("http://localhost:8000/token/register", {
+    fetch("/token/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
