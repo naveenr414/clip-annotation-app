@@ -46,6 +46,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
   undo = () => {
     this.setState({
       value: "",
+      autocorrect: [],
     });
     this.props.callbackFunction("");
   };
@@ -56,17 +57,34 @@ export default class TaggedInfo extends React.Component<Props, State> {
     });
 
     this.setState({ autocorrect: [] });
+    
+    let tagged_word = this.getTags(); 
+    
+    let current_target = e.currentTarget.value.toLowerCase();
+                
+    fetch("/api/qanta/v1/api/qanta/autocorrect/"+tagged_word.toLowerCase()).then(
+      (res) => res.json()).then(
+      (res) => {
+        let first = res; 
+        if(first.length > 0) {
+          first = [first[0]];
+        }
+        
+        if (current_target !== "") {
+          fetch(
+            "/api/qanta/v1/api/qanta/autocorrect/" +
+              current_target
+          )
+            .then((res) => res.json())
+            .then((res) => {
+              this.setState({ autocorrect: first.concat(res) });
+            });
+        }
+        else {
+          this.setState({autocorrect: first});
+        }
+      });
 
-    if (e.currentTarget.value !== "") {
-      fetch(
-        "/api/qanta/v1/api/qanta/autocorrect/" +
-          e.currentTarget.value.toLowerCase()
-      )
-        .then((res) => res.json())
-        .then((res) => {
-          this.setState({ autocorrect: res });
-        });
-    }
   };
 
   setValue = (i: string) => {
