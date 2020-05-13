@@ -17,10 +17,11 @@ interface Props {
 }
 
 export default class TaggedInfo extends React.Component<Props, State> {
-  state: State = {
-    value: "",
-    autocorrect: [],
-  };
+  
+  constructor(props: Props){
+    super(props);
+    this.state = {value: "",autocorrect: []};
+  }
 
   getTags = () => {
     let indices = this.props.tags;
@@ -166,6 +167,12 @@ export default class TaggedInfo extends React.Component<Props, State> {
       return "Nothing currently tagged";
     }
   };
+  
+  componentDidUpdate(prevProps: Props) {
+    if(prevProps !== this.props && this.props.entity!=="" && prevProps.entity === "") {
+      this.setState({value:this.props.entity});
+    }
+  }
 
   render() {
     console.log(t);
