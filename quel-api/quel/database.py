@@ -162,6 +162,18 @@ class Database:
 
         log.info("Took %s time to write mentions", time.time() - start_time)
 
+    def get_questions_with_entity(self,entity):
+        entity = entity.lower()
+        with self._session_scope as session:
+            results = (
+                session.query(Mention)
+                .filter(Mention.entity == entity))
+            results = results.all()
+
+            question_ids = [i.question_id for i in results[:5]]
+            texts = [self.get_question_by_id(i)["text"] for i in question_ids]
+            return texts
+
     def get_entities(self, question_id):
         with self._session_scope as session:
 

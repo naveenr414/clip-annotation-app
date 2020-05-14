@@ -62,3 +62,7 @@ async def write_entity(entity: Entity):
     db.write_new_mentions(new_entities, qanta_id, user_id)
 
     return {"success": True}
+
+@router.get("/all_questions/{entity_name}")
+def get_questions(entity_name):
+    return db.get_questions_with_entity(entity_name)
