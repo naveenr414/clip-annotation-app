@@ -2,6 +2,9 @@ import * as React from "react";
 import * as t from "./Question.css";
 import { Button, Input } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import TextField from '@material-ui/core/TextField';
+
 
 interface State {
   value: string;
@@ -52,16 +55,17 @@ export default class TaggedInfo extends React.Component<Props, State> {
     this.props.callbackFunction("");
   };
 
-  updateAutocorrect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  updateAutocorrect = (event: object, value: any) => {
+    console.log(value);
     this.setState({
-      value: e.currentTarget.value,
+      value: value,
     });
 
     this.setState({ autocorrect: [] });
     
     let tagged_word = this.getTags(); 
     
-    let current_target = e.currentTarget.value.toLowerCase();
+    let current_target = value.toLowerCase();
                 
     fetch("/api/qanta/v1/api/qanta/autocorrect/"+tagged_word.toLowerCase()).then(
       (res) => res.json()).then(
@@ -133,10 +137,14 @@ export default class TaggedInfo extends React.Component<Props, State> {
             {" "}
             What entity is this:{" "}
           </Typography>
-          <Input
+          <Autocomplete
             style={{ fontSize: 24 }}
             value={this.state.value}
-            onChange={this.updateAutocorrect}
+            onInputChange={this.updateAutocorrect}   
+            getOptionLabel={(option) => option}
+            options={this.state.autocorrect}
+            renderInput={(params) => <TextField {...params} label="Entity" variant="outlined" />}
+
           />
           <Button style={{ fontSize: 24 }} color="primary" onClick={this.sub}>
             Save
@@ -144,8 +152,6 @@ export default class TaggedInfo extends React.Component<Props, State> {
           <Button style={{ fontSize: 24 }} color="primary" onClick={this.undo}>
             Undo
           </Button>
-
-          {this.getAutocorrect()}
         </div>
       );
     } else {
@@ -182,6 +188,8 @@ export default class TaggedInfo extends React.Component<Props, State> {
           {this.getStatus()} {this.getTags()}
         </Typography>
         {this.getInput()}
+
+
       </div>
     );
   }
