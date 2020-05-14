@@ -106,9 +106,7 @@ class Database:
                 question["tokenizations"] = str(question["tokenizations"])
                 question["tokens"] = json.dumps(question["tokens"])
                 question_list.append(question)
-
             session.bulk_insert_mappings(Question, question_list)
-
         log.info("Took %s time to write questions", time.time() - start)
 
     def write_entities(self, entities):
@@ -121,9 +119,7 @@ class Database:
                 name = html.unescape(i.replace("_", " "))
                 name = name.lower()
                 entity_list.append({"name": name, "link": i})
-
             session.bulk_insert_mappings(Entity, entity_list)
-
         log.info("Took %s time to write entities", time.time() - start)
 
     def write_mentions(self, mentions, source_name):
@@ -157,17 +153,13 @@ class Database:
                                 "machine_tagged": 1,
                             }
                         )
-
             session.bulk_insert_mappings(Mention, mention_list)
-
         log.info("Took %s time to write mentions", time.time() - start_time)
 
-    def get_questions_with_entity(self,entity):
+    def get_questions_with_entity(self, entity):
         entity = entity.lower()
         with self._session_scope as session:
-            results = (
-                session.query(Mention)
-                .filter(Mention.entity == entity))
+            results = session.query(Mention).filter(Mention.entity == entity)
             results = results.all()
 
             question_ids = [i.question_id for i in results[:5]]
@@ -182,15 +174,15 @@ class Database:
                 .filter(Mention.question_id == question_id)
                 .filter(Mention.deleted != 1)
             )
-            
+
             CUTOFF = 0.2
 
             question_dict = self.get_question_by_id(question_id)
             tokens = question_dict["tokens"]
-            
+
             t = time.time()
             results = results.all()
-            print("Took {} time to run the query".format(time.time()-t))
+            print("Took {} time to run the query".format(time.time() - t))
             results = [
                 {
                     "start": i.start,
@@ -207,8 +199,6 @@ class Database:
                 i for i in results if i["machine_tagged"] != 1 or i["score"] > CUTOFF
             ]
 
-
-
             entity_list = []
             entity_locations = []
             entity_ids = []
@@ -221,10 +211,8 @@ class Database:
                     and results[entity_pointer]["start"] < tokens[i]["char_start"]
                 ):
                     entity_pointer += 1
-
                 if entity_pointer == len(results):
                     break
-
                 if results[entity_pointer]["start"] == tokens[i]["char_start"]:
                     start = i
                     while results[entity_pointer]["end"] > tokens[i]["char_end"]:
@@ -239,8 +227,6 @@ class Database:
                     i += 1
                 else:
                     i += 1
-
-
             return entity_list, entity_locations, entity_ids
 
     def delete_mentions(self, mention_ids):
@@ -343,8 +329,8 @@ class Entity(Base):
 class Mention(Base):
     __tablename__ = "mentions"
     mention_id = Column(Integer, primary_key=True)
-    entity = Column(String, ForeignKey("entities.name"),index=True)
-    question_id = Column(Integer, ForeignKey("questions.qanta_id"),index=True)
+    entity = Column(String, ForeignKey("entities.name"), index=True)
+    question_id = Column(Integer, ForeignKey("questions.qanta_id"), index=True)
     start = Column(Integer)
     end = Column(Integer)
     score = Column(Float)

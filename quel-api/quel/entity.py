@@ -33,7 +33,6 @@ async def write_entity(entity: Entity):
         entity_name = old_entities[i]
 
         old_entity_tuples.append((start, end, entity_name))
-
     new_entity_tuples = []
     for i in range(len(entity.word_numbers)):
         new_entity_tuples.append(
@@ -43,18 +42,15 @@ async def write_entity(entity: Entity):
                 entity.entities[i],
             )
         )
-
     deleted_ids = []
 
     for i, tup in enumerate(old_entity_tuples):
         if tup not in new_entity_tuples:
             deleted_ids.append(old_entity_ids[i])
-
     new_entities = []
     for i in new_entity_tuples:
         if i not in old_entity_tuples:
             new_entities.append({"start": i[0], "end": i[1], "entity": i[2]})
-
     print("Deleting {}".format(deleted_ids))
     print("Writing {}".format(new_entities))
 
@@ -62,6 +58,7 @@ async def write_entity(entity: Entity):
     db.write_new_mentions(new_entities, qanta_id, user_id)
 
     return {"success": True}
+
 
 @router.get("/all_questions/{entity_name}")
 def get_questions(entity_name):
