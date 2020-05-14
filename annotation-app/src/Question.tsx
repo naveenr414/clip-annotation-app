@@ -13,6 +13,7 @@ import CardHeader from "@material-ui/core/CardHeader";
 import Collapse from "@material-ui/core/Collapse";
 import CardActions from "@material-ui/core/CardActions";
 import Span from "./Span";
+import {Link}  from "react-router-dom";
 
 interface QuestionState {
   tournament: string;
@@ -272,16 +273,20 @@ export default class Question extends React.Component<
     let ret = [];
     for (var i = 0; i < this.state.entities.length; i++) {
       ret.push(
-        <Chip
-          label={this.state.entities[i]}
-          style={{
-            fontSize: 24,
-            marginRight: 20,
-            paddingBottom: 10,
-            paddingTop: 10,
-          }}
-          color="primary"
-        />
+        <a 
+    href={"/api/entity/v1/all_questions/"+this.state.entities[i]}> 
+          <Chip
+            label={this.state.entities[i]}
+            style={{
+              fontSize: 24,
+              marginRight: 20,
+              paddingBottom: 10,
+              paddingTop: 10,
+            }}
+            color="primary"
+          />
+        
+        </a> 
       );
     }
 
@@ -319,9 +324,6 @@ export default class Question extends React.Component<
               {this.props.question_id}
             </Typography>
             <Divider />
-            <Typography style={{ fontSize: 24 }}>
-              Entities: {this.get_entities()}
-            </Typography>
             <TaggedInfo
               callbackFunction={this.callbackFunction}
               question_text={this.state.question_text}
@@ -337,8 +339,15 @@ export default class Question extends React.Component<
             collapsedHeight="200px"
             in={!this.state.preview}
           >
-            <CardContent>{tokens_with_mention}</CardContent>
+            <CardContent>
+              {tokens_with_mention}
+              <Typography style={{ fontSize: 24 }}>
+                  Entities: {this.get_entities()}
+              </Typography>
+            </CardContent>
           </Collapse>
+
+
           <CardActions disableSpacing>
             <IconButton
               onClick={this.switch_preview}
