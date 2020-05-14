@@ -164,17 +164,21 @@ class Database:
 
     def get_entities(self, question_id):
         with self._session_scope as session:
+
             results = (
                 session.query(Mention)
                 .filter(Mention.question_id == question_id)
                 .filter(Mention.deleted != 1)
             )
+            
             CUTOFF = 0.2
 
             question_dict = self.get_question_by_id(question_id)
             tokens = question_dict["tokens"]
-
+            
+            t = time.time()
             results = results.all()
+            print("Took {} time to run the query".format(time.time()-t))
             results = [
                 {
                     "start": i.start,
@@ -190,6 +194,8 @@ class Database:
             results = [
                 i for i in results if i["machine_tagged"] != 1 or i["score"] > CUTOFF
             ]
+
+
 
             entity_list = []
             entity_locations = []
@@ -221,6 +227,7 @@ class Database:
                     i += 1
                 else:
                     i += 1
+
 
             return entity_list, entity_locations, entity_ids
 
@@ -324,8 +331,8 @@ class Entity(Base):
 class Mention(Base):
     __tablename__ = "mentions"
     mention_id = Column(Integer, primary_key=True)
-    entity = Column(String, ForeignKey("entities.name"))
-    question_id = Column(Integer, ForeignKey("questions.qanta_id"))
+    entity = Column(String, ForeignKey("entities.name"),index=True)
+    question_id = Column(Integer, ForeignKey("questions.qanta_id"),index=True)
     start = Column(Integer)
     end = Column(Integer)
     score = Column(Float)

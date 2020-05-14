@@ -15,15 +15,17 @@ interface Props {}
 interface State {
   username: string;
   password: string;
+  verify_password: string;
   token: string;
 }
 
 export default class Register extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { username: "", password: "", token: "" };
+    this.state = { username: "", password: "", verify_password:"", token: "" };
     this.handleUsername = this.handleUsername.bind(this);
     this.handlePassword = this.handlePassword.bind(this);
+    this.handleVerifyPassword = this.handleVerifyPassword.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
@@ -34,32 +36,42 @@ export default class Register extends React.Component<Props, State> {
   handlePassword(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ password: event.target.value });
   }
+  
+  handleVerifyPassword(event: React.ChangeEvent<HTMLInputElement>) {
+    this.setState({ verify_password: event.target.value });
+  }
 
   handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    let data =
-      "username=" +
-      encodeURIComponent(this.state.username) +
-      "&password=" +
-      encodeURIComponent(this.state.password);
-    fetch("/token/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        accept: "application/json",
-      },
-      body: data,
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        if ("access_token" in result) {
-          let token = result["access_token"];
-          window.sessionStorage.setItem("token", token);
-          console.log(window.sessionStorage.getItem("token"));
-          this.setState({ username: this.state.username });
-        } else {
-          this.setState({ username: "", password: "" });
-        }
-      });
+    
+    if(this.state.password == this.state.verify_password) {
+      let data =
+        "username=" +
+        encodeURIComponent(this.state.username) +
+        "&password=" +
+        encodeURIComponent(this.state.password);
+      fetch("/token/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          accept: "application/json",
+        },
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((result) => {
+          if ("access_token" in result) {
+            let token = result["access_token"];
+            window.sessionStorage.setItem("token", token);
+            console.log(window.sessionStorage.getItem("token"));
+            this.setState({ username: this.state.username });
+          } else {
+            this.setState({ username: "", password: "",verify_password:"" });
+          }
+        });
+    }
+    else {
+      this.setState({password:"",verify_password:""});
+    }
     event.preventDefault();
   }
 
@@ -87,7 +99,7 @@ export default class Register extends React.Component<Props, State> {
               required
               fullWidth
               id="username"
-              label="Username"
+              label="Email"
               name="username"
               value={this.state.username}
               onChange={this.handleUsername}
@@ -105,6 +117,19 @@ export default class Register extends React.Component<Props, State> {
               autoComplete="current-password"
               value={this.state.password}
               onChange={this.handlePassword}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="verify_password"
+              label="Verify Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              value={this.state.verify_password}
+              onChange={this.handleVerifyPassword}
             />
             <Button
               type="submit"
