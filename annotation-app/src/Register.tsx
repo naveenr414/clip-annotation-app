@@ -16,13 +16,15 @@ interface State {
   username: string;
   password: string;
   verify_password: string;
+  username_helper: string; 
+  password_helper: string;
   token: string;
 }
 
 export default class Register extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { username: "", password: "", verify_password:"", token: "" };
+    this.state = { username: "", password: "", verify_password:"", username_helper: "", password_helper: "", token: "" };
     this.handleUsername = this.handleUsername.bind(this);
     this.handlePassword = this.handlePassword.bind(this);
     this.handleVerifyPassword = this.handleVerifyPassword.bind(this);
@@ -41,9 +43,22 @@ export default class Register extends React.Component<Props, State> {
     this.setState({ verify_password: event.target.value });
   }
 
+  valid_email = (mail: string) => 
+  {
+   if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail))
+    {
+      return (true)
+    }
+    return (false)
+  }
+
+  
   handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    if(!this.valid_email(this.state.username)) {
+      this.setState({username:"",password:"",verify_password:"",username_helper:"Not a valid email  ", password_helper:""});
+    }
     
-    if(this.state.password == this.state.verify_password) {
+    else if(this.state.password == this.state.verify_password) {
       let data =
         "username=" +
         encodeURIComponent(this.state.username) +
@@ -65,12 +80,12 @@ export default class Register extends React.Component<Props, State> {
             console.log(window.sessionStorage.getItem("token"));
             this.setState({ username: this.state.username });
           } else {
-            this.setState({ username: "", password: "",verify_password:"" });
+            this.setState({ username: "", password: "",verify_password:"",username_helper:"Username already used", password_helper: "" });
           }
         });
     }
     else {
-      this.setState({password:"",verify_password:""});
+      this.setState({username_helper: "", password_helper:"Passwords don't match", password:"",verify_password:""});
     }
     event.preventDefault();
   }
@@ -93,7 +108,7 @@ export default class Register extends React.Component<Props, State> {
             Register
           </Typography>
           <form className="form" noValidate onSubmit={this.handleSubmit}>
-            <TextField
+            <TextField 
               variant="outlined"
               margin="normal"
               required
@@ -103,6 +118,7 @@ export default class Register extends React.Component<Props, State> {
               name="username"
               value={this.state.username}
               onChange={this.handleUsername}
+              helperText={this.state.username_helper}
               autoFocus
             />
             <TextField
@@ -117,6 +133,7 @@ export default class Register extends React.Component<Props, State> {
               autoComplete="current-password"
               value={this.state.password}
               onChange={this.handlePassword}
+              helperText={this.state.password_helper}
             />
             <TextField
               variant="outlined"

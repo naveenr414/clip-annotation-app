@@ -15,13 +15,15 @@ interface Props {}
 interface State {
   username: string;
   password: string;
+  password_helper: string; 
+  username_helper: string; 
   token: string;
 }
 
 export default class Login extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { username: "", password: "", token: "" };
+    this.state = { username: "", password: "", token: "", username_helper:"",password_helper:"" };
     this.handleUsername = this.handleUsername.bind(this);
     this.handlePassword = this.handlePassword.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -57,7 +59,7 @@ export default class Login extends React.Component<Props, State> {
           console.log(window.sessionStorage.getItem("token"));
           this.setState({ username: this.state.username });
         } else {
-          this.setState({ username: "", password: "" });
+          this.setState({ username: "", password: "", username_helper:"Invalid email or password", password_helper:"" });
         }
       });
     event.preventDefault();
@@ -87,10 +89,11 @@ export default class Login extends React.Component<Props, State> {
               required
               fullWidth
               id="username"
-              label="Username"
+              label="Email"
               name="username"
               value={this.state.username}
               onChange={this.handleUsername}
+              helperText={this.state.username_helper}
               autoFocus
             />
             <TextField
@@ -105,6 +108,7 @@ export default class Login extends React.Component<Props, State> {
               autoComplete="current-password"
               value={this.state.password}
               onChange={this.handlePassword}
+              helperText={this.state.password_helper}
             />
             <Button
               type="submit"
