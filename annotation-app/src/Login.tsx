@@ -56,7 +56,6 @@ export default class Login extends React.Component<Props, State> {
         if ("access_token" in result) {
           let token = result["access_token"];
           window.sessionStorage.setItem("token", token);
-          console.log(window.sessionStorage.getItem("token"));
           this.setState({ username: this.state.username });
         } else {
           this.setState({ username: "", password: "", username_helper:"Invalid email or password", password_helper:"" });
@@ -70,7 +69,7 @@ export default class Login extends React.Component<Props, State> {
       return <Redirect to="/" />;
     }
 
-    console.log(login_css);
+    console.log("Login style "+login_css);
 
     return (
       <Container maxWidth="xs">

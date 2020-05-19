@@ -13,7 +13,6 @@ import CardHeader from "@material-ui/core/CardHeader";
 import Collapse from "@material-ui/core/Collapse";
 import CardActions from "@material-ui/core/CardActions";
 import Span from "./Span";
-import {Link}  from "react-router-dom";
 
 interface QuestionState {
   tournament: string;
@@ -59,7 +58,6 @@ export default class Question extends React.Component<
     )
       .then((res) => res.json())
       .then((result) => {
-        console.debug(result);
         this.setState({
           question_text: result["text"],
           answer: result["answer"],
@@ -74,6 +72,9 @@ export default class Question extends React.Component<
   constructor(props: QuestionProps) {
     super(props);
     this.state.question_id = parseInt(props.question_id);
+  }
+  
+  componentDidMount() {
     this.get_data();
   }
 
@@ -186,6 +187,7 @@ export default class Question extends React.Component<
           delete_entity={this.delete_entity}
           add_to_tag={this.add_to_tag}
           tagged={tagged}
+          key={token_idx}
         />
       );
       
@@ -274,7 +276,7 @@ export default class Question extends React.Component<
     for (var i = 0; i < this.state.entities.length; i++) {
       ret.push(
         <a 
-    href={"/api/entity/v1/all_questions/"+this.state.entities[i]}> 
+    href={"/api/entity/v1/all_questions/"+this.state.entities[i]} key={i}> 
           <Chip
             label={this.state.entities[i]}
             style={{
@@ -296,7 +298,7 @@ export default class Question extends React.Component<
   render() {
     let token_list = [];
     // Load in the style
-    console.log("Style "+p);
+    console.log("Question Style "+p);
 
     for (var i = 0; i < this.state.tokens.length; i++) {
       token_list.push(this.state.tokens[i]["text"]);
@@ -341,7 +343,7 @@ export default class Question extends React.Component<
           >
             <CardContent>
               {tokens_with_mention}
-              <Typography style={{ fontSize: 24 }}>
+              <Typography component={'span'} style={{ fontSize: 24 }}>
                   Entities: {this.get_entities()}
               </Typography>
             </CardContent>

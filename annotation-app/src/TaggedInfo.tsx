@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as t from "./Question.css";
-import { Button, Input } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
@@ -56,7 +56,6 @@ export default class TaggedInfo extends React.Component<Props, State> {
   };
 
   updateAutocorrect = (event: object, value: any) => {
-    console.log(value);
     this.setState({
       value: value,
     });
@@ -181,7 +180,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
   }
 
   render() {
-    console.log(t);
+    console.log("TaggedInfo Style "+t);
     return (
       <div>
         <Typography color="textSecondary" style={{ fontSize: 24 }}>

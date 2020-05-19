@@ -45,7 +45,7 @@ export default class Register extends React.Component<Props, State> {
 
   valid_email = (mail: string) => 
   {
-   if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail))
+   if (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(mail))
     {
       return (true)
     }
@@ -58,7 +58,7 @@ export default class Register extends React.Component<Props, State> {
       this.setState({username:"",password:"",verify_password:"",username_helper:"Not a valid email  ", password_helper:""});
     }
     
-    else if(this.state.password == this.state.verify_password) {
+    else if(this.state.password === this.state.verify_password) {
       let data =
         "username=" +
         encodeURIComponent(this.state.username) +
@@ -77,7 +77,6 @@ export default class Register extends React.Component<Props, State> {
           if ("access_token" in result) {
             let token = result["access_token"];
             window.sessionStorage.setItem("token", token);
-            console.log(window.sessionStorage.getItem("token"));
             this.setState({ username: this.state.username });
           } else {
             this.setState({ username: "", password: "",verify_password:"",username_helper:"Username already used", password_helper: "" });
@@ -95,8 +94,8 @@ export default class Register extends React.Component<Props, State> {
       return <Redirect to="/" />;
     }
 
-    console.log(p);
-
+    console.log("Register style "+p);
+    
     return (
       <Container maxWidth="xs">
         <CssBaseline />

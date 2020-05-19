@@ -64,6 +64,7 @@ export default class Span extends React.Component<SpanProps, {}> {
           onMouseEnter={this.changeBold}
           onMouseLeave={this.changeUnbold}
           onClick={this.run_local(this.props.token_idx, this.props.add_to_tag)}
+          onFocus={function(){alert("Hello!")}}
         >
           {this.props.text}
         </div>

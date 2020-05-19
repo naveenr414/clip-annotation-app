@@ -6,7 +6,7 @@ import Register from "./Register";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 function App() {
-  console.log(s);
+  console.log("App style "+s);
   return (
     <Router>
       <Switch>

@@ -28,8 +28,7 @@ export default class Annotation extends React.Component<Props, State> {
   };
 
   render() {
-    console.log(t);
-    console.log(question_css);
+    console.log("Annotation style "+t + " "+question_css);
     if (window.sessionStorage.getItem("token") == null) {
       return <Redirect to="/login" />;
     }
@@ -39,7 +38,7 @@ export default class Annotation extends React.Component<Props, State> {
         <AppBar position="static">
           <Toolbar>
             <Router>
-              <Typography style={{ fontSize: 24, marginLeft: 50 }}>
+              <Typography component={'span'} style={{ fontSize: 24, marginLeft: 50 }}>
                 {" "}
                 <Link
                   to="/"
@@ -54,7 +53,7 @@ export default class Annotation extends React.Component<Props, State> {
                   Home{" "}
                 </Link>{" "}
               </Typography>
-              <Typography style={{ fontSize: 24, marginLeft: 50 }}>
+              <Typography component={'span'} style={{ fontSize: 24, marginLeft: 50 }}>
                 {" "}
                 <Link
                   to="/"
@@ -69,7 +68,7 @@ export default class Annotation extends React.Component<Props, State> {
                   Login{" "}
                 </Link>{" "}
               </Typography>
-              <Typography style={{ fontSize: 24, marginLeft: 50 }}>
+              <Typography component={'span'} style={{ fontSize: 24, marginLeft: 50 }}>
                 {" "}
                 <Link
                   to="/"
