@@ -44,6 +44,9 @@ export default class Span extends React.Component<SpanProps, {}> {
     if(this.props.tagged) {
       style = {textDecorationLine:"underline"};
     }
+    else if(this.props.in_span) {
+      style = {backgroundColor: "yellow"};
+    }
     
     let mention =
       !this.props.in_span ? (

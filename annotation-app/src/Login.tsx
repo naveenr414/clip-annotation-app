@@ -90,9 +90,11 @@ export default class Login extends React.Component<Props, State> {
               id="username"
               label="Email"
               name="username"
+              style={{color:"red"}}
               value={this.state.username}
               onChange={this.handleUsername}
               helperText={this.state.username_helper}
+              error={this.state.username_helper!==""}
               autoFocus
             />
             <TextField
@@ -108,6 +110,7 @@ export default class Login extends React.Component<Props, State> {
               value={this.state.password}
               onChange={this.handlePassword}
               helperText={this.state.password_helper}
+              error={this.state.password_helper!==""}
             />
             <Button
               type="submit"

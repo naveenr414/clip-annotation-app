@@ -118,6 +118,7 @@ export default class Register extends React.Component<Props, State> {
               value={this.state.username}
               onChange={this.handleUsername}
               helperText={this.state.username_helper}
+              error={this.state.username_helper!==""}
               autoFocus
             />
             <TextField
@@ -133,6 +134,7 @@ export default class Register extends React.Component<Props, State> {
               value={this.state.password}
               onChange={this.handlePassword}
               helperText={this.state.password_helper}
+              error={this.state.password_helper!==""}
             />
             <TextField
               variant="outlined"
@@ -146,6 +148,7 @@ export default class Register extends React.Component<Props, State> {
               autoComplete="current-password"
               value={this.state.verify_password}
               onChange={this.handleVerifyPassword}
+
             />
             <Button
               type="submit"

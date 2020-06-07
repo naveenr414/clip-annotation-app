@@ -21,7 +21,7 @@ interface QuestionState {
   question_text: string;
   question_id: number;
   answer: string;
-
+  category: string;
   // It's a list of dictionaries
   tokens: any;
   currently_tagged: number[];
@@ -40,6 +40,7 @@ export default class Question extends React.Component<
   state: QuestionState = {
     tournament: "",
     entities: [],
+    category: "",
     entity_locations: [],
     question_text: "",
     question_id: 0,
@@ -65,6 +66,7 @@ export default class Question extends React.Component<
           entities: result["entities"],
           entity_locations: result["entity_locations"],
           tokens: result["tokens"],
+          category: result["category"],
         });
       });
   };
@@ -131,6 +133,7 @@ export default class Question extends React.Component<
 
   // Render each token
   get_tokens_with_mention = () => {
+    
     let position_to_mention = new Map();
     for (let i = 0; i < this.state.entity_locations.length; i++) {
       let span = this.state.entity_locations[i];
@@ -308,7 +311,7 @@ export default class Question extends React.Component<
       <div className="Question">
         <Card variant="outlined">
           <CardHeader
-            title={"Qanta Question: " + this.props.question_id}
+            title={"Category: " + this.state.category +", Answer: "+this.state.answer}
             className="question-header"
           />
           <Divider />
@@ -343,9 +346,6 @@ export default class Question extends React.Component<
           >
             <CardContent>
               {tokens_with_mention}
-              <Typography component={'span'} style={{ fontSize: 24 }}>
-                  Entities: {this.get_entities()}
-              </Typography>
             </CardContent>
           </Collapse>
 

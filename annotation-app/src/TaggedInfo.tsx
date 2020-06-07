@@ -112,7 +112,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
         <div onClick={this.run_local(arr[i], this.setValue)}>
           <strong> {arr[i].substr(0, this.state.value.length)}</strong>
           {arr[i].substr(this.state.value.length)}
-          <input type="hidden" value={arr[i]} />
+          <input type="hidden" value={arr[i]}  />
         </div>
       );
     }
@@ -127,6 +127,12 @@ export default class TaggedInfo extends React.Component<Props, State> {
   clearAutocorrect = () => {
     this.setState({ autocorrect: [] });
   };
+  
+  checkKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if(e.keyCode == 13) { 
+      setTimeout(this.sub,100);
+    }
+  }
 
   getInput = () => {   
     if (this.props.tags.length > 0) {
@@ -142,7 +148,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
             onInputChange={this.updateAutocorrect}   
             getOptionLabel={(option) => option}
             options={this.state.autocorrect}
-            renderInput={(params) => <TextField {...params} label="Entity" variant="outlined" />}
+            renderInput={(params) => <TextField {...params} label="Entity" variant="outlined" onKeyDown={this.checkKeyPress} />}
 
           />
           <Button style={{ fontSize: 24 }} color="primary" onClick={this.sub}>
@@ -169,7 +175,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
     if (this.props.tags.length > 0) {
       return "Current Tags:";
     } else {
-      return "Nothing currently tagged";
+      return "";
     }
   };
   
