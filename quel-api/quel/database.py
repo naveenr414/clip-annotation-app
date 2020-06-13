@@ -4,6 +4,7 @@ import time
 import random
 from contextlib import contextmanager
 import html
+import random
 
 from sqlalchemy import (
     Column,
@@ -17,6 +18,7 @@ from sqlalchemy import (
     Table,
     Column,
     ForeignKey,
+    PrimaryKeyConstraint,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -81,6 +83,12 @@ class Database:
             question = session.query(Question).filter_by(qanta_id=qanta_id).first()
             return question.to_dict()
 
+    def get_questions_by_packet(self,packet_id: int):
+        with self._session_scope as session:
+            questions = session.query(Packet).filter_by(packet_id=packet_id).all()
+            print(questions)
+            return [i.question_id for i in questions]
+
     def get_autocorrect(self, text: str):
         with self._session_scope as session:
             start = time.time()
@@ -96,6 +104,16 @@ class Database:
             l = [str(i) for i in results]
             log.info("Took %s time to autocorrect", time.time() - start)
             return l
+
+    def write_dummy_packets(self):
+        packet_num = random.randint(0,1000)
+        question_list = [{'packet_id':packet_num,'question_id':(random.randint(0,20000))} for i in range(5)]
+
+        with self._session_scope as session:
+            session.bulk_insert_mappings(Packet,question_list)
+
+        print("Inserted dummy packet! {}".format(packet_num))
+                        
 
     def write_questions(self, questions: Dict[str, Any]):
         start = time.time()
@@ -346,3 +364,14 @@ class User(Base):
 
     def __str__(self):
         return self.email
+
+class Packet(Base):
+    __tablename__ = "packets"
+    packet_id = Column(Integer,index=True)
+    question_id = Column(Integer,ForeignKey("questions.qanta_id"))
+
+    __table_args__ = (
+        PrimaryKeyConstraint('packet_id', 'question_id'),
+        {},
+    )
+

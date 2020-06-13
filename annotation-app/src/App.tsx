@@ -17,7 +17,7 @@ function App() {
           <Register />
         </Route>
         <Route path="/">
-          <Annotation />
+          <Annotation/>
         </Route>
       </Switch>
     </Router>

@@ -10,13 +10,22 @@ import { Redirect, Link, BrowserRouter as Router } from "react-router-dom";
 import * as t from "./Annotation.css";
 import Help from "./Help";
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import { Button,TextField } from "@material-ui/core";
+
 
 interface State {
   entity: string;
   helpOpen: boolean;
+  question_list: number[];
+  pageNumber: number;
+  newPageNumber: string;
+  packetID: string;
+  newPacketID: string;
 }
 
-interface Props {}
+interface Props {
+  
+}
 
 export default class Annotation extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -24,8 +33,28 @@ export default class Annotation extends React.Component<Props, State> {
     this.state = {
       entity: '',
       helpOpen: false,
+      question_list: [],
+      pageNumber: 0,
+      newPageNumber: '',
+      packetID: "",
+      newPacketID: "",
     }
+    this.get_questions()
   }
+  
+  get_questions = () => {
+    fetch(
+      "/api/qanta/v1/api/qanta/packet/" +
+        this.state.packetID.toString()
+    )
+      .then((res) => res.json())
+      .then((result) => {
+        this.setState({
+            question_list: result,
+        });
+      });
+  };
+
 
   logout = () => {
     window.sessionStorage.removeItem("token");
@@ -35,86 +64,152 @@ export default class Annotation extends React.Component<Props, State> {
   toggleHelp = () => {
     this.setState({helpOpen:!this.state.helpOpen});
   }
+  
+  render_questions = () => {
+    if(this.state.question_list.length>this.state.pageNumber) {
+      return <Question question_id={this.state.question_list[this.state.pageNumber].toString()} />
+    }
+    else {
+      return [];
+    }    
+  }
+  
+  incrementNumber = () => {
+    this.setState({pageNumber:(this.state.pageNumber+1)%(this.state.question_list.length)});
+  }
 
+  decrementNumber = () => {
+    this.setState({pageNumber:(this.state.pageNumber-1+this.state.question_list.length)%(this.state.question_list.length)});
+  }
+  
+  changePage = () => {
+    this.setState({pageNumber: parseInt(this.state.newPageNumber)-1});
+  }
+  
+  _handleTextFieldChange = (e: any) => {
+        this.setState({
+            newPageNumber: e.target.value,
+        });
+    }
+    
+  changePacketID = () => {
+    const p = this.state.newPacketID
+
+    this.setState({packetID:p}, () => {
+      this.get_questions();
+    });
+  }
+
+  changePacket = (e: any) => {
+        this.setState({
+            newPacketID: e.target.value,
+        });
+  }
+  
   render = () => {
     console.log("Annotation style "+t + " "+question_css);
     if (window.sessionStorage.getItem("token") == null) {
       return <Redirect to="/login" />;
     }
     
-    return (
-      <div>
-        <AppBar position="static">
-          <Toolbar>
-            <Router>
-              <Typography component={'span'} style={{ fontSize: 24, marginLeft: 50 }}>
-                {" "}
-                <Link
-                  to="/"
-                  href="/"
-                  style={{
-                    color: "white",
-                    textDecoration: "none",
-                    textAlign: "right",
-                  }}
-                >
+    if(this.state.packetID === "") {
+      return (<div> <Typography style={{ fontSize: 24, marginRight: 20}}> Go to Packet: {" "}  </Typography> 
+      <TextField style={{ fontSize: 24 }} color="primary" value={this.state.newPacketID} onChange={this.changePacket} />
+      <Button style={{ fontSize: 24 }} color="primary" onClick={this.changePacketID}>
+        Submit
+      </Button> </div>);
+
+    }
+    else {
+      return (
+        <div>
+          <AppBar position="static">
+            <Toolbar>
+              <Router>
+                <Typography component={'span'} style={{ fontSize: 24, marginLeft: 50 }}>
                   {" "}
-                  Home{" "}
-                </Link>{" "}
-              </Typography>
-              <Typography component={'span'} style={{ fontSize: 24, marginLeft: 50 }}>
-                {" "}
-                <Link
-                  to="/"
-                  href="/login"
-                  style={{
-                    color: "white",
-                    textDecoration: "none",
-                    textAlign: "right",
-                  }}
-                >
+                  <Link
+                    to="/"
+                    href="/"
+                    style={{
+                      color: "white",
+                      textDecoration: "none",
+                      textAlign: "right",
+                    }}
+                  >
+                    {" "}
+                    Home{" "}
+                  </Link>{" "}
+                </Typography>
+                <Typography component={'span'} style={{ fontSize: 24, marginLeft: 50 }}>
                   {" "}
-                  Login{" "}
-                </Link>{" "}
-              </Typography>
-              <Typography component={'span'} style={{ fontSize: 24, marginLeft: 50 }}>
-                {" "}
-                <Link
-                  to="/"
-                  onClick={this.logout}
-                  href="/login"
-                  style={{
-                    color: "white",
-                    textDecoration: "none",
-                    textAlign: "right",
-                  }}
-                >
+                  <Link
+                    to="/"
+                    href="/login"
+                    style={{
+                      color: "white",
+                      textDecoration: "none",
+                      textAlign: "right",
+                    }}
+                  >
+                    {" "}
+                    Login{" "}
+                  </Link>{" "}
+                </Typography>
+                <Typography component={'span'} style={{ fontSize: 24, marginLeft: 50 }}>
                   {" "}
-                  Logout{" "}
-                </Link>{" "}
-              </Typography>
-              <HelpOutlineIcon style={{ fontSize: 24, width: 30, height: 30, marginLeft: 50 }}                   onClick={this.toggleHelp} />
-            </Router>
-          </Toolbar>
-        </AppBar>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-        />
-        <Container maxWidth="lg">
-          <Grid
-            container
-            direction="column"
-            justify="center"
-            alignItems="center"
-          >
-            <Help onClose={this.toggleHelp} show={this.state.helpOpen} />
-            <Question question_id="2" />
-            <Question question_id="3" />
-            <Question question_id="4" />
-          </Grid>
-        </Container>
-      </div>
-    );
+                  <Link
+                    to="/"
+                    onClick={this.logout}
+                    href="/login"
+                    style={{
+                      color: "white",
+                      textDecoration: "none",
+                      textAlign: "right",
+                    }}
+                  >
+                    {" "}
+                    Logout{" "}
+                  </Link>{" "}
+                </Typography>
+                <HelpOutlineIcon style={{ fontSize: 24, width: 30, height: 30, marginLeft: 50 }}                   onClick={this.toggleHelp} />
+              </Router>
+            </Toolbar>
+          </AppBar>
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+          />
+          <Container maxWidth="lg">
+            <Grid
+              container
+              direction="column"
+              justify="center"
+              alignItems="center"
+            >
+              <Help onClose={this.toggleHelp} show={this.state.helpOpen} />
+              <Typography  style={{ fontSize: 24, marginTop: 30}}> Question No: {this.state.pageNumber+1} out of {this.state.question_list.length} </Typography> 
+              {this.render_questions()}
+
+              <Grid item xs={6}>
+                <Button style={{ fontSize: 24, margin: 40 }} color="primary" onClick={this.incrementNumber}>
+                  Next
+                </Button>
+                <Button style={{ fontSize: 24, margin: 40 }} color="primary" onClick={this.decrementNumber}>
+                  Previous
+                </Button>
+              </Grid>
+              <div style={{display: "flex"}}> 
+                <Typography style={{ fontSize: 24, marginRight: 20}}> Go to Question: {" "}  </Typography> 
+                <TextField style={{ fontSize: 24 }} color="primary" value={this.state.newPageNumber} onChange={this._handleTextFieldChange} />
+                <Button style={{ fontSize: 24 }} color="primary" onClick={this.changePage}>
+                  Submit
+                </Button>
+              </div> 
+            </Grid>
+          </Container>
+        </div>
+      );
+    }
   }
 }

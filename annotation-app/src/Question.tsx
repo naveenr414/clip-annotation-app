@@ -44,7 +44,7 @@ export default class Question extends React.Component<
     category: "",
     entity_locations: [],
     question_text: "",
-    question_id: 0,
+    question_id: parseInt(this.props.question_id),
     answer: "",
     tokens: [],
     currently_tagged: [],
@@ -52,12 +52,30 @@ export default class Question extends React.Component<
     preview: true,
     mouseDown: false,
   };
+  
+  componentDidUpdate  = (previous_props: QuestionProps) => {
+    if(previous_props.question_id != this.props.question_id) {
+      this.setState({tournament: "",
+        entities: [],
+        category: "",
+        entity_locations: [],
+        question_text: "",
+        question_id: parseInt(this.props.question_id),
+        answer: "",
+        tokens: [],
+        currently_tagged: [],
+        current_entity: "",
+        preview: true,
+        mouseDown: false,});
+       this.get_data();
+    }
+  }
 
   // TODO: Should pull this out into the caller of Question
   get_data = () => {
     fetch(
       "/api/qanta/v1/api/qanta/v1/" +
-        this.state.question_id
+        this.props.question_id
     )
       .then((res) => res.json())
       .then((result) => {
@@ -76,11 +94,9 @@ export default class Question extends React.Component<
   constructor(props: QuestionProps) {
     super(props);
     this.state.question_id = parseInt(props.question_id);
-  }
-  
-  componentDidMount() {
     this.get_data();
   }
+  
 
   // The three ways to update currently tagged
   edit_entity = (token_number: number) => {
@@ -114,7 +130,7 @@ export default class Question extends React.Component<
     this.state.entity_locations.splice(entity_number, 1);
     this.state.entities.splice(entity_number, 1);
     write_entities(
-      this.state.question_id,
+      parseInt(this.props.question_id),
       this.state.entity_locations,
       this.state.entities
     );
@@ -257,7 +273,7 @@ export default class Question extends React.Component<
       }
 
       write_entities(
-        this.state.question_id,
+        parseInt(this.props.question_id),
         this.state.entity_locations,
         this.state.entities
       );
