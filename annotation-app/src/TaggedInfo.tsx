@@ -129,7 +129,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
   };
   
   checkKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if(e.keyCode == 13) { 
+    if(e.keyCode === 13) { 
       setTimeout(this.sub,100);
     }
   }

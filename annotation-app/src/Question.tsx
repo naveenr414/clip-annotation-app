@@ -27,6 +27,7 @@ interface QuestionState {
   currently_tagged: number[];
   current_entity: string;
   preview: boolean;
+  mouseDown: boolean;
 }
 
 interface QuestionProps {
@@ -49,6 +50,7 @@ export default class Question extends React.Component<
     currently_tagged: [],
     current_entity: "",
     preview: true,
+    mouseDown: false,
   };
 
   // TODO: Should pull this out into the caller of Question
@@ -120,6 +122,12 @@ export default class Question extends React.Component<
   };
 
   add_to_tag = (i: number) => {
+    for(var j = 0;j<this.state.entity_locations.length;j++) {
+      if(this.state.entity_locations[j][0]<=i && this.state.entity_locations[j][1]>=i) {
+        return;
+      }
+    }
+    
     if (this.state.currently_tagged.length === 0) {
       this.setState({ currently_tagged: [i, i], current_entity: "" });
     } else {
@@ -184,6 +192,7 @@ export default class Question extends React.Component<
         <Span
           token_idx={token_idx}
           text={text}
+          mouseDown={this.state.mouseDown}
           in_span={in_span}
           title={current_title}
           edit_entity={this.edit_entity}
@@ -297,7 +306,7 @@ export default class Question extends React.Component<
 
     return ret;
   };
-
+  
   render() {
     let token_list = [];
     // Load in the style
@@ -344,7 +353,9 @@ export default class Question extends React.Component<
             collapsedHeight="200px"
             in={!this.state.preview}
           >
-            <CardContent>
+            <CardContent onMouseDown={() => {
+              this.setState({mouseDown:true});
+              console.log(this.state.mouseDown);}} onMouseUp={() => {this.setState({mouseDown: false})}}>
               {tokens_with_mention}
             </CardContent>
           </Collapse>

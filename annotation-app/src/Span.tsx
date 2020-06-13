@@ -10,13 +10,19 @@ interface SpanProps {
   edit_entity: (arg0: number) => void ;
   delete_entity: (arg0: number) => void;
   add_to_tag: (arg0: number) => void;
+  mouseDown: boolean;
 }
 
 export default class Span extends React.Component<SpanProps, {}> {
   state = {};
   changeBold = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
-    let ele = e.target as HTMLSpanElement;
-    ele.style.backgroundColor = "yellow";
+    if(this.props.mouseDown){
+        this.run_local(this.props.token_idx, this.props.add_to_tag)();
+    }
+    else {
+      let ele = e.target as HTMLSpanElement;
+      ele.style.backgroundColor = "yellow";
+    }
   };
 
   changeUnbold = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
@@ -67,7 +73,7 @@ export default class Span extends React.Component<SpanProps, {}> {
           onMouseEnter={this.changeBold}
           onMouseLeave={this.changeUnbold}
           onClick={this.run_local(this.props.token_idx, this.props.add_to_tag)}
-          onFocus={function(){alert("Hello!")}}
+          onBlur={this.run_local(this.props.token_idx, this.props.add_to_tag)}
         >
           {this.props.text}
         </div>
