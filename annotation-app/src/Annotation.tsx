@@ -113,7 +113,7 @@ export default class Annotation extends React.Component<Props, State> {
     }
     
     if(this.state.packetID === "") {
-      return (<div> <Typography style={{ fontSize: 24, marginRight: 20}}> Go to Packet: {" "}  </Typography> 
+      return (<div style={{marginLeft: 10}}> <Typography style={{ fontSize: 24, marginRight: 20}}> Go to Packet: {" "}  </Typography> 
       <TextField style={{ fontSize: 24 }} color="primary" value={this.state.newPacketID} onChange={this.changePacket} />
       <Button style={{ fontSize: 24 }} color="primary" onClick={this.changePacketID}>
         Submit

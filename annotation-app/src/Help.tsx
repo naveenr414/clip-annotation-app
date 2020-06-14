@@ -31,7 +31,9 @@ export default class Help extends React.Component<Props,State> {
         <div className="modal" style={{
       backgroundColor: '#fff',
       borderRadius: 5,
-      maxWidth: 1200,
+      maxWidth: 700,
+      maxHeight: 500,
+      overflowY: 'scroll',
       minHeight: 300,
       margin: '0 auto',
       padding: 30
