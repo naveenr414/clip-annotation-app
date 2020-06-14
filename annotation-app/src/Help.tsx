@@ -50,33 +50,33 @@ export default class Help extends React.Component<Props,State> {
             </li> 
             <li> Tag things that refer to a specific named entity, ignoring modifiers 
               <ol>
-                <li> Former president <u> Bill Clinton </u> </li> 
-                <li> <u> The Hague </u> is a wonderful part of the <u> Netherlands </u> </li> 
+                <li> Former president <u> Bill Clinton </u> (Bill Clinton) </li> 
+                <li> <u> The Hague </u> (The Hague) is a wonderful part of the <u> Netherlands </u> (Netherlands) </li> 
               </ol> 
             </li> 
             <li> Tag both names and nominals (things that refer to the name)
               <ol> 
                 <li>
-                <u> Bill Clinton </u> was a <u> president </u> of the <u> United States </u>. He served for two <u> terms </u>. 
+                <u> Bill Clinton </u> (Bill Clinton) was a <u> president </u> (President of the USA) of the <u> United States </u> (United States). He served for two <u> terms </u> (Presidential Terms). 
 
                 </li>
               </ol>
             </li> 
             <li> Tag for single, individual entities 
               <ol>
-                <li> The protesters today marched in <u> Washington </u> (Here the protesters arent a single individual entity).  </li>
+                <li> The protesters today marched in <u> Washington </u> (Washington DC). Here the protesters arent a single individual entity).  </li>
                 
-                <li> The <u> Democrats </u> and <u> Republicans </u> are the two opposing parties in the US (here Democrats and Republicans are shorthand to refer to the Democratic and Repbulican parties).  </li>
+                <li> The <u> Democrats </u> (Democratic Party) and <u> Republicans </u> (Republican Party) are the two opposing parties in the <u> US </u> (United States) (here Democrats and Republicans are shorthand to refer to the Democratic and Repbulican parties).  </li>
               </ol>
             </li> 
             <li> Tag for full mentions 
               <ol>
-                <li> <u> United States  of America </u> (instead of just United States of <u> America </u> ) </li> 
+                <li> <u> United States  of America </u> (United States) (instead of just United States of <u> America </u> ) </li> 
               </ol> 
             </li> 
             <li> In questions, dont tag the question answer 
               <ol>
-                <li> If a question has the answer "John Steinbeck", do the following: For ten points, name this author who wrote <u> Grapes of Wrath </u> and <u> The Pearl </u> </li> 
+                <li> If a question has the answer "John Steinbeck", do the following: For ten points, name this author who wrote <u> Grapes of Wrath </u> (Grapes of Wrath) and <u> The Pearl </u> (The Pearl) </li> 
               </ol>
             </li> 
           </ol> 
@@ -84,13 +84,13 @@ export default class Help extends React.Component<Props,State> {
           We also differ from the guidelines in two areas: <ol> 
             <li> Tag for fictional entities (such as "Batman")
               <ol>
-                <li> <u> Batman </u> and <u> Robin </u> fought the <u> Joker </u> in <u> The Dark Knight </u> .  </li> 
+                <li> <u> Batman </u> (Batman) and <u> Robin </u> (Robin Character) fought the <u> Joker </u> (Joker Character) in <u> The Dark Knight </u> .  </li> 
               </ol>
             </li> 
             
             <li> Don't tag nested mentions; select the larger tag
               <ol>
-                <li> Don't do <u> <b> Kentucky </b> Fried Chicken </u>, instead just tag <u> Kentucky Fried Chicken </u> </li> 
+                <li> Don't do <u> <b> Kentucky </b> Fried Chicken </u>, instead just tag <u> Kentucky Fried Chicken </u> (KFC) </li> 
               </ol>
             </li> 
 
