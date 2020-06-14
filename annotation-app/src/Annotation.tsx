@@ -66,7 +66,7 @@ export default class Annotation extends React.Component<Props, State> {
   }
   
   render_questions = () => {
-    if(this.state.question_list.length>this.state.pageNumber) {
+    if(this.state.question_list.length>this.state.pageNumber && !this.state.helpOpen) {
       return <Question question_id={this.state.question_list[this.state.pageNumber].toString()} />
     }
     else {
@@ -191,7 +191,7 @@ export default class Annotation extends React.Component<Props, State> {
               <Typography  style={{ fontSize: 24, marginTop: 30}}> Question No: {this.state.pageNumber+1} out of {this.state.question_list.length} </Typography> 
               {this.render_questions()}
 
-              <Grid item xs={6}>
+              <Grid item xs={6} hidden={this.state.helpOpen}>
                 <Button style={{ fontSize: 24, margin: 40 }} color="primary" onClick={this.incrementNumber}>
                   Next
                 </Button>
@@ -199,7 +199,7 @@ export default class Annotation extends React.Component<Props, State> {
                   Previous
                 </Button>
               </Grid>
-              <div style={{display: "flex"}}> 
+              <div style={{display: this.state.helpOpen?"none":"flex"}}> 
                 <Typography style={{ fontSize: 24, marginRight: 20}}> Go to Question: {" "}  </Typography> 
                 <TextField style={{ fontSize: 24 }} color="primary" value={this.state.newPageNumber} onChange={this._handleTextFieldChange} />
                 <Button style={{ fontSize: 24 }} color="primary" onClick={this.changePage}>

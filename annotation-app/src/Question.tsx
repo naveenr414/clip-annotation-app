@@ -54,7 +54,7 @@ export default class Question extends React.Component<
   };
   
   componentDidUpdate  = (previous_props: QuestionProps) => {
-    if(previous_props.question_id != this.props.question_id) {
+    if(previous_props.question_id !== this.props.question_id) {
       this.setState({tournament: "",
         entities: [],
         category: "",
