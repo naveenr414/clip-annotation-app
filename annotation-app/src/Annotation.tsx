@@ -192,11 +192,12 @@ export default class Annotation extends React.Component<Props, State> {
               {this.render_questions()}
 
               <Grid item xs={6} hidden={this.state.helpOpen}>
-                <Button style={{ fontSize: 24, margin: 40 }} color="primary" onClick={this.incrementNumber}>
-                  Next
-                </Button>
+                
                 <Button style={{ fontSize: 24, margin: 40 }} color="primary" onClick={this.decrementNumber}>
                   Previous
+                </Button>
+                <Button style={{ fontSize: 24, margin: 40 }} color="primary" onClick={this.incrementNumber}>
+                  Next
                 </Button>
               </Grid>
               <div style={{display: this.state.helpOpen?"none":"flex"}}> 

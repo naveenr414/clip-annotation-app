@@ -13,6 +13,14 @@ import CardHeader from "@material-ui/core/CardHeader";
 import Collapse from "@material-ui/core/Collapse";
 import CardActions from "@material-ui/core/CardActions";
 import Span from "./Span";
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Dialog from '@material-ui/core/Dialog';
+import Button from '@material-ui/core/Button';
+
 
 interface QuestionState {
   tournament: string;
@@ -28,6 +36,8 @@ interface QuestionState {
   current_entity: string;
   preview: boolean;
   mouseDown: boolean;
+  confirmation: boolean;
+  to_delete: number;
 }
 
 interface QuestionProps {
@@ -49,8 +59,10 @@ export default class Question extends React.Component<
     tokens: [],
     currently_tagged: [],
     current_entity: "",
-    preview: true,
+    preview: false,
     mouseDown: false,
+    confirmation: false,
+    to_delete: -1,
   };
   
   componentDidUpdate  = (previous_props: QuestionProps) => {
@@ -116,16 +128,12 @@ export default class Question extends React.Component<
     });
   };
 
-  delete_entity = (token_number: number) => {
-    let entity_number = -1;
-    for (var i = 0; i < this.state.entity_locations.length; i++) {
-      if (
-        token_number >= this.state.entity_locations[i][0] &&
-        token_number <= this.state.entity_locations[i][1]
-      ) {
-        entity_number = i;
-      }
-    }
+  handleClose = () => {
+   this.setState({'confirmation': false,'to_delete':-1}); 
+  }
+  
+  delete_entity = () => {
+    let entity_number = this.state.to_delete
 
     this.state.entity_locations.splice(entity_number, 1);
     this.state.entities.splice(entity_number, 1);
@@ -134,7 +142,7 @@ export default class Question extends React.Component<
       this.state.entity_locations,
       this.state.entities
     );
-    this.setState({});
+    this.setState({'confirmation': false,'to_delete':-1});
   };
 
   add_to_tag = (i: number) => {
@@ -144,9 +152,30 @@ export default class Question extends React.Component<
       }
     }
     
+    
     if (this.state.currently_tagged.length === 0) {
       this.setState({ currently_tagged: [i, i], current_entity: "" });
     } else {
+      if(i>=this.state.currently_tagged[0] && i<=this.state.currently_tagged[1]) {
+        let start = this.state.currently_tagged[0];
+        let end = this.state.currently_tagged[1];
+        if(i-this.state.currently_tagged[0]<this.state.currently_tagged[1]-i) {
+          start = i+1;
+        }
+        else {
+          end = i-1;
+        }
+        
+        if(end<start) {
+          this.setState({currently_tagged: []});
+        }
+        else {
+          this.setState({currently_tagged: [start,end]});
+        }
+        
+        return;
+      }   
+      
       let lower_bound = Math.min(i, this.state.currently_tagged[0]);
       let upper_bound = Math.max(i, this.state.currently_tagged[1]);
       this.setState({
@@ -154,6 +183,20 @@ export default class Question extends React.Component<
       });
     }
   };
+  
+  are_you_sure = (token_number: number) => {
+    let entity_number = -1;
+    for (var i = 0; i < this.state.entity_locations.length; i++) {
+      if (
+        token_number >= this.state.entity_locations[i][0] &&
+        token_number <= this.state.entity_locations[i][1]
+      ) {
+        entity_number = i;
+      }
+    }
+    this.setState({to_delete: entity_number,
+    confirmation: true,});
+  }
 
   // Render each token
   get_tokens_with_mention = () => {
@@ -212,7 +255,7 @@ export default class Question extends React.Component<
           in_span={in_span}
           title={current_title}
           edit_entity={this.edit_entity}
-          delete_entity={this.delete_entity}
+          delete_entity={this.are_you_sure}
           add_to_tag={this.add_to_tag}
           tagged={tagged}
           key={token_idx}
@@ -324,6 +367,10 @@ export default class Question extends React.Component<
   };
   
   render() {
+    if(this.state.tokens.length == 0) {
+      return <CircularProgress />;
+    }
+    
     let token_list = [];
     // Load in the style
     console.log("Question Style "+p);
@@ -373,6 +420,28 @@ export default class Question extends React.Component<
               this.setState({mouseDown:true});
               console.log(this.state.mouseDown);}} onMouseUp={() => {this.setState({mouseDown: false})}}>
               {tokens_with_mention}
+              <Dialog
+              open={this.state.confirmation}
+              onClose={this.handleClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              >
+                <DialogTitle id="alert-dialog-title">{"Sure you want to delete?"}</DialogTitle>
+                <DialogContent>
+                  <DialogContentText id="alert-dialog-description">
+                   Are you sure you want to delete the entity {this.state.entities[this.state.to_delete]}? 
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={this.handleClose} color="primary">
+                    Don't Delete
+                  </Button>
+                  <Button onClick={this.delete_entity} color="primary" autoFocus>
+                    Delete
+                  </Button>
+                </DialogActions>
+            </Dialog>
+
             </CardContent>
           </Collapse>
 

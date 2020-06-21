@@ -43,6 +43,9 @@ export default class TaggedInfo extends React.Component<Props, State> {
     });
   };
 
+  
+
+  
   handleChange = (id: any, newValue: string) => {
     this.setState({ value: newValue });
   };
@@ -74,6 +77,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
           first = [first[0]];
         }
         
+        
         if (current_target !== "") {
           fetch(
             "/api/qanta/v1/api/qanta/autocorrect/" +
@@ -81,11 +85,16 @@ export default class TaggedInfo extends React.Component<Props, State> {
           )
             .then((res) => res.json())
             .then((res) => {
-              this.setState({ autocorrect: first.concat(res) });
+              let suggestions = first.concat(res);
+              if(suggestions) {
+                suggestions = suggestions.concat(["Unknown"]);
+              }
+              else {
+                suggestions = ["Unknown"];
+              }
+              suggestions = Array.from(new Set(suggestions));
+              this.setState({ autocorrect: suggestions });
             });
-        }
-        else {
-          this.setState({autocorrect: first});
         }
       });
 
@@ -111,7 +120,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
       ret.push(
         <div onClick={this.run_local(arr[i], this.setValue)}>
           <strong> {arr[i].substr(0, this.state.value.length)}</strong>
-          {arr[i].substr(this.state.value.length)}
+          {arr[i].substr(this.state.value.length+10)}
           <input type="hidden" value={arr[i]}  />
         </div>
       );
@@ -135,38 +144,31 @@ export default class TaggedInfo extends React.Component<Props, State> {
   }
 
   getInput = () => {   
-    if (this.props.tags.length > 0) {
-      return (
-        <div>
-          <Typography style={{ fontSize: 24 }}>
-            {" "}
-            What entity is this:{" "}
-          </Typography>
-          <Autocomplete
-            style={{ fontSize: 24 }}
-            value={this.state.value}
-            onInputChange={this.updateAutocorrect}   
-            getOptionLabel={(option) => option}
-            options={this.state.autocorrect}
-            renderInput={(params) => <TextField {...params} label="Entity" variant="outlined" onKeyDown={this.checkKeyPress} />}
-
-          />
-          <Button style={{ fontSize: 24 }} color="primary" onClick={this.sub}>
-            Save
-          </Button>
-          <Button style={{ fontSize: 24 }} color="primary" onClick={this.undo}>
-            Undo
-          </Button>
-        </div>
-      );
-    } else {
-      return (
-        <div>
+    let is_hidden = this.props.tags.length == 0;
+    return (
+      <div>
+        <Typography style={{ fontSize: 24 }}>
           {" "}
-          <br /> <br /> <br /> <br />{" "}
-        </div>
-      );
-    }
+          What entity is this:{" "}
+        </Typography>
+        <Autocomplete
+          style={{ fontSize: 24 }}
+          value={this.state.value}
+          onInputChange={this.updateAutocorrect}   
+          getOptionLabel={(option) => option}
+          options={this.state.autocorrect}
+          renderInput={(params) => <TextField {...params} label="Entity" variant="outlined" onKeyDown={this.checkKeyPress} />}
+
+        />
+        <Button hidden ={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.sub}>
+          Save
+        </Button>
+        <Button hidden={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.undo}>
+          Undo
+        </Button>
+      </div>
+    );
+    
   };
 
   onChange(id: any, newValue: string) {}
@@ -183,6 +185,15 @@ export default class TaggedInfo extends React.Component<Props, State> {
     if(prevProps !== this.props && this.props.entity!=="" && prevProps.entity === "") {
       this.setState({value:this.props.entity});
     }
+    else if(prevProps !== this.props && this.props.entity === "" ) {
+      let indices = this.props.tags;
+      let words = [];
+      for (var i = indices[0]; i <= indices[1]; i++) {
+        words.push(this.props.tokens[i]);
+      }
+      this.setState({value: words.join(" ")});
+    }
+  
   }
 
   render() {
