@@ -60,10 +60,13 @@ def merge_question_sentences(tokenizations: List[Tuple[int, int]], sentences: Li
     return tokens
 
 
-def write_entities(db, entity_location="data/wikipedia-titles.2018.04.18.json"):
+def write_entities(db, entity_location="data/wikipedia-titles.2018.04.18.json",
+                   summary_location="data/all_previews.json"):
     with open(entity_location) as f:
         entities = json.load(f)
-    db.write_entities(entities)
+    with open(summary_location,encoding='utf-8') as g:
+        summaries = json.load(g)
+    db.write_entities(entities,summaries)
 
 
 def write_mentions(db, mention_location="data/qanta.question_w_mentions.train.json"):

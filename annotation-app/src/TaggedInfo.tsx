@@ -78,7 +78,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
         }
         
         
-        if (current_target !== "") {
+        if (current_target !== "" && this.props.tags.length>0) {
           fetch(
             "/api/qanta/v1/api/qanta/autocorrect/" +
               current_target
@@ -157,7 +157,8 @@ export default class TaggedInfo extends React.Component<Props, State> {
           onInputChange={this.updateAutocorrect}  
           getOptionLabel={(option) => option}
           options={this.state.autocorrect}
-          renderInput={(params) => <TextField {...params} label="Entity" onKeyDown={this.checkKeyPress} />}
+          renderInput={(params) => <TextField {...params} label="Entity" onKeyDown={this.checkKeyPress}
+          disabled={is_hidden}/>}
 
         />
         <Button hidden ={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.sub}>

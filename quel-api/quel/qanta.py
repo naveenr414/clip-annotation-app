@@ -26,6 +26,10 @@ def get_question(qanta_id: int):
 
     return question_dict
 
+@router.get("/api/qanta/packet_write/{packet_id}")
+def write_packet(packet_num: int):
+    db.write_dummy_packets(packet_num)
+
 @router.get("/api/qanta/packet/{packet_id}")
 def get_packet(packet_id: int):
     return db.get_questions_by_packet(packet_id)

@@ -101,12 +101,16 @@ class Database:
                 .limit(5)
             )
 
-            l = [str(i) for i in results]
+            l = []
+            for i in results:
+                if i.summary!="":
+                    l+=[i.name+" - "+i.summary+"..."]
+                else:
+                    l+=[i.name]
             log.info("Took %s time to autocorrect", time.time() - start)
             return l
 
-    def write_dummy_packets(self):
-        packet_num = random.randint(0,1000)
+    def write_dummy_packets(self,packet_num):
         question_list = [{'packet_id':packet_num,'question_id':(random.randint(0,20000))} for i in range(5)]
 
         with self._session_scope as session:
@@ -127,8 +131,12 @@ class Database:
             session.bulk_insert_mappings(Question, question_list)
         log.info("Took %s time to write questions", time.time() - start)
 
-    def write_entities(self, entities):
+    def write_entities(self, entities,summaries):
         start = time.time()
+
+        all_summaries = {}
+        for i in summaries:
+            all_summaries[i['title'].lower().strip()] = i['text']
 
         with self._session_scope as session:
             entity_list = []
@@ -136,7 +144,16 @@ class Database:
             for i in entities:
                 name = html.unescape(i.replace("_", " "))
                 name = name.lower()
-                entity_list.append({"name": name, "link": i})
+
+                if name.lower().strip() in all_summaries:
+                    actual_summary = all_summaries[name.lower().strip()]
+                    if"\n\n" in actual_summary and len(actual_summary.split("\n\n")[1])>3:
+                        actual_summary = actual_summary.split("\n\n")[1]
+                    actual_summary = actual_summary.replace("\n\n"," ")
+                    
+                    entity_list.append({"name": name, "link": i,'summary':actual_summary})
+                else:
+                    entity_list.append({"name": name, "link": i,'summary':''})
             session.bulk_insert_mappings(Entity, entity_list)
         log.info("Took %s time to write entities", time.time() - start)
 
@@ -339,6 +356,7 @@ class Entity(Base):
     entity_id = Column(Integer, primary_key=True)
     name = Column(String, index=True)
     link = Column(String)
+    summary = Column(String)
 
     def __str__(self):
         return self.name
