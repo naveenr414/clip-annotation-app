@@ -144,7 +144,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
   }
 
   getInput = () => {   
-    let is_hidden = this.props.tags.length == 0;
+    let is_hidden = this.props.tags.length === 0;
     return (
       <div>
         <Typography style={{ fontSize: 24 }}>
@@ -154,10 +154,10 @@ export default class TaggedInfo extends React.Component<Props, State> {
         <Autocomplete
           style={{ fontSize: 24 }}
           value={this.state.value}
-          onInputChange={this.updateAutocorrect}   
+          onInputChange={this.updateAutocorrect}  
           getOptionLabel={(option) => option}
           options={this.state.autocorrect}
-          renderInput={(params) => <TextField {...params} label="Entity" variant="outlined" onKeyDown={this.checkKeyPress} />}
+          renderInput={(params) => <TextField {...params} label="Entity" onKeyDown={this.checkKeyPress} />}
 
         />
         <Button hidden ={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.sub}>
@@ -201,7 +201,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
     return (
       <div>
         <Typography color="textSecondary" style={{ fontSize: 24 }}>
-          {this.getStatus()} {this.getTags()}
+          {this.getStatus() === ""?'\u00A0':this.getStatus()} {this.getTags()}
         </Typography>
         {this.getInput()}
 

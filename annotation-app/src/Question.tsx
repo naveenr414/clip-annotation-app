@@ -77,7 +77,7 @@ export default class Question extends React.Component<
         tokens: [],
         currently_tagged: [],
         current_entity: "",
-        preview: true,
+        preview: false,
         mouseDown: false,});
        this.get_data();
     }
@@ -367,7 +367,7 @@ export default class Question extends React.Component<
   };
   
   render() {
-    if(this.state.tokens.length == 0) {
+    if(this.state.tokens.length === 0) {
       return <CircularProgress />;
     }
     

@@ -13,8 +13,15 @@ interface SpanProps {
   mouseDown: boolean;
 }
 
-export default class Span extends React.Component<SpanProps, {}> {
-  state = {};
+interface SpanState {
+  full_mention: boolean,
+}
+
+export default class Span extends React.Component<SpanProps, SpanState> {
+  state = {
+    full_mention: false, 
+  };
+  
   changeBold = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
     if(this.props.mouseDown){
         this.run_local(this.props.token_idx, this.props.add_to_tag)();
@@ -32,11 +39,13 @@ export default class Span extends React.Component<SpanProps, {}> {
     }
   };
   
-  run_local = (i: any, f: any) => {
-    return function () {
+  run_local(i: any, f: any,another_function?: any){
+    return () => {
       f(i);
+      this.setState({full_mention: !this.state.full_mention});
     };
-  };
+    
+  }
  
   
   render() {
@@ -44,7 +53,7 @@ export default class Span extends React.Component<SpanProps, {}> {
     if (!this.props.in_span || mention_text == null) {
       mention_text = "";
     }
-    else if(mention_text.length>this.props.text.length) {
+    else if(mention_text.length>this.props.text.length && !this.state.full_mention) {
       mention_text = mention_text.substring(0,this.props.text.length)+"...";
     }
     
@@ -74,7 +83,7 @@ export default class Span extends React.Component<SpanProps, {}> {
           className="word-text"
           onMouseEnter={this.changeBold}
           onMouseLeave={this.changeUnbold}
-          onClick={this.run_local(this.props.token_idx, this.props.add_to_tag)}
+          onClick={this.run_local(this.props.token_idx, this.props.add_to_tag,function(){alert("")})}
           onBlur={this.run_local(this.props.token_idx, this.props.add_to_tag)}
         >
           {this.props.text}
