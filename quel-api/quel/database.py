@@ -110,11 +110,14 @@ class Database:
             log.info("Took %s time to autocorrect", time.time() - start)
             return l
 
-    def write_dummy_packets(self,packet_num):
-        question_list = [{'packet_id':packet_num,'question_id':(random.randint(0,20000))} for i in range(5)]
-
+    def write_dummy_packets(self,packet_num,question_ids,description,machine_tagger):
+        self.create_all()
+        question_list = [{'packet_id':packet_num,'question_id':i} for i in question_ids]
+                
+    
         with self._session_scope as session:
             session.bulk_insert_mappings(Packet,question_list)
+            session.bulk_insert_mappings(PacketID,[{'packet_id':packet_num,'machine_tagger':machine_tagger,'description':description}])
 
         print("Inserted dummy packet! {}".format(packet_num))
                         
@@ -191,6 +194,37 @@ class Database:
             session.bulk_insert_mappings(Mention, mention_list)
         log.info("Took %s time to write mentions", time.time() - start_time)
 
+    def write_mentions_character(self, mentions, source_name):
+        start_time = time.time()
+
+        self.insert_email_password(source_name, "")
+
+        with self._session_scope as session:
+            mention_list = []
+            for mention in mentions:
+                question_id = mention["qanta_id"]
+
+                for entity in mention["mentions"]:
+                        start = entity["span"][0]
+                        end = entity["span"][1] 
+                        score = entity["score"]
+                        name = entity["entity"].replace("_", " ").lower()
+                        mention_list.append(
+                            {
+                                "start": start,
+                                "end": end,
+                                "score": score,
+                                "entity": name,
+                                "question_id": question_id,
+                                "deleted": 0,
+                                "user_id": source_name,
+                                "machine_tagged": 1,
+                            }
+                        )
+            session.bulk_insert_mappings(Mention, mention_list)
+        log.info("Took %s time to write mentions", time.time() - start_time)
+
+
     def get_questions_with_entity(self, entity):
         entity = entity.lower()
         with self._session_scope as session:
@@ -210,7 +244,8 @@ class Database:
                 .filter(Mention.deleted != 1)
             )
 
-            CUTOFF = 0.2
+            machine = "tagme"
+            cutoffs = {'tagme': 0.2, 'blink': -100000, 'nel': -10000000,'none':0}
 
             question_dict = self.get_question_by_id(question_id)
             tokens = question_dict["tokens"]
@@ -226,12 +261,14 @@ class Database:
                     "id": i.mention_id,
                     "score": i.score,
                     "machine_tagged": i.machine_tagged,
+                    "user_id": i.user_id,
                 }
                 for i in results
             ]
+            
             results = sorted(results, key=lambda x: x["start"])
             results = [
-                i for i in results if i["machine_tagged"] != 1 or i["score"] > CUTOFF
+                i for i in results if i["machine_tagged"] != 1 or i["user_id"] == machine and i['score']>=cutoffs[machine]
             ]
 
             entity_list = []
@@ -392,4 +429,10 @@ class Packet(Base):
         PrimaryKeyConstraint('packet_id', 'question_id'),
         {},
     )
+
+class PacketID(Base):
+    __tablename__ = "packetids"
+    packet_id = Column(Integer,index=True,primary_key=True)
+    description = Column(String)
+    machine_tagger = Column(String)
 

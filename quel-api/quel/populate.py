@@ -69,10 +69,18 @@ def write_entities(db, entity_location="data/wikipedia-titles.2018.04.18.json",
     db.write_entities(entities,summaries)
 
 
-def write_mentions(db, mention_location="data/qanta.question_w_mentions.train.json"):
-    with open(mention_location) as f:
+def write_mentions(db, tagme_location="data/all_tagme.json",blink_location="data/all_blink.json",nel_location="data/all_nel.json"):
+    with open(tagme_location) as f:
         mentions = json.load(f)
-    db.write_mentions(mentions, "tagme")
+    db.write_mentions_character(mentions, "tagme")
+
+    with open(blink_location) as f:
+        mentions = json.load(f)
+    db.write_mentions_character(mentions, "blink")
+
+    with open(nel_location) as f:
+        mentions = json.load(f)
+    db.write_mentions_character(mentions, "nel")
 
 
 @click.command()
