@@ -42,6 +42,7 @@ interface QuestionState {
 
 interface QuestionProps {
   question_id: string;
+  packet_id: string,
 }
 
 export default class Question extends React.Component<
@@ -87,7 +88,7 @@ export default class Question extends React.Component<
   get_data = () => {
     fetch(
       "/api/qanta/v1/api/qanta/v1/" +
-        this.props.question_id
+        this.props.question_id+"_"+this.props.packet_id
     )
       .then((res) => res.json())
       .then((result) => {

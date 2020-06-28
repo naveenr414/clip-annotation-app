@@ -14,12 +14,16 @@ def get_random_question():
 
 
 @router.get("/api/qanta/v1/{qanta_id}")
-def get_question(qanta_id: int):
+def get_question(qanta_id: str):
 
+    qanta_id, packet_id = qanta_id.split("_")
+    qanta_id = int(qanta_id)
+    packet_id = int(packet_id)
+    
     question_dict = db.get_question_by_id(qanta_id)
 
     question_dict["text"] = question_dict["text"].replace(chr(160), " ")
-    entity_list, entity_locations, _ = db.get_entities(qanta_id)
+    entity_list, entity_locations, _ = db.get_entities(qanta_id,packet_id)
 
     question_dict["entities"] = entity_list
     question_dict["entity_locations"] = entity_locations

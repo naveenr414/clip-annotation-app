@@ -67,7 +67,7 @@ export default class Annotation extends React.Component<Props, State> {
   
   render_questions = () => {
     if(this.state.question_list.length>this.state.pageNumber && !this.state.helpOpen) {
-      return <Question question_id={this.state.question_list[this.state.pageNumber].toString()} />
+      return <Question packet_id={this.state.packetID} question_id={this.state.question_list[this.state.pageNumber].toString()} />
     }
     else {
       return [];
