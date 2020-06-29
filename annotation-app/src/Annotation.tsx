@@ -11,6 +11,12 @@ import * as t from "./Annotation.css";
 import Help from "./Help";
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { Button,TextField } from "@material-ui/core";
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 
 
 interface State {
@@ -21,6 +27,9 @@ interface State {
   newPageNumber: string;
   packetID: string;
   newPacketID: string;
+  all_packets: any;
+  question_id: string,
+  newQuestionID: string;
 }
 
 interface Props {
@@ -38,9 +47,21 @@ export default class Annotation extends React.Component<Props, State> {
       newPageNumber: '',
       packetID: "",
       newPacketID: "",
+      all_packets: [],
+      question_id: "",
+      newQuestionID: "",
     }
-    this.get_questions()
+    this.get_questions();
+    this.get_all_packets();
   }
+  
+  get_all_packets = () => {
+    fetch(
+      "http://localhost:8000/api/qanta/v1/api/qanta/all_packets/").then((res)=>res.json()).then((result) => 
+      {
+      this.setState({all_packets: result});
+      });
+  };
   
   get_questions = () => {
     fetch(
@@ -66,6 +87,10 @@ export default class Annotation extends React.Component<Props, State> {
   }
   
   render_questions = () => {
+    if(this.state.question_id !== "") {
+      return <Question packet_id={"-1"} question_id={this.state.question_id} />
+    }
+    
     if(this.state.question_list.length>this.state.pageNumber && !this.state.helpOpen) {
       return <Question packet_id={this.state.packetID} question_id={this.state.question_list[this.state.pageNumber].toString()} />
     }
@@ -92,12 +117,13 @@ export default class Annotation extends React.Component<Props, State> {
         });
     }
     
-  changePacketID = () => {
-    const p = this.state.newPacketID
-
-    this.setState({packetID:p}, () => {
-      this.get_questions();
-    });
+  changeQuestion = (e:any) => {
+    this.setState({newQuestionID: e.target.value});
+  }
+    
+  changeQuestionID = () => {
+    const p = this.state.newQuestionID
+    this.setState({question_id:p});
   }
 
   changePacket = (e: any) => {
@@ -106,20 +132,71 @@ export default class Annotation extends React.Component<Props, State> {
         });
   }
   
+  run_local(i: any, f: any){
+    return () => {
+      f(i);
+    };
+    
+  }
+  
+  setPacket = (p: any) => {
+    this.setState({packetID: this.state.all_packets[p]["packet_id"].toString()}, () => {
+      this.get_questions();
+    });
+  }
+  
+  
+  getNoPacket = () => {
+    let packet_rows = [];
+    for(var i = 0;i<this.state.all_packets.length;i++) {
+      packet_rows.push(
+      <TableRow> 
+      <TableCell>
+      <Link to="/" onClick={this.run_local(i,this.setPacket)}> {this.state.all_packets[i]['packet_id']} </Link> 
+      </TableCell>
+      <TableCell>
+      {this.state.all_packets[i]['description']}
+      </TableCell>
+      </TableRow>
+      );
+    }
+    
+    return (<div style={{marginLeft: 10}}> 
+
+      <TableContainer>
+        <Table aria-label="simple table">
+          <TableHead>
+            <TableRow style={{fontWeight: "bold"}}>
+              <TableCell>Packet ID</TableCell>
+              <TableCell align="right">Description</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody> 
+          {packet_rows}
+          </TableBody> 
+       </Table> 
+     </TableContainer> 
+
+     <Typography style={{ fontSize: 24, marginRight: 20}}> Or go to Question: {" "}  </Typography> 
+      <TextField style={{ fontSize: 24 }} color="primary" value={this.state.newQuestionID} onChange={this.changeQuestion} />
+      <Button style={{ fontSize: 24 }} color="primary" onClick={this.changeQuestionID}>
+        Submit
+      </Button>
+     
+      </div>)
+  }
+  
   render = () => {
     console.log("Annotation style "+t + " "+question_css);
     if (window.sessionStorage.getItem("token") == null) {
       return <Redirect to="/login" />;
     }
     
-    if(this.state.packetID === "") {
-      return (<div style={{marginLeft: 10}}> <Typography style={{ fontSize: 24, marginRight: 20}}> Go to Packet: {" "}  </Typography> 
-      <TextField style={{ fontSize: 24 }} color="primary" value={this.state.newPacketID} onChange={this.changePacket} />
-      <Button style={{ fontSize: 24 }} color="primary" onClick={this.changePacketID}>
-        Submit
-      </Button> </div>);
+    if(this.state.packetID === "" && this.state.question_id === "") {
+      return this.getNoPacket();
 
     }
+    
     else {
       return (
         <div>

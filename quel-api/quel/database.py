@@ -235,6 +235,15 @@ class Database:
             texts = [self.get_question_by_id(i)["text"] for i in question_ids]
             return texts
 
+    def get_all_packets(self):
+        with self._session_scope as session:
+            results = (
+                session.query(PacketID)
+            )
+
+            return [{'packet_id':i.packet_id,'description':i.description} for i in results]
+            
+
     def get_entities(self, question_id,packet_id):
         with self._session_scope as session:        
             results = (
@@ -249,12 +258,11 @@ class Database:
                 )
             results_machine = [i.machine_tagger for i in results_machine]
 
-            print(results_machine)
 
             if(len(results_machine)>0):
                 machine = results_machine[0]
             else:
-                machine = "none"
+                machine = "tagme"
             cutoffs = {'tagme': 0.2, 'blink': -100000, 'nel': -10000000,'none':0}
 
             question_dict = self.get_question_by_id(question_id)
