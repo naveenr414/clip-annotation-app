@@ -18,8 +18,8 @@ app.add_middleware(
     allow_origins=origins,
     allow_origin_regex="https://.*\.ngrok\.io",
     allow_credentials=True,
-    allow_methods=["*", "POST"],
-    allow_headers=["*", "POST"],
+    allow_methods=["*", "POST","GET"],
+    allow_headers=["*", "POST","GET"],
 )
 
 app.include_router(entity.router, prefix="/api/entity/v1")
