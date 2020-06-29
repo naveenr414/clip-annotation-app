@@ -60,7 +60,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
 
   updateAutocorrect = (event: object, value: any) => {
     this.setState({
-      value: value,
+      value: this.remove_summary(value),
     });
 
     this.setState({ autocorrect: [] });
@@ -68,7 +68,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
     let tagged_word = this.getTags(); 
     
     let current_target = value.toLowerCase();
-                
+                    
     fetch("/api/qanta/v1/api/qanta/autocorrect/"+tagged_word.toLowerCase()).then(
       (res) => res.json()).then(
       (res) => {
@@ -76,6 +76,8 @@ export default class TaggedInfo extends React.Component<Props, State> {
         if(first.length > 0) {
           first = [first[0]];
         }
+        
+        console.log("Getting suggestions for "+current_target);
         
         
         if (current_target !== "" && this.props.tags.length>0) {
@@ -85,6 +87,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
           )
             .then((res) => res.json())
             .then((res) => {
+              console.log(res);
               let suggestions = first.concat(res);
               if(suggestions) {
                 suggestions = suggestions.concat(["Unknown"]);
@@ -93,10 +96,14 @@ export default class TaggedInfo extends React.Component<Props, State> {
                 suggestions = ["Unknown"];
               }
               suggestions = Array.from(new Set(suggestions));
-              this.setState({ autocorrect: suggestions });
+              this.setState({ autocorrect: suggestions },function() {
+                return 0;
+              });  
+              console.log(suggestions);
             });
         }
       });
+      
 
   };
 
@@ -127,9 +134,10 @@ export default class TaggedInfo extends React.Component<Props, State> {
   getAutocorrect = () => {
     let ret = [];
     let arr = this.state.autocorrect;
+        
     for (var i = 0; i < arr.length; i++) {
       ret.push(
-        <div onClick={this.run_local(arr[i], this.setValue)}>
+        <div onClick={this.run_local(this.remove_summary(arr[i]), this.setValue)}>
           <strong> {arr[i].substr(0, this.state.value.length)}</strong>
           {arr[i].substr(this.state.value.length+10)}
           <input type="hidden" value={this.remove_summary(arr[i])}  />
@@ -164,7 +172,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
         </Typography>
         <Autocomplete
           style={{ fontSize: 24 }}
-          value={this.state.value}
+          value={this.remove_summary(this.state.value)}
           onInputChange={this.updateAutocorrect}  
           getOptionLabel={(option) => option}
           options={this.state.autocorrect}
@@ -209,7 +217,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
   }
 
   render() {
-    console.log("TaggedInfo Style "+t);
+    console.log(this.state.value);
     return (
       <div>
         <Typography color="textSecondary" style={{ fontSize: 24 }}>
