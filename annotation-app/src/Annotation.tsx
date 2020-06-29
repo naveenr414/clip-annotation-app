@@ -51,13 +51,13 @@ export default class Annotation extends React.Component<Props, State> {
       question_id: "",
       newQuestionID: "",
     }
-    this.get_questions();
+    
     this.get_all_packets();
   }
   
   get_all_packets = () => {
     fetch(
-      "http://localhost:8000/api/qanta/v1/api/qanta/all_packets/").then((res)=>res.json()).then((result) => 
+      "/api/qanta/v1/api/qanta/all_packets/").then((res)=>res.json()).then((result) => 
       {
       this.setState({all_packets: result});
       });
