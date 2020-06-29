@@ -101,6 +101,10 @@ export default class TaggedInfo extends React.Component<Props, State> {
   };
 
   setValue = (i: string) => {
+    if(i.includes(" -o- ")) {
+      i = i.split(" -o- ")[0];
+    }
+    
     this.setState({
       value: i,
       autocorrect: [],
@@ -112,6 +116,13 @@ export default class TaggedInfo extends React.Component<Props, State> {
       f(i);
     };
   };
+  
+  remove_summary = (s: string) => {
+    if(s.includes(" -o- ")) {
+      return s.split(" -o- ")[0];
+    }
+    return s;
+  }
 
   getAutocorrect = () => {
     let ret = [];
@@ -121,7 +132,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
         <div onClick={this.run_local(arr[i], this.setValue)}>
           <strong> {arr[i].substr(0, this.state.value.length)}</strong>
           {arr[i].substr(this.state.value.length+10)}
-          <input type="hidden" value={arr[i]}  />
+          <input type="hidden" value={this.remove_summary(arr[i])}  />
         </div>
       );
     }

@@ -104,7 +104,7 @@ class Database:
             l = []
             for i in results:
                 if i.summary!="":
-                    l+=[i.name+" - "+i.summary+"..."]
+                    l+=[i.name+" -o- "+i.summary+"..."]
                 else:
                     l+=[i.name]
             log.info("Took %s time to autocorrect", time.time() - start)

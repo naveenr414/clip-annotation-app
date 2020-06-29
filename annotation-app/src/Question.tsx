@@ -140,6 +140,7 @@ export default class Question extends React.Component<
     this.state.entities.splice(entity_number, 1);
     write_entities(
       parseInt(this.props.question_id),
+      parseInt(this.props.packet_id),
       this.state.entity_locations,
       this.state.entities
     );
@@ -318,6 +319,7 @@ export default class Question extends React.Component<
 
       write_entities(
         parseInt(this.props.question_id),
+        parseInt(this.props.packet_id),
         this.state.entity_locations,
         this.state.entities
       );

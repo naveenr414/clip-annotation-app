@@ -26,6 +26,7 @@ export function getUsername() {
 
 export function write_entities(
   question_id: number,
+  packet_id: number,
   word_locations: number[][],
   entity_list: string[]
 ) {
@@ -34,6 +35,7 @@ export function write_entities(
   xhr.send(
     JSON.stringify({
       question_id: question_id,
+      packet_id: packet_id,
       word_numbers: word_locations,
       entities: entity_list,
       user_id: window.sessionStorage.getItem("token"),
