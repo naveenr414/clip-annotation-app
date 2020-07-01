@@ -41,8 +41,23 @@ export default class Help extends React.Component<Props,State> {
           <div className="footer">
           <Typography style={{fontSize:20}}> 
           We tag largely based on the <a href="https://ter.ps/quelguide"> TAC KBP Guidelines </a> 
-          The full guide is available <a href="https://ter.ps/annotation"> here </a> </Typography>
+          The full guide is available <a href="https://ter.ps/annotation"> here </a> 
           <br /> 
+          The main points of the guide are: 
+          <ol>
+            <li> Tag For things that refer to specific entities </li> 
+            <li> Ignore descriptors </li> 
+            <li> Tag for names and nominals (things that refer to entities) </li> 
+            <li> Don't tag the answer to the question </li> 
+          </ol>
+          
+          As an example, we've tagged the following question: 
+          <br /> <br />
+          While running for <u> President</u> (President of the United States), <u> Ross Perot</u> (Ross Perot) warned that this deal would cause a <u> “giant sucking sound.”</u> (Giant sucking sound) 
+          The <u> Zapatistas</u> (Zapatista Army of National Liberation) opposed this agreement, which was criticized for leading to the rise of maquiladoras, factories that import parts and export finished goods. 
+          In September 2018, the three countries involved in this deal agreed to replace it with the <u> USMCA</u> (USMCA). 
+          For ten points, name this 1994 economic agreement between <u> Mexico</u> (Mexico), <u> Canada</u> (Canada), and the <u> US</u> (United States).
+          </Typography>
           <Button style={{ fontSize: 24 }} color="primary" onClick={this.props.onClose}>
             Close
           </Button>
