@@ -159,20 +159,11 @@ export default class Question extends React.Component<
       this.setState({ currently_tagged: [i, i], current_entity: "" });
     } else {
       if(i>=this.state.currently_tagged[0] && i<=this.state.currently_tagged[1]) {
-        let start = this.state.currently_tagged[0];
-        let end = this.state.currently_tagged[1];
-        if(i-this.state.currently_tagged[0]<this.state.currently_tagged[1]-i) {
-          start = i+1;
-        }
-        else {
-          end = i-1;
-        }
-        
-        if(end<start) {
+        if(this.state.currently_tagged[0] == this.state.currently_tagged[1]) {
           this.setState({currently_tagged: []});
         }
         else {
-          this.setState({currently_tagged: [start,end]});
+          this.setState({currently_tagged: [this.state.currently_tagged[0],i-1]});
         }
         
         return;
