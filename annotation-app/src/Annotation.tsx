@@ -17,6 +17,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import {setCookie,getCookie} from "./Util";
 
 
 interface State {
@@ -78,7 +79,8 @@ export default class Annotation extends React.Component<Props, State> {
 
 
   logout = () => {
-    window.sessionStorage.removeItem("token");
+    
+    setCookie("token","",0);
     this.setState({});
   };
   
@@ -188,7 +190,8 @@ export default class Annotation extends React.Component<Props, State> {
   
   render = () => {
     console.log("Annotation style "+t + " "+question_css);
-    if (window.sessionStorage.getItem("token") == null) {
+    console.log(getCookie("token"));
+    if (getCookie("token") === "") {
       return <Redirect to="/login" />;
     }
     

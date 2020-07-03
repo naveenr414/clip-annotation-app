@@ -262,7 +262,7 @@ class Database:
             if(len(results_machine)>0):
                 machine = results_machine[0]
             else:
-                machine = "tagme"
+                machine = "none"
             cutoffs = {'tagme': 0.2, 'blink': -100000, 'nel': -10000000,'none':0}
 
             question_dict = self.get_question_by_id(question_id)

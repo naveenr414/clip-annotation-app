@@ -9,6 +9,8 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import * as login_css from "./Login.css";
+import {setCookie,getCookie} from "./Util";
+
 
 interface Props {}
 
@@ -37,6 +39,7 @@ export default class Login extends React.Component<Props, State> {
     this.setState({ password: event.target.value });
   }
 
+  
   handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     let data =
       "username=" +
@@ -54,8 +57,8 @@ export default class Login extends React.Component<Props, State> {
       .then((res) => res.json())
       .then((result) => {
         if ("access_token" in result) {
+          setCookie("token",result["access_token"],1);
           let token = result["access_token"];
-          window.sessionStorage.setItem("token", token);
           this.setState({ username: this.state.username });
         } else {
           this.setState({ username: "", password: "", username_helper:"Invalid email or password", password_helper:"" });
@@ -65,7 +68,7 @@ export default class Login extends React.Component<Props, State> {
   }
 
   render() {
-    if (window.sessionStorage.getItem("token")) {
+    if (getCookie("token") !== "") {
       return <Redirect to="/" />;
     }
 

@@ -15,7 +15,7 @@ export function getUsername() {
     method: "GET",
     headers: {
       accept: "application/json",
-      Authorization: "Bearer " + window.sessionStorage.getItem("token"),
+      Authorization: "Bearer " + getCookie("token"),
     },
   })
     .then((res) => res.json())
@@ -30,6 +30,12 @@ export function write_entities(
   word_locations: number[][],
   entity_list: string[]
 ) {
+  console.log(getCookie("token"));
+  console.log(question_id);
+  console.log(packet_id);
+  console.log(word_locations);
+  console.log(entity_list);
+  
   var xhr = new XMLHttpRequest();
   xhr.open("POST", "/api/entity/v1/new_entity");
   xhr.send(
@@ -38,7 +44,7 @@ export function write_entities(
       packet_id: packet_id,
       word_numbers: word_locations,
       entities: entity_list,
-      user_id: window.sessionStorage.getItem("token"),
+      user_id: getCookie("token"),
     })
   );
 }
@@ -47,4 +53,26 @@ export function run_local(i: any, f: any) {
   return function () {
     f(i);
   };
+}
+
+export function   setCookie(cname: string, cvalue: any, exdays: number) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+
+export function getCookie(cname: string) {
+  var name = cname + "=";
+  var ca = document.cookie.split(';');
+  for(var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
 }

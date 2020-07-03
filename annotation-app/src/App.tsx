@@ -1,15 +1,16 @@
 import * as React from "react";
 import * as s from "./App.css";
 import Annotation from "./Annotation";
+import Question from "./Question";  
 import Login from "./Login";
 import Register from "./Register";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 function App() {
-  console.log("App style "+s);
   return (
     <Router>
       <Switch>
+        <Route exact path="/question/:num" component={Question} />
         <Route path="/login">
           <Login />
         </Route>

@@ -27,7 +27,7 @@ interface QuestionState {
   entities: string[];
   entity_locations: number[][];
   question_text: string;
-  question_id: number;
+  question_id: string;
   answer: string;
   category: string;
   // It's a list of dictionaries
@@ -38,11 +38,13 @@ interface QuestionState {
   mouseDown: boolean;
   confirmation: boolean;
   to_delete: number;
+  packet_id: string;
 }
 
 interface QuestionProps {
   question_id: string;
   packet_id: string,
+  match?: any,
 }
 
 export default class Question extends React.Component<
@@ -55,7 +57,7 @@ export default class Question extends React.Component<
     category: "",
     entity_locations: [],
     question_text: "",
-    question_id: parseInt(this.props.question_id),
+    question_id: this.props.question_id,
     answer: "",
     tokens: [],
     currently_tagged: [],
@@ -64,7 +66,10 @@ export default class Question extends React.Component<
     mouseDown: false,
     confirmation: false,
     to_delete: -1,
+    packet_id: this.props.packet_id,
   };
+  
+  
   
   componentDidUpdate  = (previous_props: QuestionProps) => {
     if(previous_props.question_id !== this.props.question_id) {
@@ -73,7 +78,7 @@ export default class Question extends React.Component<
         category: "",
         entity_locations: [],
         question_text: "",
-        question_id: parseInt(this.props.question_id),
+        question_id: this.props.question_id.toString(),
         answer: "",
         tokens: [],
         currently_tagged: [],
@@ -88,7 +93,7 @@ export default class Question extends React.Component<
   get_data = () => {
     fetch(
       "/api/qanta/v1/api/qanta/v1/" +
-        this.props.question_id+"_"+this.props.packet_id
+        this.state.question_id+"_"+this.state.packet_id
     )
       .then((res) => res.json())
       .then((result) => {
@@ -106,7 +111,14 @@ export default class Question extends React.Component<
 
   constructor(props: QuestionProps) {
     super(props);
-    this.state.question_id = parseInt(props.question_id);
+    if(this.props.match !== undefined) {
+      this.state.question_id = this.props.match.params.num;
+      this.state.packet_id = "-1";
+    }
+    else {
+      this.state.question_id = this.props.question_id;
+      this.state.packet_id = this.props.packet_id;
+    }
     this.get_data();
   }
   
@@ -139,8 +151,8 @@ export default class Question extends React.Component<
     this.state.entity_locations.splice(entity_number, 1);
     this.state.entities.splice(entity_number, 1);
     write_entities(
-      parseInt(this.props.question_id),
-      parseInt(this.props.packet_id),
+      parseInt(this.state.question_id),
+      parseInt(this.state.packet_id),
       this.state.entity_locations,
       this.state.entities
     );
@@ -307,10 +319,9 @@ export default class Question extends React.Component<
         this.state.entity_locations.push(new_array);
         this.state.entities.push(new_entity);
       }
-
       write_entities(
-        parseInt(this.props.question_id),
-        parseInt(this.props.packet_id),
+        parseInt(this.state.question_id),
+        parseInt(this.state.packet_id),
         this.state.entity_locations,
         this.state.entities
       );
@@ -392,7 +403,7 @@ export default class Question extends React.Component<
             </Typography>
             <Typography style={{ fontSize: 24 }}>
               <span style={{ fontWeight: "bold" }}> Qanta ID: </span>
-              {this.props.question_id}
+              {this.state.question_id}
             </Typography>
             <Divider />
             <TaggedInfo
