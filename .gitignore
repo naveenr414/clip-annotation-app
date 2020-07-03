@@ -3,4 +3,5 @@ annotation-app/src/data/
 .vscode
 quel-api/data/
 quel-api/tmp
+quel-api/quel/security_config_dev.py
 quel-api/quel/security_config.py
