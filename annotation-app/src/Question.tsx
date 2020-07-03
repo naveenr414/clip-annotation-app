@@ -439,18 +439,6 @@ export default class Question extends React.Component<
             </CardContent>
           </Collapse>
 
-
-          <CardActions disableSpacing>
-            <IconButton
-              onClick={this.switch_preview}
-              aria-expanded={!this.state.preview}
-              aria-label="show more"
-              className="center"
-              style={{ transform: this.get_rotation() }}
-            >
-              <ExpandMoreIcon />
-            </IconButton>
-          </CardActions>
         </Card>
       </div>
     );

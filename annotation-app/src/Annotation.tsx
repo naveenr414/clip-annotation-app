@@ -265,9 +265,8 @@ export default class Annotation extends React.Component<Props, State> {
               alignItems="center"
             >
               <Help onClose={this.toggleHelp} show={this.state.helpOpen} />
-              <Typography  style={{ fontSize: 24, marginTop: 30}}> Question No: {this.state.pageNumber+1} out of {this.state.question_list.length} </Typography> 
-              {this.render_questions()}
 
+              <Typography  style={{ fontSize: 24, marginTop: 30}}> Question No: {this.state.pageNumber+1} out of {this.state.question_list.length} </Typography> 
               <Grid item xs={6} hidden={this.state.helpOpen}>
                 
                 <Button style={{ fontSize: 24, margin: 40 }} color="primary" onClick={this.decrementNumber}>
@@ -277,6 +276,10 @@ export default class Annotation extends React.Component<Props, State> {
                   Next
                 </Button>
               </Grid>
+              
+              
+              {this.render_questions()}
+
               <div style={{display: this.state.helpOpen?"none":"flex"}}> 
                 <Typography style={{ fontSize: 24, marginRight: 20}}> Go to Question: {" "}  </Typography> 
                 <TextField style={{ fontSize: 24 }} color="primary" value={this.state.newPageNumber} onChange={this._handleTextFieldChange} />
