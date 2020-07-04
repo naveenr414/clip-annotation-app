@@ -58,7 +58,13 @@ export default class TaggedInfo extends React.Component<Props, State> {
     this.props.callbackFunction("");
   };
 
-  updateAutocorrect = (event: object, value: any) => {
+  updateAutocorrect = (event: React.ChangeEvent<{}>, value: any) => {
+    if(this.state.autocorrect.includes(value)) {
+      this.setState({value: this.remove_summary(value)},() => {this.sub()});
+      return;
+    }
+  
+    console.log(value);
     this.setState({
       value: this.remove_summary(value),
     });
@@ -111,7 +117,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
     if(i.includes(" -o- ")) {
       i = i.split(" -o- ")[0];
     }
-    
+        
     this.setState({
       value: i,
       autocorrect: [],
@@ -176,8 +182,9 @@ export default class TaggedInfo extends React.Component<Props, State> {
           onInputChange={this.updateAutocorrect}  
           getOptionLabel={(option) => option}
           options={this.state.autocorrect}
-          renderInput={(params) => <TextField {...params} label="Entity" onKeyDown={this.checkKeyPress}
-          disabled={is_hidden}/>}
+          renderInput={(params) => <TextField {...params} label="Entity" onKeyDown={this.checkKeyPress} 
+          disabled={is_hidden}
+          />}
 
         />
         <Button hidden ={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.sub}>

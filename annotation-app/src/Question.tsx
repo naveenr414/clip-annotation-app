@@ -318,7 +318,6 @@ export default class Question extends React.Component<
         this.state.entity_locations.push(new_array);
         this.state.entities.push(new_entity);
       }
-      alert("Writing entities with "+this.state.question_id+" "+this.state.packet_id);
       write_entities(
         parseInt(this.state.question_id),
         parseInt(this.state.packet_id),
