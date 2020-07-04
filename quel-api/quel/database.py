@@ -19,6 +19,7 @@ from sqlalchemy import (
     Column,
     ForeignKey,
     PrimaryKeyConstraint,
+    desc
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -91,14 +92,13 @@ class Database:
 
     def get_autocorrect(self, text: str):
         with self._session_scope as session:
+            upper_bound = text.lower()+chr(255)
             start = time.time()
-            lower_bound = text.lower()
-            upper_bound = text + chr(255)
             results = (
                 session.query(Entity)
-                .filter(and_(Entity.name >= lower_bound, Entity.name <= upper_bound))
-                .order_by(Entity.name)
-                .limit(5)
+                .filter(and_(Entity.name<=upper_bound,Entity.name>=text.lower()))
+                .order_by(desc(Entity.popularity))
+                .limit(10)
             )
 
             l = []
@@ -134,29 +134,22 @@ class Database:
             session.bulk_insert_mappings(Question, question_list)
         log.info("Took %s time to write questions", time.time() - start)
 
-    def write_entities(self, entities,summaries):
+    def write_entities(self,entities):
         start = time.time()
-
-        all_summaries = {}
-        for i in summaries:
-            all_summaries[i['title'].lower().strip()] = i['text']
 
         with self._session_scope as session:
             entity_list = []
 
             for i in entities:
-                name = html.unescape(i.replace("_", " "))
-                name = name.lower()
-
-                if name.lower().strip() in all_summaries:
-                    actual_summary = all_summaries[name.lower().strip()]
-                    if"\n\n" in actual_summary and len(actual_summary.split("\n\n")[1])>3:
-                        actual_summary = actual_summary.split("\n\n")[1]
-                    actual_summary = actual_summary.replace("\n\n"," ")
-                    
-                    entity_list.append({"name": name, "link": i,'summary':actual_summary})
-                else:
-                    entity_list.append({"name": name, "link": i,'summary':''})
+                name = i['title']
+                summary = i['summary']
+                popularity = i['len']
+                actual_summary =summary
+                if"\n\n" in actual_summary and len(actual_summary.split("\n\n")[1])>3:
+                    actual_summary = actual_summary.split("\n\n")[1]
+                actual_summary = actual_summary.replace("\n\n"," ")
+                
+                entity_list.append({'name':name,'popularity':popularity,'summary':actual_summary})
             session.bulk_insert_mappings(Entity, entity_list)
         log.info("Took %s time to write entities", time.time() - start)
 
@@ -410,7 +403,7 @@ class Entity(Base):
     __tablename__ = "entities"
     entity_id = Column(Integer, primary_key=True)
     name = Column(String, index=True)
-    link = Column(String)
+    popularity = Column(Integer,index=True)
     summary = Column(String)
 
     def __str__(self):

@@ -60,13 +60,10 @@ def merge_question_sentences(tokenizations: List[Tuple[int, int]], sentences: Li
     return tokens
 
 
-def write_entities(db, entity_location="data/wikipedia-titles.2018.04.18.json",
-                   summary_location="data/all_previews.json"):
+def write_entities(db, entity_location="data/all_wiki.json"):
     with open(entity_location) as f:
         entities = json.load(f)
-    with open(summary_location,encoding='utf-8') as g:
-        summaries = json.load(g)
-    db.write_entities(entities,summaries)
+    db.write_entities(entities)
 
 
 def write_mentions(db, tagme_location="data/all_tagme.json",blink_location="data/all_blink.json",nel_location="data/all_nel.json"):
@@ -87,11 +84,12 @@ def write_mentions(db, tagme_location="data/all_tagme.json",blink_location="data
 def main():
     db = Database(find_questions=False)
     db.create_all()
-    log.info("Writing questions")
-    write_questions(db)
 
     log.info("Writing entities")
     write_entities(db)
+
+    log.info("Writing questions")
+    write_questions(db)
 
     log.info("Writing mentions")
     write_mentions(db)
