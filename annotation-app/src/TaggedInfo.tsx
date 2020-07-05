@@ -60,55 +60,44 @@ export default class TaggedInfo extends React.Component<Props, State> {
 
   updateAutocorrect = (event: React.ChangeEvent<{}>, value: any) => {
     if(this.state.autocorrect.includes(value)) {
-      this.setState({value: this.remove_summary(value)},() => {this.sub()});
+      this.setState({value: value},() => {this.sub()});
       return;
     }
   
     console.log(value);
     this.setState({
-      value: this.remove_summary(value),
+      value: value,
     });
 
-    this.setState({ autocorrect: [] });
     
     let tagged_word = this.getTags(); 
     
     let current_target = value.toLowerCase();
-                    
-    fetch("/api/qanta/v1/api/qanta/autocorrect/"+tagged_word.toLowerCase()).then(
-      (res) => res.json()).then(
-      (res) => {
-        let first = res; 
-        if(first.length > 0) {
-          first = [first[0]];
-        }
-        
-        console.log("Getting suggestions for "+current_target);
-        
-        
-        if (current_target !== "" && this.props.tags.length>0) {
-          fetch(
-            "/api/qanta/v1/api/qanta/autocorrect/" +
-              current_target
-          )
-            .then((res) => res.json())
-            .then((res) => {
-              console.log(res);
-              let suggestions = first.concat(res);
-              if(suggestions) {
-                suggestions = suggestions.concat(["Unknown"]);
-              }
-              else {
-                suggestions = ["Unknown"];
-              }
-              suggestions = Array.from(new Set(suggestions));
-              this.setState({ autocorrect: suggestions },function() {
-                return 0;
-              });  
-              console.log(suggestions);
-            });
-        }
-      });
+    if (current_target !== "" && this.props.tags.length>0) {
+      fetch(
+        "/api/qanta/v1/api/qanta/autocorrect/" +
+          current_target
+      )
+        .then((res) => res.json())
+        .then((res) => {
+          console.log(res);
+          let suggestions = res;
+          if(suggestions) {
+            suggestions = suggestions.concat(["Unknown"]);
+          }
+          else {
+            suggestions = ["Unknown"];
+          }
+          suggestions = Array.from(new Set(suggestions));
+          this.setState({ autocorrect: suggestions },function() {
+            return 0;
+          });  
+          console.log(suggestions);
+        });
+    }
+    else {
+       this.setState({ autocorrect: [] });
+    }
       
 
   };
@@ -130,12 +119,6 @@ export default class TaggedInfo extends React.Component<Props, State> {
     };
   };
   
-  remove_summary = (s: string) => {
-    if(s.includes(" -o- ")) {
-      return s.split(" -o- ")[0];
-    }
-    return s;
-  }
 
   getAutocorrect = () => {
     let ret = [];
@@ -143,10 +126,10 @@ export default class TaggedInfo extends React.Component<Props, State> {
         
     for (var i = 0; i < arr.length; i++) {
       ret.push(
-        <div onClick={this.run_local(this.remove_summary(arr[i]), this.setValue)}>
+        <div onClick={this.run_local(arr[i], this.setValue)}>
           <strong> {arr[i].substr(0, this.state.value.length)}</strong>
           {arr[i].substr(this.state.value.length+10)}
-          <input type="hidden" value={this.remove_summary(arr[i])}  />
+          <input type="hidden" value={arr[i]}  />
         </div>
       );
     }
@@ -178,7 +161,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
         </Typography>
         <Autocomplete
           style={{ fontSize: 24 }}
-          value={this.remove_summary(this.state.value)}
+          value={this.state.value}
           onInputChange={this.updateAutocorrect}  
           getOptionLabel={(option) => option}
           options={this.state.autocorrect}

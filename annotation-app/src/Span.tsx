@@ -1,5 +1,6 @@
 import Chip from "@material-ui/core/Chip";
 import * as React from "react";
+import {titleCase} from "./Util";
 
 interface SpanProps {
   text: string;
@@ -69,7 +70,7 @@ export default class Span extends React.Component<SpanProps, SpanState> {
       !this.props.in_span ? (
         <Chip className="hidden" />
       ) : (<Chip
-          label={mention_text}
+          label={titleCase(mention_text.replace("_"," "))}
           className="chip"
           onClick={this.run_local(this.props.token_idx, this.props.edit_entity)}
           onDelete={this.run_local(this.props.token_idx, this.props.delete_entity)}

@@ -92,21 +92,30 @@ class Database:
 
     def get_autocorrect(self, text: str):
         with self._session_scope as session:
+            text = text.replace(" ","_")
             upper_bound = text.lower()+chr(255)
             start = time.time()
+            b = session.query(Entity)
+            b = b.filter(and_(Entity.name<=upper_bound,Entity.name>=text.lower()))
+
+            if(len(text)<=2):
+                results = b.limit(10)
+            elif(b.count()>1000):
+                results = b.limit(10)
+            else:
+                results = b.order_by(desc(Entity.popularity)).limit(10)
+            
+            """
             results = (
                 session.query(Entity)
                 .filter(and_(Entity.name<=upper_bound,Entity.name>=text.lower()))
                 .order_by(desc(Entity.popularity))
                 .limit(10)
-            )
+            )"""
 
             l = []
-            for i in results:
-                if i.summary!="":
-                    l+=[i.name.title()+" -o- "+i.summary+"..."]
-                else:
-                    l+=[i.name.title()]
+            print(time.time()-start)
+            l = [i.name.title().replace("_"," ") for i in results]
             log.info("Took %s time to autocorrect", time.time() - start)
             return l
 
@@ -255,7 +264,7 @@ class Database:
             if(len(results_machine)>0):
                 machine = results_machine[0]
             else:
-                machine = "none"
+                machine = "tagme"
             cutoffs = {'tagme': 0.2, 'blink': -100000, 'nel': -10000000,'none':0}
 
             question_dict = self.get_question_by_id(question_id)
