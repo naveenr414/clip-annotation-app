@@ -17,6 +17,7 @@ interface Props {
   entity: string;
   callbackFunction: any;
   tokens: string[];
+  setCurrentEntity: any;
 }
 
 export default class TaggedInfo extends React.Component<Props, State> {
@@ -83,6 +84,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
           console.log(res);
           let suggestions = res;
           if(suggestions) {
+            this.props.setCurrentEntity(suggestions[0]);
             suggestions = suggestions.concat(["Unknown"]);
           }
           else {
@@ -98,7 +100,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
     else {
        this.setState({ autocorrect: [] });
     }
-      
+    
 
   };
 
@@ -192,10 +194,12 @@ export default class TaggedInfo extends React.Component<Props, State> {
   };
   
   componentDidUpdate(prevProps: Props) {
+
     if(prevProps !== this.props && this.props.entity!=="" && prevProps.entity === "") {
+      alert("Previous props updated! 1");
       this.setState({value:this.props.entity});
     }
-    else if(prevProps !== this.props && this.props.entity === "" ) {
+    else if(prevProps !== this.props && this.props.entity === "" && this.state.value === "") {
       let indices = this.props.tags;
       let words = [];
       for (var i = indices[0]; i <= indices[1]; i++) {

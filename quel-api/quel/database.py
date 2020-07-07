@@ -191,6 +191,7 @@ class Database:
                                 "deleted": 0,
                                 "user_id": source_name,
                                 "machine_tagged": 1,
+                                "packet_id": -1,
                             }
                         )
             session.bulk_insert_mappings(Mention, mention_list)
@@ -264,7 +265,7 @@ class Database:
             if(len(results_machine)>0):
                 machine = results_machine[0]
             else:
-                machine = "tagme"
+                machine = "none"
             cutoffs = {'tagme': 0.2, 'blink': -100000, 'nel': -10000000,'none':0}
 
             question_dict = self.get_question_by_id(question_id)
@@ -282,13 +283,14 @@ class Database:
                     "score": i.score,
                     "machine_tagged": i.machine_tagged,
                     "user_id": i.user_id,
+                    "packet_id": i.packet_id
                 }
                 for i in results
             ]
             
             results = sorted(results, key=lambda x: x["start"])
             results = [
-                i for i in results if i["machine_tagged"] != 1 or i["user_id"] == machine and i['score']>=cutoffs[machine]
+                i for i in results if i["machine_tagged"] != 1 and i["packet_id"] == packet_id or i["user_id"] == machine and i['score']>=cutoffs[machine]
             ]
 
             entity_list = []
@@ -328,7 +330,7 @@ class Database:
                     {"deleted": 1}
                 )
 
-    def write_new_mentions(self, mentions, question_id, user_id):
+    def write_new_mentions(self, mentions, question_id, user_id,packet_id):
         with self._session_scope as session:
             mention_list = []
             for ment in mentions:
@@ -339,6 +341,7 @@ class Database:
                 ment["deleted"] = 0
                 ment["machine_tagged"] = 0
                 ment["user_id"] = user_id
+                ment["packet_id"] = packet_id
                 mention_list.append(ment)
             session.bulk_insert_mappings(Mention, mention_list)
 
@@ -430,6 +433,7 @@ class Mention(Base):
     machine_tagged = Column(Integer)
     user_id = Column(String, ForeignKey("users.email"))
     deleted = Column(Integer)
+    packet_id = Column(Integer,index=True)
 
 
 class User(Base):

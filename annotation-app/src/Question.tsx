@@ -43,8 +43,9 @@ interface QuestionState {
 
 interface QuestionProps {
   question_id: string;
-  packet_id: string,
-  match?: any,
+  packet_id: string;
+  match?: any;
+  setCurrentEntity: any;
 }
 
 export default class Question extends React.Component<
@@ -263,6 +264,7 @@ export default class Question extends React.Component<
           add_to_tag={this.add_to_tag}
           tagged={tagged}
           key={token_idx}
+          setCurrentEntity={this.props.setCurrentEntity}
         />
       );
       
@@ -285,13 +287,20 @@ export default class Question extends React.Component<
             this.state.entity_locations[i][1] < new_array[0]
           )
         ) {
+          console.log(this.state.entity_locations[i] + " "+new_array);
+          console.log(i);
           to_splice.push(i);
         }
       }
+            
+      console.log(this.state.entity_locations);
       for (let i = to_splice.length - 1; i >= 0; i--) {
-        this.state.entity_locations.splice(i, 1);
-        this.state.entities.splice(i, 1);
+        this.state.entity_locations.splice(to_splice[i], 1);
+        this.state.entities.splice(to_splice[i], 1);
       }
+      
+      console.log(to_splice);
+      console.log(this.state.entity_locations);
 
       // Write the new entity
       // Find out where in the list to write it
@@ -318,6 +327,8 @@ export default class Question extends React.Component<
         this.state.entity_locations.push(new_array);
         this.state.entities.push(new_entity);
       }
+      console.log(this.state.entity_locations);
+      
       write_entities(
         parseInt(this.state.question_id),
         parseInt(this.state.packet_id),
@@ -411,6 +422,7 @@ export default class Question extends React.Component<
               tags={this.state.currently_tagged}
               entity={this.state.current_entity}
               tokens={token_list}
+              setCurrentEntity={this.props.setCurrentEntity}
             />
             <Divider />
           </CardContent>

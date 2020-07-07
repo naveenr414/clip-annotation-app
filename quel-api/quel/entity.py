@@ -57,7 +57,7 @@ async def write_entity(entity: Entity):
     print("Writing {}".format(new_entities))
 
     db.delete_mentions(deleted_ids)
-    db.write_new_mentions(new_entities, qanta_id, user_id)
+    db.write_new_mentions(new_entities, qanta_id, user_id,packet_id)
 
     return {"success": True}
 

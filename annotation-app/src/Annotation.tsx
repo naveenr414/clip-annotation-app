@@ -17,6 +17,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Drawer from '@material-ui/core/Drawer';
 import {setCookie,getCookie} from "./Util";
 
 
@@ -31,6 +32,8 @@ interface State {
   all_packets: any;
   question_id: string,
   newQuestionID: string;
+  currentEntity: string; 
+  showWiki: boolean;
 }
 
 interface Props {
@@ -51,6 +54,8 @@ export default class Annotation extends React.Component<Props, State> {
       all_packets: [],
       question_id: "",
       newQuestionID: "",
+      currentEntity: "",
+      showWiki: true,
     }
     
     this.get_all_packets();
@@ -90,11 +95,11 @@ export default class Annotation extends React.Component<Props, State> {
   
   render_questions = () => {
     if(this.state.question_id !== "") {
-      return <Question packet_id={"-1"} question_id={this.state.question_id} />
+      return <Question packet_id={"-1"} question_id={this.state.question_id} setCurrentEntity={this.setCurrentEntity} />
     }
     
     if(this.state.question_list.length>this.state.pageNumber && !this.state.helpOpen) {
-      return <Question packet_id={this.state.packetID} question_id={this.state.question_list[this.state.pageNumber].toString()} />
+      return <Question packet_id={this.state.packetID} question_id={this.state.question_list[this.state.pageNumber].toString()} setCurrentEntity={this.setCurrentEntity} />
     }
     else {
       return [];
@@ -147,6 +152,35 @@ export default class Annotation extends React.Component<Props, State> {
     });
   }
   
+  getFooter = () => {
+    const footerStyle = {
+      backgroundColor: "white",
+      fontSize: "20px",
+      borderTop: "1px solid #E7E7E7",
+      textAlign: "center",
+      padding: "20px",
+      position: 'fixed',
+      left: "0",
+      bottom: "0",
+      height: "60px",
+      width: "96%",
+    } as React.CSSProperties;
+    
+    const phantomStyle = {
+      display: "block",
+      padding: "20px",
+      height: "60px",
+      width: "96%",
+    };
+        
+    return (
+    <div>
+      <div style={phantomStyle} />
+      <div style={footerStyle}> <Typography style={{fontSize: 24}}> <b> {this.state.currentEntity} </b> - Summary </Typography>  </div>
+    </div>
+  );
+  }
+  
   
   getNoPacket = () => {
     let packet_rows = [];
@@ -188,6 +222,12 @@ export default class Annotation extends React.Component<Props, State> {
       </div>)
   }
   
+  setCurrentEntity = (newEntity: string) => {
+    if(newEntity !== this.state.currentEntity) {
+      this.setState({currentEntity: newEntity});
+    }
+  }
+  
   render = () => {
     console.log("Annotation style "+t + " "+question_css);
     console.log(getCookie("token"));
@@ -195,10 +235,13 @@ export default class Annotation extends React.Component<Props, State> {
       return <Redirect to="/login" />;
     }
     
+    
+
     if(this.state.packetID === "" && this.state.question_id === "") {
       return this.getNoPacket();
 
     }
+
     
     else {
       return (
@@ -261,14 +304,17 @@ export default class Annotation extends React.Component<Props, State> {
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
           />
           <Container maxWidth="lg">
+            
             <Grid
               container
               direction="column"
               justify="center"
               alignItems="center"
             >
+                      
               <Help onClose={this.toggleHelp} show={this.state.helpOpen} />
 
+              
               <Typography  style={{ fontSize: 24, marginTop: 30}}> Question No: {this.state.pageNumber+1} out of {this.state.question_list.length} </Typography> 
               <Grid item xs={6} hidden={this.state.helpOpen}>
                 
@@ -283,6 +329,7 @@ export default class Annotation extends React.Component<Props, State> {
               
               {this.render_questions()}
 
+
               <div style={{display: this.state.helpOpen?"none":"flex"}}> 
                 <Typography style={{ fontSize: 24, marginRight: 20}}> Go to Question: {" "}  </Typography> 
                 <TextField style={{ fontSize: 24 }} color="primary" value={this.state.newPageNumber} onChange={this._handleTextFieldChange} />
@@ -290,8 +337,12 @@ export default class Annotation extends React.Component<Props, State> {
                   Submit
                 </Button>
               </div> 
+              <br /> 
+              <br />
+              <br />
             </Grid>
           </Container>
+          {this.getFooter()}
         </div>
       );
     }

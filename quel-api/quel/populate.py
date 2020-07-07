@@ -85,14 +85,15 @@ def main():
     db = Database(find_questions=False)
     db.create_all()
 
+    log.info("Writing mentions")
+    write_mentions(db)
+
     log.info("Writing entities")
     write_entities(db)
 
     log.info("Writing questions")
     write_questions(db)
 
-    log.info("Writing mentions")
-    write_mentions(db)
 
 
 if __name__ == "__main__":

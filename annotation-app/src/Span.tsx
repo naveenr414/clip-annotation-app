@@ -7,23 +7,30 @@ interface SpanProps {
   title: string | null;
   in_span: boolean;
   token_idx: number;
-  tagged: boolean
+  tagged: boolean;
   edit_entity: (arg0: number) => void ;
   delete_entity: (arg0: number) => void;
   add_to_tag: (arg0: number) => void;
   mouseDown: boolean;
+  setCurrentEntity: any;
 }
 
 interface SpanState {
   full_mention: boolean,
+  editing: boolean,
 }
 
 export default class Span extends React.Component<SpanProps, SpanState> {
   state = {
     full_mention: false, 
+    editing: false,
   };
   
   changeBold = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+    if(this.state.editing) {
+      return 
+    }
+    
     if(this.props.mouseDown){
         this.run_local(this.props.token_idx, this.props.add_to_tag)();
     }
@@ -43,7 +50,9 @@ export default class Span extends React.Component<SpanProps, SpanState> {
   run_local(i: any, f: any,another_function?: any){
     return () => {
       f(i);
-      this.setState({full_mention: !this.state.full_mention});
+      if(another_function !== undefined) {
+        another_function();
+      }
     };
     
   }
@@ -72,11 +81,15 @@ export default class Span extends React.Component<SpanProps, SpanState> {
       ) : (<Chip
           label={titleCase(mention_text.replace("_"," "))}
           className="chip"
-          onClick={this.run_local(this.props.token_idx, this.props.edit_entity)}
+          onClick={() => {this.setState({full_mention: !this.state.full_mention});
+          if(this.props.title){this.props.setCurrentEntity(this.props.title)}}}
           onDelete={this.run_local(this.props.token_idx, this.props.delete_entity)}
           color={"primary"}
           title={this.props.title?this.props.title:""}
         />);
+    
+    let clickFunction = this.props.in_span?this.run_local(this.props.token_idx, this.props.edit_entity,()=>{this.setState({editing:true})}):this.run_local(this.props.token_idx, this.props.add_to_tag);
+        
     return (
       <div key={this.props.token_idx} className="word">
         <div
@@ -84,7 +97,7 @@ export default class Span extends React.Component<SpanProps, SpanState> {
           className="word-text"
           onMouseEnter={this.changeBold}
           onMouseLeave={this.changeUnbold}
-          onClick={this.run_local(this.props.token_idx, this.props.add_to_tag,function(){alert("")})}
+          onClick={clickFunction}
           onBlur={this.run_local(this.props.token_idx, this.props.add_to_tag)}
         >
           {this.props.text}
