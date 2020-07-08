@@ -33,7 +33,7 @@ interface State {
   question_id: string,
   newQuestionID: string;
   currentEntity: string; 
-  showWiki: boolean;
+  currentSummary: string;
 }
 
 interface Props {
@@ -55,7 +55,7 @@ export default class Annotation extends React.Component<Props, State> {
       question_id: "",
       newQuestionID: "",
       currentEntity: "",
-      showWiki: true,
+      currentSummary: "",
     }
     
     this.get_all_packets();
@@ -172,11 +172,16 @@ export default class Annotation extends React.Component<Props, State> {
       height: "60px",
       width: "96%",
     };
+    
+    let footer_text = "";
+    if(this.state.currentEntity !== "" && this.state.currentSummary !== "") {
+      footer_text = " - "+this.state.currentSummary
+    }
         
     return (
     <div>
       <div style={phantomStyle} />
-      <div style={footerStyle}> <Typography style={{fontSize: 24}}> <b> {this.state.currentEntity} </b> - Summary </Typography>  </div>
+      <div style={footerStyle}> <Typography style={{fontSize: 24}}> <b> {this.state.currentEntity} </b> {footer_text} </Typography>  </div>
     </div>
   );
   }
@@ -225,7 +230,14 @@ export default class Annotation extends React.Component<Props, State> {
   setCurrentEntity = (newEntity: string) => {
     if(newEntity !== this.state.currentEntity) {
       this.setState({currentEntity: newEntity});
-    }
+   fetch("api/qanta/v1/api/qanta/summary/" +
+        newEntity)
+      .then((res) => res.json())
+      .then((result) => {
+        this.setState({
+            currentSummary: result[0],
+        });
+      });    }
   }
   
   render = () => {

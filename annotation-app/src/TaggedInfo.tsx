@@ -98,6 +98,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
         });
     }
     else {
+      
        this.setState({ autocorrect: [] });
     }
     

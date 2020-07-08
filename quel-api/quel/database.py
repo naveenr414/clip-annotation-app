@@ -119,6 +119,14 @@ class Database:
             log.info("Took %s time to autocorrect", time.time() - start)
             return l
 
+    def get_summary(self,text: str):
+        with self._session_scope as session:
+            text= text.replace(" ","_").lower()
+            results = session.query(Entity).filter(Entity.name==text).limit(1)
+            summary = [i.summary for i in results]+["No summary found"]
+            return summary
+            
+
     def write_dummy_packets(self,packet_num,question_ids,description,machine_tagger):
         self.create_all()
         question_list = [{'packet_id':packet_num,'question_id':i} for i in question_ids]

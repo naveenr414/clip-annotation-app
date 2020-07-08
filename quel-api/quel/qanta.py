@@ -42,6 +42,10 @@ def get_packet(packet_id: int):
 def autocorrect(text: str):
     return db.get_autocorrect(text)
 
+@router.get("/api/qanta/summary/{text}")
+def get_summary(text: str):
+    return db.get_summary(text)
+
 @router.get("/api/qanta/all_packets/")
 def get_all_packets():
     return db.get_all_packets()
