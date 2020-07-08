@@ -177,7 +177,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
           Save
         </Button>
         <Button hidden={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.undo}>
-          Undo
+          Clear
         </Button>
       </div>
     );

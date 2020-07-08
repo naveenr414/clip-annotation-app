@@ -265,7 +265,8 @@ export default class Annotation extends React.Component<Props, State> {
                   {" "}
                   <Link
                     to="/"
-                    href="/"
+                    onClick={() => window.location.reload()}
+                    href=""
                     style={{
                       color: "white",
                       textDecoration: "none",
