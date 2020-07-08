@@ -4,6 +4,7 @@ import Annotation from "./Annotation";
 import Question from "./Question";  
 import Login from "./Login";
 import Register from "./Register";
+import PacketCreation from "./PacketCreation";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 function App() {
@@ -17,6 +18,10 @@ function App() {
         <Route path="/register">
           <Register />
         </Route>
+        <Route path="/packet"> 
+          <PacketCreation />
+        </Route> 
+
         <Route path="/">
           <Annotation/>
         </Route>
