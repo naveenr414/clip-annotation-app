@@ -23,7 +23,7 @@ async def write_entity(entity: Entity):
     user_id = security.decode_token(entity.user_id)
     packet_id = entity.packet_id
     qanta_id = entity.question_id
-    old_entities, old_entity_locations, old_entity_ids = db.get_entities(qanta_id,packet_id)
+    old_entities, old_entity_locations, old_entity_ids,machine_tagged = db.get_entities(qanta_id,packet_id)
     question_dict = db.get_question_by_id(qanta_id)
     tokens = question_dict["tokens"]
     # Convert our current entities into a better format

@@ -84,7 +84,9 @@ export default class TaggedInfo extends React.Component<Props, State> {
           console.log(res);
           let suggestions = res;
           if(suggestions) {
-            this.props.setCurrentEntity(suggestions[0]);
+            if(this.props.setCurrentEntity) {
+              this.props.setCurrentEntity(suggestions[0]);
+            }
             suggestions = suggestions.concat(["Unknown"]);
           }
           else {

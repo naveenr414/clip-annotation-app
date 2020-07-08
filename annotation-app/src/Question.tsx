@@ -26,6 +26,7 @@ interface QuestionState {
   tournament: string;
   entities: string[];
   entity_locations: number[][];
+  machine_tagged: number[];
   question_text: string;
   question_id: string;
   answer: string;
@@ -68,6 +69,7 @@ export default class Question extends React.Component<
     confirmation: false,
     to_delete: -1,
     packet_id: this.props.packet_id,
+    machine_tagged: [],
   };
   
   
@@ -105,6 +107,7 @@ export default class Question extends React.Component<
           entity_locations: result["entity_locations"],
           tokens: result["tokens"],
           category: result["category"],
+          machine_tagged: result["machine_tagged"]
         });
       });
   };
@@ -265,6 +268,7 @@ export default class Question extends React.Component<
           tagged={tagged}
           key={token_idx}
           setCurrentEntity={this.props.setCurrentEntity}
+          machine_tagged={in_span?this.state.machine_tagged[entity_pointer-1]:0}
         />
       );
       
@@ -319,6 +323,7 @@ export default class Question extends React.Component<
         ) {
           this.state.entity_locations.splice(i, 0, new_array);
           this.state.entities.splice(i, 0, new_entity);
+          this.state.machine_tagged.splice(i,0,0);
           found = true;
           break;
         }
@@ -326,6 +331,7 @@ export default class Question extends React.Component<
       if (!found) {
         this.state.entity_locations.push(new_array);
         this.state.entities.push(new_entity);
+        this.state.machine_tagged.push(0);
       }
       console.log(this.state.entity_locations);
       

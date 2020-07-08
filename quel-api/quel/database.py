@@ -304,6 +304,7 @@ class Database:
             entity_list = []
             entity_locations = []
             entity_ids = []
+            machine_tagged = []
             entity_pointer = 0
             i = 0
             while i < len(tokens) and entity_pointer < len(results):
@@ -324,12 +325,13 @@ class Database:
                     entity_list.append(results[entity_pointer]["entity"])
                     entity_locations.append([start, end])
                     entity_ids.append(results[entity_pointer]["id"])
+                    machine_tagged.append(results[entity_pointer]["machine_tagged"])
 
                     entity_pointer += 1
                     i += 1
                 else:
                     i += 1
-            return entity_list, entity_locations, entity_ids
+            return entity_list, entity_locations, entity_ids, machine_tagged
 
     def delete_mentions(self, mention_ids):
         with self._session_scope as session:

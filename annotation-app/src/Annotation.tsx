@@ -48,7 +48,7 @@ export default class Annotation extends React.Component<Props, State> {
       helpOpen: false,
       question_list: [],
       pageNumber: 0,
-      newPageNumber: '',
+      newPageNumber: '1',
       packetID: "",
       newPacketID: "",
       all_packets: [],
@@ -107,11 +107,13 @@ export default class Annotation extends React.Component<Props, State> {
   }
   
   incrementNumber = () => {
-    this.setState({pageNumber:(this.state.pageNumber+1)%(this.state.question_list.length)});
+    let new_page_number =(this.state.pageNumber+1)%(this.state.question_list.length);
+    this.setState({pageNumber:new_page_number,newPageNumber: (new_page_number+1).toString()});
   }
 
   decrementNumber = () => {
-    this.setState({pageNumber:(this.state.pageNumber-1+this.state.question_list.length)%(this.state.question_list.length)});
+    let new_page_number = (this.state.pageNumber-1+this.state.question_list.length)%(this.state.question_list.length)
+    this.setState({pageNumber:new_page_number,newPageNumber: (new_page_number+1).toString()});
   }
   
   changePage = () => {
@@ -327,8 +329,14 @@ export default class Annotation extends React.Component<Props, State> {
                       
               <Help onClose={this.toggleHelp} show={this.state.helpOpen} />
 
-              
-              <Typography  style={{ fontSize: 24, marginTop: 30}}> Question No: {this.state.pageNumber+1} out of {this.state.question_list.length} </Typography> 
+              <div style={{fontSize: 24, marginTop: 30, float: "left", display: "inline-flex"}}> 
+              <Typography  style={{ fontSize: 24, marginTop: 30}}> Question No: </Typography>                 <TextField inputProps={{
+  style: {fontSize: 24 } 
+}} style={{ fontSize: 24, marginTop: 30, width: 25, marginLeft: 20, marginRight: 20}} color="primary" value={this.state.newPageNumber} onChange={this._handleTextFieldChange} />
+                <Typography style={{ fontSize: 24, marginTop: 30}}>  out of {this.state.question_list.length} </Typography>  <Button style={{ fontSize: 24, padding:"0px 0px", marginTop: 23 }} color="primary" onClick={this.changePage}>
+                  Go
+                </Button> 
+              </div>  
               <Grid item xs={6} hidden={this.state.helpOpen}>
                 
                 <Button style={{ fontSize: 24, margin: 40 }} color="primary" onClick={this.decrementNumber}>
@@ -343,13 +351,6 @@ export default class Annotation extends React.Component<Props, State> {
               {this.render_questions()}
 
 
-              <div style={{display: this.state.helpOpen?"none":"flex"}}> 
-                <Typography style={{ fontSize: 24, marginRight: 20}}> Go to Question: {" "}  </Typography> 
-                <TextField style={{ fontSize: 24 }} color="primary" value={this.state.newPageNumber} onChange={this._handleTextFieldChange} />
-                <Button style={{ fontSize: 24 }} color="primary" onClick={this.changePage}>
-                  Submit
-                </Button>
-              </div> 
               <br /> 
               <br />
               <br />

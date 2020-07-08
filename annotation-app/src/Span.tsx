@@ -13,6 +13,7 @@ interface SpanProps {
   add_to_tag: (arg0: number) => void;
   mouseDown: boolean;
   setCurrentEntity: any;
+  machine_tagged: number;
 }
 
 interface SpanState {
@@ -36,7 +37,12 @@ export default class Span extends React.Component<SpanProps, SpanState> {
     }
     else {
       let ele = e.target as HTMLSpanElement;
-      ele.style.backgroundColor = "yellow";
+      if(this.props.machine_tagged) {
+         ele.style.backgroundColor = "#CCCCCC";
+      }
+      else {
+        ele.style.backgroundColor = "yellow";
+      }
     }
   };
 
@@ -72,7 +78,12 @@ export default class Span extends React.Component<SpanProps, SpanState> {
       style = {textDecorationLine:"underline"};
     }
     else if(this.props.in_span) {
-      style = {backgroundColor: "yellow"};
+      if(this.props.machine_tagged) {
+        style = {backgroundColor: "#CCCCCC"};
+      }
+      else {
+        style = {backgroundColor: "yellow"};
+      }
     }
     
     let mention =
@@ -82,7 +93,7 @@ export default class Span extends React.Component<SpanProps, SpanState> {
           label={titleCase(mention_text.replace("_"," "))}
           className="chip"
           onClick={() => {this.setState({full_mention: !this.state.full_mention});
-          if(this.props.title){this.props.setCurrentEntity(this.props.title)}}}
+          if(this.props.title && this.props.setCurrentEntity){this.props.setCurrentEntity(this.props.title)}}}
           onDelete={this.run_local(this.props.token_idx, this.props.delete_entity)}
           color={"primary"}
           title={this.props.title?this.props.title:""}
