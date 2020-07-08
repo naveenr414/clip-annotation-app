@@ -2,11 +2,27 @@ import json
 from fastapi import APIRouter
 from quel.database import Database
 import quel.security as security
+from pydantic import BaseModel  # pylint: disable=no-name-in-module
 import time
 
 db = Database()
 router = APIRouter()
 
+class Packet(BaseModel):
+    question_nums: str
+    question_id: str
+    description: str
+    machine_tagger: str
+
+
+@router.post("/api/qanta/v1/new_packet")
+async def write_packet(packet: Packet):
+    question_nums = packet.question_nums.split(",")
+    question_nums = [int(i) for i in question_nums]
+    packet_id = int(packet.question_id)
+    description = packet.description
+    machine_tagger = packet.machine_tagger.lower()
+    db.write_dummy_packets(packet_id,question_nums,description,machine_tagger)
 
 @router.get("/api/qanta/v1/random")
 def get_random_question():

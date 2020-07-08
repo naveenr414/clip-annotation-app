@@ -19,8 +19,18 @@ interface State {
 
 export default class PacketCreation extends React.Component<Props, State> {
   submit = () => {
-    console.log(this.state);
-    this.setState({question_nums: '',question_id: '',description: '',machine_tagger: ''});
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/qanta/v1/api/qanta/v1/new_packet");
+  xhr.send(
+    JSON.stringify({
+      question_nums: this.state.question_nums,
+      question_id: this.state.question_id,
+      description: this.state.description,
+      machine_tagger: this.state.machine_tagger,
+    })
+  );
+
+  this.setState({question_nums: '',question_id: '',description: '',machine_tagger: ''});
   }
   
   constructor(props: Props) {
