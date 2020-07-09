@@ -73,18 +73,22 @@ export default class Span extends React.Component<SpanProps, SpanState> {
       mention_text = mention_text.substring(0,this.props.text.length)+"...";
     }
     
-    let style = {};
+    let style:any =   {};
+
     if(this.props.tagged) {
-      style = {textDecorationLine:"underline"};
+      style["textDecorationLine"] = "underline"
     }
     else if(this.props.in_span) {
       if(this.props.machine_tagged) {
-        style = {backgroundColor: "#CCCCCC"};
+        style["backgroundColor"] ="#CCCCCC";
       }
       else {
-        style = {backgroundColor: "yellow"};
+        style["backgroundColor"] = "yellow";
       }
     }
+    
+    style.fontSize = 20;
+    
     
     let mention =
       !this.props.in_span ? (
@@ -109,7 +113,8 @@ export default class Span extends React.Component<SpanProps, SpanState> {
           onMouseEnter={this.changeBold}
           onMouseLeave={this.changeUnbold}
           onClick={clickFunction}
-          onBlur={this.run_local(this.props.token_idx, this.props.add_to_tag)}
+          onBlur={this.run_local(this.props.token_idx, this.props.add_to_tag)
+          }
         >
           {this.props.text}
         </div>

@@ -38,7 +38,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
   };
 
   sub = () => {
-    this.props.callbackFunction(this.state.value);
+    this.props.callbackFunction(this.state.value.trim());
     this.setState({
       value: "",
     });
@@ -60,11 +60,6 @@ export default class TaggedInfo extends React.Component<Props, State> {
   };
 
   updateAutocorrect = (event: React.ChangeEvent<{}>, value: any) => {
-    if(this.state.autocorrect.includes(value)) {
-      this.setState({value: value},() => {this.sub()});
-      return;
-    }
-  
     console.log(value);
     this.setState({
       value: value,
@@ -83,14 +78,18 @@ export default class TaggedInfo extends React.Component<Props, State> {
         .then((res) => {
           console.log(res);
           let suggestions = res;
-          if(suggestions) {
+          for(var i = 0;i<suggestions.length;i++) {
+            suggestions[i] = suggestions[i]+" ";
+          }
+          if(suggestions.length>0) {
             if(this.props.setCurrentEntity) {
               this.props.setCurrentEntity(suggestions[0]);
             }
-            suggestions = suggestions.concat(["Unknown"]);
+            
+            suggestions = suggestions.concat(["No Entity Found"]);
           }
           else {
-            suggestions = ["Unknown"];
+            suggestions = ["No Entity Found"];
           }
           suggestions = Array.from(new Set(suggestions));
           this.setState({ autocorrect: suggestions },function() {
@@ -107,43 +106,10 @@ export default class TaggedInfo extends React.Component<Props, State> {
 
   };
 
-  setValue = (i: string) => {
-    if(i.includes(" -o- ")) {
-      i = i.split(" -o- ")[0];
-    }
-        
-    this.setState({
-      value: i,
-      autocorrect: [],
-    });
-  };
-
   run_local = (i: any, f: any) => {
     return function () {
       f(i);
     };
-  };
-  
-
-  getAutocorrect = () => {
-    let ret = [];
-    let arr = this.state.autocorrect;
-        
-    for (var i = 0; i < arr.length; i++) {
-      ret.push(
-        <div onClick={this.run_local(arr[i], this.setValue)}>
-          <strong> {arr[i].substr(0, this.state.value.length)}</strong>
-          {arr[i].substr(this.state.value.length+10)}
-          <input type="hidden" value={arr[i]}  />
-        </div>
-      );
-    }
-
-    while (ret.length < 5) {
-      ret.push(<div> </div>);
-    }
-
-    return ret;
   };
 
   clearAutocorrect = () => {
@@ -164,6 +130,8 @@ export default class TaggedInfo extends React.Component<Props, State> {
           {" "}
           What entity is this:{" "}
         </Typography>
+        
+        
         <Autocomplete
           style={{ fontSize: 24 }}
           value={this.state.value}
@@ -172,8 +140,11 @@ export default class TaggedInfo extends React.Component<Props, State> {
           options={this.state.autocorrect}
           renderInput={(params) => <TextField {...params} label="Entity" onKeyDown={this.checkKeyPress} 
           disabled={is_hidden}
-          />}
 
+          />}
+          onChange={(event: any,value: any,reason: any) =>{if(reason === "select-option") {
+          this.setState({value: value},() => {this.sub()});}}}
+          openOnFocus={true}
         />
         <Button hidden ={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.sub}>
           Save
@@ -199,10 +170,9 @@ export default class TaggedInfo extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Props) {
 
     if(prevProps !== this.props && this.props.entity!=="" && prevProps.entity === "") {
-      alert("Previous props updated! 1");
       this.setState({value:this.props.entity});
     }
-    else if(prevProps !== this.props && this.props.entity === "" && this.state.value === "") {
+    else if(prevProps !== this.props && prevProps.tags !== this.props.tags) {
       let indices = this.props.tags;
       let words = [];
       for (var i = indices[0]; i <= indices[1]; i++) {
@@ -210,6 +180,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
       }
       this.setState({value: words.join(" ")});
     }
+    
   
   }
 
