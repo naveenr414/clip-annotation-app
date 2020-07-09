@@ -177,6 +177,12 @@ export default class Question extends React.Component<
         if(this.state.currently_tagged[0] == this.state.currently_tagged[1]) {
           this.setState({currently_tagged: []});
         }
+        else if(i == this.state.currently_tagged[1]) {
+          this.setState({currently_tagged: [this.state.currently_tagged[0],i-1]});
+        }
+        else if(i == this.state.currently_tagged[0]) {
+          this.setState({currently_tagged: [i+1,this.state.currently_tagged[1]]});
+        }
         else {
           this.setState({currently_tagged: [this.state.currently_tagged[0],i-1]});
         }
