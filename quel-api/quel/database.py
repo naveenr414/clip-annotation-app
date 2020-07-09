@@ -5,6 +5,7 @@ import random
 from contextlib import contextmanager
 import html
 import random
+import urllib.parse
 
 from sqlalchemy import (
     Column,
@@ -92,7 +93,7 @@ class Database:
 
     def get_autocorrect(self, text: str):
         with self._session_scope as session:
-            text = text.replace(" ","_")
+            text = html.escape(text.replace(" ","_"))
             upper_bound = text.lower()+chr(255)
             start = time.time()
             b = session.query(Entity)
@@ -104,7 +105,7 @@ class Database:
                 results = b.limit(10)
             else:
                 results = b.order_by(desc(Entity.popularity)).limit(10)
-            
+
             """
             results = (
                 session.query(Entity)
@@ -115,7 +116,9 @@ class Database:
 
             l = []
             print(time.time()-start)
-            l = [i.name.title().replace("_"," ") for i in results]
+            l = [html.unescape(i.name.replace("_"," ")).title() for i in results]
+
+            print(l)
             log.info("Took %s time to autocorrect", time.time() - start)
             return l
 

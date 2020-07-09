@@ -158,14 +158,14 @@ export default class Annotation extends React.Component<Props, State> {
     const footerStyle = {
       backgroundColor: "white",
       fontSize: "20px",
-      borderTop: "1px solid #E7E7E7",
+      borderTop: "2px solid red",
       textAlign: "center",
       padding: "20px",
       position: 'fixed',
       left: "0",
       bottom: "0",
       height: "60px",
-      width: "96%",
+      width: "98%",
     } as React.CSSProperties;
     
     const phantomStyle = {

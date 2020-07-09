@@ -38,10 +38,13 @@ export default class TaggedInfo extends React.Component<Props, State> {
   };
 
   sub = () => {
-    this.props.callbackFunction(this.state.value.trim());
-    this.setState({
-      value: "",
-    });
+    if(this.state.autocorrect.length>0) {
+      this.props.callbackFunction(this.state.autocorrect[0].trim());
+      this.setState({
+        value: "",
+      });
+    }
+
   };
 
   
@@ -145,13 +148,21 @@ export default class TaggedInfo extends React.Component<Props, State> {
           onChange={(event: any,value: any,reason: any) =>{if(reason === "select-option") {
           this.setState({value: value},() => {this.sub()});}}}
           openOnFocus={true}
+          onHighlightChange={(event: any, value: any, reason: any) => {if(value!=="") {this.props.setCurrentEntity(value);}}}
         />
+        <div style={{display: 'flex'}}> 
         <Button hidden ={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.sub}>
           Save
         </Button>
         <Button hidden={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.undo}>
           Clear
         </Button>
+        {this.state.autocorrect.length>0 &&
+        <Typography style={{ fontSize: 24, marginTop: 9}}> 
+          Current Top Entity: <b> {this.state.autocorrect[0]} </b>
+        </Typography> 
+          }
+          </div>
       </div>
     );
     
