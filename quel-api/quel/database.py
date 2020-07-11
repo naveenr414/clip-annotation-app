@@ -93,11 +93,10 @@ class Database:
 
     def get_autocorrect(self, text: str):
         with self._session_scope as session:
-            text = html.escape(text.replace(" ","_"))
             upper_bound = text.lower()+chr(255)
             start = time.time()
             b = session.query(Entity)
-            b = b.filter(and_(Entity.name<=upper_bound,Entity.name>=text.lower()))
+            b = b.filter(and_(Entity.clean_name<=upper_bound,Entity.clean_name>=text.lower()))
 
             if(len(text)<=2):
                 results = b.limit(10)
@@ -106,25 +105,16 @@ class Database:
             else:
                 results = b.order_by(desc(Entity.popularity)).limit(10)
 
-            """
-            results = (
-                session.query(Entity)
-                .filter(and_(Entity.name<=upper_bound,Entity.name>=text.lower()))
-                .order_by(desc(Entity.popularity))
-                .limit(10)
-            )"""
-
             l = []
             print(time.time()-start)
+            print([i.name for i in results])
             l = [html.unescape(i.name.replace("_"," ")).title() for i in results]
-
-            print(l)
             log.info("Took %s time to autocorrect", time.time() - start)
             return l
 
     def get_summary(self,text: str):
         with self._session_scope as session:
-            text= text.replace(" ","_").lower()
+            text= text.lower()
             results = session.query(Entity).filter(Entity.name==text).limit(1)
             summary = [i.summary for i in results]+["No summary found"]
             return summary
@@ -161,15 +151,16 @@ class Database:
             entity_list = []
 
             for i in entities:
-                name = i['title']
+                name = i['name']
+                clean_name = i['clean_name']
                 summary = i['summary']
-                popularity = i['len']
+                popularity = i['popularity']
                 actual_summary =summary
                 if"\n\n" in actual_summary and len(actual_summary.split("\n\n")[1])>3:
                     actual_summary = actual_summary.split("\n\n")[1]
                 actual_summary = actual_summary.replace("\n\n"," ")
                 
-                entity_list.append({'name':name,'popularity':popularity,'summary':actual_summary})
+                entity_list.append({'name':name,'popularity':popularity,'summary':actual_summary,'clean_name':clean_name})
             session.bulk_insert_mappings(Entity, entity_list)
         log.info("Took %s time to write entities", time.time() - start)
 
@@ -428,6 +419,7 @@ class Entity(Base):
     __tablename__ = "entities"
     entity_id = Column(Integer, primary_key=True)
     name = Column(String, index=True)
+    clean_name = Column(String,index=True)
     popularity = Column(Integer,index=True)
     summary = Column(String)
 

@@ -19,6 +19,9 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Drawer from '@material-ui/core/Drawer';
 import {setCookie,getCookie} from "./Util";
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+
 
 
 interface State {
@@ -34,6 +37,7 @@ interface State {
   newQuestionID: string;
   currentEntity: string; 
   currentSummary: string;
+  full_summary: boolean;
 }
 
 interface Props {
@@ -56,6 +60,7 @@ export default class Annotation extends React.Component<Props, State> {
       newQuestionID: "",
       currentEntity: "",
       currentSummary: "",
+      full_summary: false,
     }
     
     this.get_all_packets();
@@ -165,25 +170,39 @@ export default class Annotation extends React.Component<Props, State> {
       left: "0",
       bottom: "0",
       height: "60px",
-      width: "98%",
+      width: "94%",
+      overflow: this.state.full_summary?"scroll":"hidden",
     } as React.CSSProperties;
-    
+        
     const phantomStyle = {
       display: "block",
       padding: "20px",
       height: "60px",
-      width: "96%",
+      width: "94%",
     };
     
     let footer_text = "";
-    if(this.state.currentEntity !== "" && this.state.currentSummary !== "") {
-      footer_text = " - "+this.state.currentSummary
+    if(this.state.currentEntity !== "" && this.state.currentSummary !== "" && this.state.currentEntity !== undefined) {
+      footer_text = " - "+this.state.currentSummary;
+    }
+    
+    if(!this.state.full_summary) {
+      footer_text = footer_text.substring(0,75)+"...";
+    }
+
+    let label = <FormControlLabel
+        control={<Switch checked={this.state.full_summary} onChange={() => {this.setState({full_summary: !this.state.full_summary})}} />}
+        label="Full Summary"
+    />
+    
+    if(this.state.currentEntity === "" || this.state.currentEntity === undefined) {
+      label = <div> </div>
     }
         
     return (
     <div>
-      <div style={phantomStyle} />
-      <div style={footerStyle}> <Typography style={{fontSize: 24}}> <b> {this.state.currentEntity} </b> {footer_text} </Typography>  </div>
+      <div style={phantomStyle} /> 
+      <div style={footerStyle}>   {label} <Typography style={{fontSize: 16}}> <b> {this.state.currentEntity} </b> {footer_text}   </Typography> </div>
     </div>
   );
   }

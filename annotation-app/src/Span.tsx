@@ -27,6 +27,7 @@ export default class Span extends React.Component<SpanProps, SpanState> {
     editing: false,
   };
   
+    
   changeBold = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
     if(this.state.editing) {
       return 
@@ -94,7 +95,7 @@ export default class Span extends React.Component<SpanProps, SpanState> {
       !this.props.in_span ? (
         <Chip className="hidden" />
       ) : (<Chip
-          label={titleCase(mention_text.replace("_"," "))}
+          label={titleCase(mention_text.replace(/_/g," "))}
           className="chip"
           onClick={() => {this.setState({full_mention: !this.state.full_mention});
           if(this.props.title && this.props.setCurrentEntity){this.props.setCurrentEntity(this.props.title)}}}

@@ -5,6 +5,7 @@ import Typography from "@material-ui/core/Typography";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 
+const he = require('he');
 
 interface State {
   value: string;
@@ -36,15 +37,22 @@ export default class TaggedInfo extends React.Component<Props, State> {
 
     return words.join(" ");
   };
-
-  sub = () => {
-    if(this.state.autocorrect.length>0) {
-      this.props.callbackFunction(this.state.autocorrect[0].trim());
-      this.setState({
-        value: "",
-      });
+  
+  escapeHtml = (unsafe: string): string => {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
     }
 
+  
+  sub = () => {
+    this.props.callbackFunction(this.escapeHtml(this.state.value.trim()).replace(/ /g,"_"));
+    this.setState({
+      value: "",
+    });
   };
 
   
@@ -63,7 +71,6 @@ export default class TaggedInfo extends React.Component<Props, State> {
   };
 
   updateAutocorrect = (event: React.ChangeEvent<{}>, value: any) => {
-    console.log(value);
     this.setState({
       value: value,
     });
@@ -124,6 +131,15 @@ export default class TaggedInfo extends React.Component<Props, State> {
       setTimeout(this.sub,100);
     }
   }
+  
+  save = () => {
+    if(this.state.autocorrect.length>0){
+      this.setState({value: this.state.autocorrect[0]},()=>{this.sub()});
+    }
+    else {
+      this.setState({value: "No Entity Found"},()=>{this.sub()}); 
+    }
+  }
 
   getInput = () => {   
     let is_hidden = this.props.tags.length === 0;
@@ -151,7 +167,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
           onHighlightChange={(event: any, value: any, reason: any) => {if(value!=="") {this.props.setCurrentEntity(value);}}}
         />
         <div style={{display: 'flex'}}> 
-        <Button hidden ={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.sub}>
+        <Button hidden ={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.save}>
           Save
         </Button>
         <Button hidden={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.undo}>

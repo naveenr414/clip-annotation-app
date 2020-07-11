@@ -76,3 +76,17 @@ export function getCookie(cname: string) {
   }
   return "";
 }
+
+export function escape_html(s: string): string {
+  let t = "";
+  for(var i = 0;i<s.length;i++) {
+    if(s.charCodeAt(i)>255) {
+      let hex = s.charCodeAt(i);
+      t+="\\u"+("0000" + (hex).toString(16)).substr(-4);;
+    }
+    else {
+      t+=s.charAt(i);
+    }
+  }
+  return t;
+}

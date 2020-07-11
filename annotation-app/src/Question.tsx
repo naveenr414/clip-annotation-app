@@ -1,5 +1,5 @@
 import * as React from "react";
-import { titleCase, write_entities } from "./Util";
+import { titleCase, write_entities,escape_html } from "./Util";
 import * as p from "./Question.css";
 import TaggedInfo from "./TaggedInfo";
 import Chip from "@material-ui/core/Chip";
@@ -341,11 +341,20 @@ export default class Question extends React.Component<
       }
       console.log(this.state.entity_locations);
       
+      const e = [];
+      for(var i = 0;i<this.state.entities.length;i++) {
+        let ent = this.state.entities[i];
+        ent = ent.replace(" ","_");
+        ent = titleCase(ent);
+        ent = escape_html(ent);
+        e.push(ent);
+      }
+      
       write_entities(
         parseInt(this.state.question_id),
         parseInt(this.state.packet_id),
         this.state.entity_locations,
-        this.state.entities
+        e
       );
     }
 
