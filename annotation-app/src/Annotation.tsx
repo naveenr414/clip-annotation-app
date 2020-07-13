@@ -358,8 +358,8 @@ export default class Annotation extends React.Component<Props, State> {
               <div style={{fontSize: 24, marginTop: 30, float: "left", display: "inline-flex"}} hidden={this.state.helpOpen}> 
               <Typography  style={{ fontSize: 24, marginTop: 30}}> Question No: </Typography>                 <TextField inputProps={{
   style: {fontSize: 24 } 
-}} style={{ fontSize: 24, marginTop: 30, width: 25, marginLeft: 20, marginRight: 20}} color="primary" value={this.state.newPageNumber} onChange={this._handleTextFieldChange} />
-                <Typography style={{ fontSize: 24, marginTop: 30}}>  out of {this.state.question_list.length} </Typography>  <Button style={{ fontSize: 24, padding:"0px 0px", marginTop: 23 }} color="primary" onClick={this.changePage}>
+}} style={{ fontSize: 24, marginTop: 30, width: 25, marginLeft: 20, marginRight: 20}} color="primary" value={this.state.newPageNumber} onChange={this._handleTextFieldChange} hidden={this.state.helpOpen} />
+                <Typography style={{ fontSize: 24, marginTop: 30}}>  out of {this.state.question_list.length} </Typography>  <Button style={{ fontSize: 24, padding:"0px 0px", marginTop: 23 }} hidden={this.state.helpOpen} color="primary" onClick={this.changePage}>
                   Go
                 </Button> 
               </div>  
