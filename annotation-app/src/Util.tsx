@@ -86,7 +86,11 @@ export function getCookie(cname: string) {
 }
 
 export function toNiceString(s: string): string {
-    s = s.replace("_", " ");
+    if(s === null || s === undefined ) {
+      return s;
+    }
+  
+    s = s.replace(/_/g, " ");
     let nice_string = "";
     let i =0;
     while(i<s.length) {
@@ -104,7 +108,7 @@ export function toNiceString(s: string): string {
 }
 
 export function toNormalString(s: string): string {
-  s = s.replace(" ","_");
+  s = s.replace(/ /g,"_");
   s = s.toLowerCase();
   let new_string = "";
   for(var i = 0;i<s.length;i++) {

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { titleCase, write_entities,escape_html } from "./Util";
+import { titleCase, write_entities,escape_html,toNiceString } from "./Util";
 import * as p from "./Question.css";
 import TaggedInfo from "./TaggedInfo";
 import Chip from "@material-ui/core/Chip";
@@ -466,7 +466,7 @@ export default class Question extends React.Component<
                 <DialogTitle id="alert-dialog-title">{"Sure you want to delete?"}</DialogTitle>
                 <DialogContent>
                   <DialogContentText id="alert-dialog-description">
-                   Are you sure you want to delete the entity {this.state.entities[this.state.to_delete]}? 
+                   Are you sure you want to delete the entity {toNiceString(this.state.entities[this.state.to_delete])}? 
                   </DialogContentText>
                 </DialogContent>
                 <DialogActions>

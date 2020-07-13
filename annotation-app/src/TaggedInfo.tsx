@@ -79,7 +79,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
     
     let tagged_word = this.getTags(); 
     
-    let current_target = value.toLowerCase();
+    let current_target = toNormalString(value);
     if (current_target !== "" && this.props.tags.length>0) {
       fetch(
         "/api/qanta/v1/api/qanta/autocorrect/" +

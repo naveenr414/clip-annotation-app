@@ -37,9 +37,7 @@ async def write_entity(entity: Entity):
 
         old_entity_tuples.append((start, end, entity_name))
     new_entity_tuples = []
-    print("Tokens {}".format(tokens))
     for i in range(len(entity.word_numbers)):
-        print(entity.word_numbers[i][0])
         new_entity_tuples.append(
             (
                 tokens[entity.word_numbers[i][0]]["char_start"],

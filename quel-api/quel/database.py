@@ -107,27 +107,21 @@ class Database:
     def get_questions_by_packet(self,packet_id: int):
         with self._session_scope as session:
             questions = session.query(Packet).filter_by(packet_id=packet_id).all()
-            print(questions)
             return [i.question_id for i in questions]
 
     def get_autocorrect(self, text: str):
         with self._session_scope as session:
             upper_bound = text.lower()+chr(255)
             start = time.time()
-            b = session.query(Entity)
-            b = b.filter(and_(Entity.clean_name<=upper_bound,Entity.clean_name>=text.lower()))
-
-            if(len(text)<=2):
-                results = b.limit(10)
-            elif(b.count()>1000):
-                print("Too many results")
-                results = b.limit(10)
+            count = session.query(Entity).filter(and_(Entity.clean_name>=text,Entity.clean_name<=upper_bound)).count()
+        
+            if count>1000:
+                results = session.query(Entity).filter(and_(Entity.clean_name>=text,Entity.clean_name<=upper_bound)).limit(10)
             else:
-                results = b.order_by(desc(Entity.popularity)).limit(10)
+                results = session.query(Entity).filter(and_(Entity.clean_name>=text,Entity.clean_name<=upper_bound)).order_by(desc(Entity.popularity)).limit(10)
 
             l = []
             print(time.time()-start)
-            print([i.popularity for i in results])
             l = [i.name for i in results]
             log.info("Took %s time to autocorrect", time.time() - start)
             return l

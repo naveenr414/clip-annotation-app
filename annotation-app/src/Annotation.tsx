@@ -18,7 +18,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Drawer from '@material-ui/core/Drawer';
-import {setCookie,getCookie} from "./Util";
+import {setCookie,getCookie,toNormalString,toNiceString} from "./Util";
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 
@@ -202,7 +202,7 @@ export default class Annotation extends React.Component<Props, State> {
     return (
     <div>
       <div style={phantomStyle} /> 
-      <div style={footerStyle}>   {label} <Typography style={{fontSize: 16}}> <b> {this.state.currentEntity} </b> {footer_text}   </Typography> </div>
+      <div style={footerStyle}>   {label} <Typography style={{fontSize: 16}}> <b> {toNiceString(this.state.currentEntity)} </b> {footer_text}   </Typography> </div>
     </div>
   );
   }
@@ -251,14 +251,17 @@ export default class Annotation extends React.Component<Props, State> {
   setCurrentEntity = (newEntity: string) => {
     if(newEntity !== this.state.currentEntity) {
       this.setState({currentEntity: newEntity});
-   fetch("api/qanta/v1/api/qanta/summary/" +
-        newEntity)
-      .then((res) => res.json())
-      .then((result) => {
-        this.setState({
-            currentSummary: result[0],
-        });
-      });    }
+      if(newEntity !== undefined) {
+     fetch("api/qanta/v1/api/qanta/summary/" +
+          toNormalString(newEntity.trim()))
+        .then((res) => res.json())
+        .then((result) => {
+          this.setState({
+              currentSummary: result[0],
+          });
+        }); 
+      }
+   }
   }
   
   render = () => {
