@@ -73,7 +73,7 @@ export default class PacketCreation extends React.Component<Props, State> {
               required
               fullWidth
               id="question_nums"
-              label="Packets (seperated by comma)"
+              label="Questions (seperated by comma)"
               name="question_nums"
               value={this.state.question_nums}
               onChange={this.handlePacket}

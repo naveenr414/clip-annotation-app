@@ -33,6 +33,25 @@ log = get_logger(__name__)
 
 Base = declarative_base()  # pylint: disable=invalid-name
 
+def format_entity(entity):
+    # &quot;, &amp;, &lt;, and &gt;
+    entity = entity.lower().replace(" ","_")
+    specials = ["&quot;","&amp;","&lt;","&gt;","&apos;"]
+    actuals = ['"',"&","<",">","'"]
+    for i in range(len(specials)):
+        entity = entity.replace(specials[i],actuals[i])
+
+    if entity in ["<unk_wid>"]:
+        entity = "no_entity_found"
+               
+    e = ""
+    for i in entity:
+        if ord(i)>255:
+            e+="\\u"+("0000"+hex(ord(i))[2:])[-4:]
+        else:
+            e+=i
+    return e
+
 
 class Database:
     def __init__(self, find_questions=True):
@@ -101,14 +120,15 @@ class Database:
             if(len(text)<=2):
                 results = b.limit(10)
             elif(b.count()>1000):
+                print("Too many results")
                 results = b.limit(10)
             else:
                 results = b.order_by(desc(Entity.popularity)).limit(10)
 
             l = []
             print(time.time()-start)
-            print([i.name for i in results])
-            l = [html.unescape(i.name.replace("_"," ")).title() for i in results]
+            print([i.popularity for i in results])
+            l = [i.name for i in results]
             log.info("Took %s time to autocorrect", time.time() - start)
             return l
 
@@ -150,6 +170,7 @@ class Database:
         with self._session_scope as session:
             entity_list = []
 
+            k = 0
             for i in entities:
                 name = i['name']
                 clean_name = i['clean_name']
@@ -160,7 +181,12 @@ class Database:
                     actual_summary = actual_summary.split("\n\n")[1]
                 actual_summary = actual_summary.replace("\n\n"," ")
                 
-                entity_list.append({'name':name,'popularity':popularity,'summary':actual_summary,'clean_name':clean_name})
+                entity_list.append({'name':format_entity(name),'popularity':popularity,'summary':actual_summary,'clean_name':clean_name})
+                k+=1
+
+                if(k%100000 == 0):
+                    print(k)
+                
             session.bulk_insert_mappings(Entity, entity_list)
         log.info("Took %s time to write entities", time.time() - start)
 
@@ -182,7 +208,7 @@ class Database:
                         start = entity["span"][0] + sentence_starts[j]
                         end = entity["span"][1] + sentence_starts[j]
                         score = entity["score"]
-                        name = entity["entity"].replace("_", " ").lower()
+                        name = format_entity(entity["entity"])
                         mention_list.append(
                             {
                                 "start": start,
@@ -213,7 +239,7 @@ class Database:
                         start = entity["span"][0]
                         end = entity["span"][1] 
                         score = entity["score"]
-                        name = entity["entity"].replace("_", " ").lower()
+                        name = format_entity(entity["entity"])
                         mention_list.append(
                             {
                                 "start": start,
@@ -239,6 +265,7 @@ class Database:
             question_ids = [i.question_id for i in results[:5]]
             texts = [self.get_question_by_id(i)["text"] for i in question_ids]
             return texts
+
 
     def get_all_packets(self):
         with self._session_scope as session:

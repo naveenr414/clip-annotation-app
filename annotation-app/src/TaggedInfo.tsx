@@ -4,6 +4,7 @@ import { Button } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
+import {toNormalString,toNiceString} from "./Util";
 
 const he = require('he');
 
@@ -49,7 +50,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
 
   
   sub = () => {
-    this.props.callbackFunction(this.escapeHtml(this.state.value.trim()).replace(/ /g,"_"));
+    this.props.callbackFunction(toNormalString(this.state.value.trim()));
     this.setState({
       value: "",
     });
@@ -89,7 +90,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
           console.log(res);
           let suggestions = res;
           for(var i = 0;i<suggestions.length;i++) {
-            suggestions[i] = suggestions[i]+" ";
+            suggestions[i] = toNiceString(suggestions[i]+" ");
           }
           if(suggestions.length>0) {
             if(this.props.setCurrentEntity) {

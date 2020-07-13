@@ -33,7 +33,7 @@ async def write_entity(entity: Entity):
     for i in range(len(old_entities)):
         start = tokens[old_entity_locations[i][0]]["char_start"]
         end = tokens[old_entity_locations[i][1]]["char_end"]
-        entity_name = old_entities[i].lower().replace("_"," ")
+        entity_name = old_entities[i].lower().replace(" ","_")
 
         old_entity_tuples.append((start, end, entity_name))
     new_entity_tuples = []
@@ -44,7 +44,7 @@ async def write_entity(entity: Entity):
             (
                 tokens[entity.word_numbers[i][0]]["char_start"],
                 tokens[entity.word_numbers[i][1]]["char_end"],
-                entity.entities[i].lower().replace("_"," "),
+                entity.entities[i].lower().replace(" ","_"),
             )
         )
         
@@ -60,7 +60,7 @@ async def write_entity(entity: Entity):
     
     for i in new_entity_tuples:
         if i not in old_entity_tuples:
-            new_entities.append({"start": i[0], "end": i[1], "entity": i[2].replace("_"," ").title().replace(" ","_")})
+            new_entities.append({"start": i[0], "end": i[1], "entity": i[2]})
     print("Deleting {}".format(deleted_ids))
     print("Writing {}".format(new_entities))
 
