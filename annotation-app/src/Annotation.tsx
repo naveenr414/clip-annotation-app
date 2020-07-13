@@ -181,6 +181,10 @@ export default class Annotation extends React.Component<Props, State> {
       width: "94%",
     };
     
+    if(this.state.helpOpen) {
+      return <div> </div>
+    }
+    
     let footer_text = "";
     if(this.state.currentEntity !== "" && this.state.currentSummary !== "" && this.state.currentEntity !== undefined) {
       footer_text = " - "+this.state.currentSummary;
@@ -351,7 +355,7 @@ export default class Annotation extends React.Component<Props, State> {
                       
               <Help onClose={this.toggleHelp} show={this.state.helpOpen} />
 
-              <div style={{fontSize: 24, marginTop: 30, float: "left", display: "inline-flex"}}> 
+              <div style={{fontSize: 24, marginTop: 30, float: "left", display: "inline-flex"}} hidden={this.state.helpOpen}> 
               <Typography  style={{ fontSize: 24, marginTop: 30}}> Question No: </Typography>                 <TextField inputProps={{
   style: {fontSize: 24 } 
 }} style={{ fontSize: 24, marginTop: 30, width: 25, marginLeft: 20, marginRight: 20}} color="primary" value={this.state.newPageNumber} onChange={this._handleTextFieldChange} />
