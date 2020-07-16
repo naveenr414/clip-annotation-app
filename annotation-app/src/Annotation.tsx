@@ -191,7 +191,10 @@ export default class Annotation extends React.Component<Props, State> {
     }
     
     if(!this.state.full_summary) {
-      footer_text = footer_text.substring(0,75)+"...";
+      footer_text = footer_text.substring(0,75);
+      if(footer_text.length>0) {
+        footer_text+="...";
+      }
     }
 
     let label = <FormControlLabel
@@ -255,7 +258,7 @@ export default class Annotation extends React.Component<Props, State> {
   setCurrentEntity = (newEntity: string) => {
     if(newEntity !== this.state.currentEntity) {
       this.setState({currentEntity: newEntity});
-      if(newEntity !== undefined) {
+      if(newEntity !== undefined && newEntity !== "") {
      fetch("api/qanta/v1/api/qanta/summary/" +
           toNormalString(newEntity.trim()))
         .then((res) => res.json())
@@ -264,6 +267,9 @@ export default class Annotation extends React.Component<Props, State> {
               currentSummary: result[0],
           });
         }); 
+      }
+      else {
+        this.setState({currentSummary: ""});
       }
    }
   }

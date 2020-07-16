@@ -5,6 +5,7 @@ import Question from "./Question";
 import Login from "./Login";
 import Register from "./Register";
 import PacketCreation from "./PacketCreation";
+import PacketDeletion from "./PacketDeletion";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 function App() {
@@ -20,6 +21,9 @@ function App() {
         </Route>
         <Route path="/packet"> 
           <PacketCreation />
+        </Route> 
+        <Route path="/delete"> 
+          <PacketDeletion />
         </Route> 
 
         <Route path="/">

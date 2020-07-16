@@ -24,6 +24,12 @@ async def write_packet(packet: Packet):
     machine_tagger = packet.machine_tagger.lower()
     db.write_dummy_packets(packet_id,question_nums,description,machine_tagger)
 
+@router.post("/api/qanta/v1/delete_packet")
+async def delete_packet(packet: Packet):
+    packet_id = int(packet.question_id)
+    db.delete_packet(packet_id)
+
+
 @router.get("/api/qanta/v1/random")
 def get_random_question():
     return db.get_random_question()
@@ -39,6 +45,7 @@ def get_question(qanta_id: str):
     question_dict = db.get_question_by_id(qanta_id)
 
     question_dict["text"] = question_dict["text"].replace(chr(160), " ")
+    question_dict["answer"] = question_dict["answer"].replace("&lt;","<").replace("&gt;",">")
     entity_list, entity_locations, _, machine_tagged = db.get_entities(qanta_id,packet_id)
 
     question_dict["entities"] = entity_list

@@ -92,7 +92,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
           for(var i = 0;i<suggestions.length;i++) {
             suggestions[i] = toNiceString(suggestions[i]+" ");
           }
-          if(suggestions.length>0) {
+          if(suggestions.length>0 && this.props.tags.length>0) {
             if(this.props.setCurrentEntity) {
               this.props.setCurrentEntity(suggestions[0]);
             }
@@ -165,7 +165,7 @@ export default class TaggedInfo extends React.Component<Props, State> {
           onChange={(event: any,value: any,reason: any) =>{if(reason === "select-option") {
           this.setState({value: value},() => {this.sub()});}}}
           openOnFocus={true}
-          onHighlightChange={(event: any, value: any, reason: any) => {if(value!=="") {this.props.setCurrentEntity(value);}}}
+          onHighlightChange={(event: any, value: any, reason: any) => {if(value!=="" && this.props.tags.length>0) {this.props.setCurrentEntity(value);}}}
         />
         <div style={{display: 'flex'}}> 
         <Button hidden ={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.save}>

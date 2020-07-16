@@ -6,6 +6,7 @@ from contextlib import contextmanager
 import html
 import random
 import urllib.parse
+from unidecode import unidecode
 
 from sqlalchemy import (
     Column,
@@ -111,6 +112,8 @@ class Database:
 
     def get_autocorrect(self, text: str):
         with self._session_scope as session:
+            text = text.replace("_"," ")
+            text = unidecode(text)
             upper_bound = text.lower()+chr(255)
             start = time.time()
             count = session.query(Entity).filter(and_(Entity.clean_name>=text,Entity.clean_name<=upper_bound)).count()
@@ -120,19 +123,32 @@ class Database:
             else:
                 results = session.query(Entity).filter(and_(Entity.clean_name>=text,Entity.clean_name<=upper_bound)).order_by(desc(Entity.popularity)).limit(10)
 
+            exact_match =  session.query(Entity).filter(Entity.clean_name==text).limit(1)
             l = []
             print(time.time()-start)
-            l = [i.name for i in results]
+            l = [i.name for i in exact_match] + [i.name for i in results]
+
+            # Check if there's an exact match
+            
             log.info("Took %s time to autocorrect", time.time() - start)
             return l
 
     def get_summary(self,text: str):
         with self._session_scope as session:
+            start = time.time()
             text= text.lower()
             results = session.query(Entity).filter(Entity.name==text).limit(1)
             summary = [i.summary for i in results]+["No summary found"]
+            print("Took {} time to find summary".format(time.time()-start))
             return summary
             
+
+    def delete_packet(self,packet_id: int):
+        print("Deleting packet {}".format(packet_id))
+        with self._session_scope as session:
+            session.query(Packet).filter(Packet.packet_id==packet_id).delete(synchronize_session='fetch')
+            session.query(PacketID).filter(PacketID.packet_id==packet_id).delete(synchronize_session='fetch')
+            session.query(Mention).filter(Mention.packet_id==packet_id).delete(synchronize_session='fetch') 
 
     def write_dummy_packets(self,packet_num,question_ids,description,machine_tagger):
         self.create_all()

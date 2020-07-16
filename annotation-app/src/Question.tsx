@@ -362,6 +362,7 @@ export default class Question extends React.Component<
       currently_tagged: [],
       current_entity: "",
     });
+    this.props.setCurrentEntity("");
   };
 
   switch_preview = () => {
