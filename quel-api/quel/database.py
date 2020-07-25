@@ -111,7 +111,7 @@ class Database:
             return [i.question_id for i in questions]
 
     def get_autocorrect(self, text: str):
-        with self._session_scope as session:
+        with self._session_scope as session:            
             text = text.replace("_"," ")
             text = unidecode(text)
             upper_bound = text.lower()+chr(255)
@@ -125,7 +125,6 @@ class Database:
 
             exact_match =  session.query(Entity).filter(Entity.clean_name==text).limit(1)
             l = []
-            print(time.time()-start)
             l = [i.name for i in exact_match] + [i.name for i in results]
 
             # Check if there's an exact match
@@ -134,6 +133,7 @@ class Database:
             return l
 
     def get_summary(self,text: str):
+        
         with self._session_scope as session:
             start = time.time()
             text= text.lower()

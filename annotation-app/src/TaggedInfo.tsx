@@ -79,19 +79,30 @@ export default class TaggedInfo extends React.Component<Props, State> {
     
     let tagged_word = this.getTags(); 
     
+    
     let current_target = toNormalString(value);
     if (current_target !== "" && this.props.tags.length>0) {
+      
       fetch(
         "/api/qanta/v1/api/qanta/autocorrect/" +
           current_target
       )
         .then((res) => res.json())
         .then((res) => {
-          console.log(res);
+          
           let suggestions = res;
+          
           for(var i = 0;i<suggestions.length;i++) {
             suggestions[i] = toNiceString(suggestions[i]+" ");
           }
+          
+          if(suggestions.length == 0 || this.props.tags.length == 0) {
+            suggestions = ["No Entity Found"]
+          }
+          else {
+            this.props.setCurrentEntity(suggestions[0]);
+          }
+          /*
           if(suggestions.length>0 && this.props.tags.length>0) {
             if(this.props.setCurrentEntity) {
               this.props.setCurrentEntity(suggestions[0]);
@@ -102,11 +113,14 @@ export default class TaggedInfo extends React.Component<Props, State> {
           else {
             suggestions = ["No Entity Found"];
           }
-          suggestions = Array.from(new Set(suggestions));
+          */
+          
+          
+          
           this.setState({ autocorrect: suggestions },function() {
             return 0;
-          });  
-          console.log(suggestions);
+          });
+          
         });
     }
     else {

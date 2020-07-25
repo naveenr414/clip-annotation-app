@@ -45,6 +45,7 @@ interface Props {
 }
 
 export default class Annotation extends React.Component<Props, State> {
+  timerID=setTimeout(()=>{},1);
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -65,7 +66,7 @@ export default class Annotation extends React.Component<Props, State> {
     
     this.get_all_packets();
   }
-  
+    
   get_all_packets = () => {
     fetch(
       "/api/qanta/v1/api/qanta/all_packets/").then((res)=>res.json()).then((result) => 
@@ -165,18 +166,18 @@ export default class Annotation extends React.Component<Props, State> {
       fontSize: "20px",
       borderTop: "2px solid red",
       textAlign: "center",
-      padding: "20px",
+      padding: "5px",
       position: 'fixed',
       left: "0",
-      bottom: "0",
-      height: "60px",
-      width: "94%",
-      overflow: this.state.full_summary?"scroll":"hidden",
+      bottom: "0%",
+      height: "12%",
+      width: "100%",
+      overflow: "hidden",
     } as React.CSSProperties;
         
     const phantomStyle = {
       display: "block",
-      padding: "20px",
+      padding: "5px",
       height: "60px",
       width: "94%",
     };
@@ -196,7 +197,14 @@ export default class Annotation extends React.Component<Props, State> {
         footer_text+="...";
       }
     }
-
+    else {
+      footerStyle.height = "20%";
+    }
+    
+    if(footer_text === "") {
+      footer_text = "No summary to show";
+    }
+    
     let label = <FormControlLabel
         control={<Switch checked={this.state.full_summary} onChange={() => {this.setState({full_summary: !this.state.full_summary})}} />}
         label="Full Summary"
@@ -205,13 +213,14 @@ export default class Annotation extends React.Component<Props, State> {
     if(this.state.currentEntity === "" || this.state.currentEntity === undefined) {
       label = <div> </div>
     }
+
         
     return (
-    <div>
-      <div style={phantomStyle} /> 
-      <div style={footerStyle}>   {label} <Typography style={{fontSize: 16}}> <b> {toNiceString(this.state.currentEntity)} </b> {footer_text}   </Typography> </div>
-    </div>
-  );
+      <div>
+        <div style={phantomStyle} /> 
+        <div style={footerStyle}>   {label} <Typography style={{fontSize: 16}}> <b> {toNiceString(this.state.currentEntity)} </b> {footer_text}   </Typography> </div>
+      </div>
+    );
   }
   
   
@@ -255,33 +264,38 @@ export default class Annotation extends React.Component<Props, State> {
       </div>)
   }
   
+  
   setCurrentEntity = (newEntity: string) => {
-    if(newEntity !== this.state.currentEntity) {
-      this.setState({currentEntity: newEntity});
+    clearTimeout(this.timerID);
+    this.timerID=setTimeout(() => {
+       console.log("Ran this!!");
+      if(newEntity !== this.state.currentEntity) {
       if(newEntity !== undefined && newEntity !== "") {
      fetch("api/qanta/v1/api/qanta/summary/" +
           toNormalString(newEntity.trim()))
         .then((res) => res.json())
         .then((result) => {
           this.setState({
-              currentSummary: result[0],
+              currentSummary: result[0],currentEntity: newEntity
           });
         }); 
       }
       else {
         this.setState({currentSummary: ""});
       }
-   }
+      
+      
+   }      }, 200);
+    
+   
   }
   
   render = () => {
     console.log("Annotation style "+t + " "+question_css);
-    console.log(getCookie("token"));
     if (getCookie("token") === "") {
       return <Redirect to="/login" />;
     }
-    
-    
+        
 
     if(this.state.packetID === "" && this.state.question_id === "") {
       return this.getNoPacket();
