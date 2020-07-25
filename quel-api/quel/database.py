@@ -115,20 +115,29 @@ class Database:
             text = text.replace("_"," ")
             text = unidecode(text)
             upper_bound = text.lower()+chr(255)
-            start = time.time()
-            count = session.query(Entity).filter(and_(Entity.clean_name>=text,Entity.clean_name<=upper_bound)).count()
-        
-            if count>1000:
+            if(len(text)<=3):
+                start = time.time()
+                end_count = 0
+                count_time = 0
                 results = session.query(Entity).filter(and_(Entity.clean_name>=text,Entity.clean_name<=upper_bound)).limit(10)
             else:
-                results = session.query(Entity).filter(and_(Entity.clean_name>=text,Entity.clean_name<=upper_bound)).order_by(desc(Entity.popularity)).limit(10)
+                start = time.time()
+                count_time = time.time()
+                count = session.query(Entity).filter(and_(Entity.clean_name>=text,Entity.clean_name<=upper_bound)).count()
+                end_count = time.time()
+            
+                if count>1000:
+                    results = session.query(Entity).filter(and_(Entity.clean_name>=text,Entity.clean_name<=upper_bound)).limit(10)
+                else:
+                    results = session.query(Entity).filter(and_(Entity.clean_name>=text,Entity.clean_name<=upper_bound)).order_by(desc(Entity.popularity)).limit(10)
 
             exact_match =  session.query(Entity).filter(Entity.clean_name==text).limit(1)
             l = []
             l = [i.name for i in exact_match] + [i.name for i in results]
 
             # Check if there's an exact match
-            
+
+            print("Searched for {} and count took {}".format(text,end_count-count_time))
             log.info("Took %s time to autocorrect", time.time() - start)
             return l
 
