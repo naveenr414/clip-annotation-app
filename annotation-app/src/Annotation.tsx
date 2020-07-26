@@ -101,11 +101,27 @@ export default class Annotation extends React.Component<Props, State> {
   
   render_questions = () => {
     if(this.state.question_id !== "") {
-      return <Question packet_id={"-1"} question_id={this.state.question_id} setCurrentEntity={this.setCurrentEntity} />
+      return <Question packet_id={"-1"} question_id={this.state.question_id} setCurrentEntity={this.setCurrentEntity} nav_buttons={(<Grid item xs={6} hidden={this.state.helpOpen}>
+                
+                <Button style={{ fontSize: 24, marginRight: 10 }} color="primary" onClick={this.decrementNumber}>
+                  Previous
+                </Button>
+                <Button style={{ fontSize: 24 }} color="primary" onClick={this.incrementNumber}>
+                  Next
+                </Button>
+      </Grid>)} />
     }
     
     if(this.state.question_list.length>this.state.pageNumber && !this.state.helpOpen) {
-      return <Question packet_id={this.state.packetID} question_id={this.state.question_list[this.state.pageNumber].toString()} setCurrentEntity={this.setCurrentEntity} />
+      return <Question packet_id={this.state.packetID} question_id={this.state.question_list[this.state.pageNumber].toString()} setCurrentEntity={this.setCurrentEntity} nav_buttons={(<Grid item xs={6} hidden={this.state.helpOpen}>
+                
+                <Button style={{ fontSize: 24, marginRight: 10 }} color="primary" onClick={this.decrementNumber}>
+                  Previous
+                </Button>
+                <Button style={{ fontSize: 24}} color="primary" onClick={this.incrementNumber}>
+                  Next
+                </Button>
+      </Grid>)} />
     }
     else {
       return [];
@@ -383,15 +399,7 @@ export default class Annotation extends React.Component<Props, State> {
                   Go
                 </Button> 
                 </div> }
-              <Grid item xs={6} hidden={this.state.helpOpen}>
-                
-                <Button style={{ fontSize: 24, margin: 40 }} color="primary" onClick={this.decrementNumber}>
-                  Previous
-                </Button>
-                <Button style={{ fontSize: 24, margin: 40 }} color="primary" onClick={this.incrementNumber}>
-                  Next
-                </Button>
-              </Grid>
+
               
               
               {this.render_questions()}

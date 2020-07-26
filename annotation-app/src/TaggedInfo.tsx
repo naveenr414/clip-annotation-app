@@ -230,11 +230,11 @@ export default class TaggedInfo extends React.Component<Props, State> {
     console.log(this.state.value);
     return (
       <div>
+
+        {this.getInput()}
         <Typography color="textSecondary" style={{ fontSize: 24 }}>
           {this.getStatus() === ""?'\u00A0':this.getStatus()} {this.getTags()}
         </Typography>
-        {this.getInput()}
-
 
       </div>
     );

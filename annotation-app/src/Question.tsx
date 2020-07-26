@@ -20,6 +20,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from '@material-ui/core/Dialog';
 import Button from '@material-ui/core/Button';
+import Grid from "@material-ui/core/Grid";
 
 
 interface QuestionState {
@@ -47,6 +48,7 @@ interface QuestionProps {
   packet_id: string;
   match?: any;
   setCurrentEntity: any;
+  nav_buttons: any;
 }
 
 export default class Question extends React.Component<
@@ -425,19 +427,14 @@ export default class Question extends React.Component<
           />
           <Divider />
           <CardContent>
-            <Typography style={{ fontSize: 24 }}>
-              <span style={{ fontWeight: "bold" }}> Tournament: </span>
-              {this.state.tournament}
-            </Typography>
-            <Typography style={{ fontSize: 24 }}>
-              <span style={{ fontWeight: "bold" }}> Answer: </span>
-              {this.state.answer}
-            </Typography>
-            <Typography style={{ fontSize: 24 }}>
-              <span style={{ fontWeight: "bold" }}> Qanta ID: </span>
-              {this.state.question_id}
-            </Typography>
-            <Divider />
+                        <Grid
+              container
+              direction="column"
+              justify="center"
+              alignItems="center"
+            >
+            {this.props.nav_buttons}
+              </Grid>
             <TaggedInfo
               callbackFunction={this.callbackFunction}
               question_text={this.state.question_text}
@@ -458,6 +455,10 @@ export default class Question extends React.Component<
               this.setState({mouseDown:true});
               console.log(this.state.mouseDown);}} onMouseUp={() => {this.setState({mouseDown: false})}}>
               {tokens_with_mention}
+              <Typography style={{ fontSize: 12, textAlign: 'right' }}>
+                {this.state.question_id}
+              </Typography>
+
               <Dialog
               open={this.state.confirmation}
               onClose={this.handleClose}
