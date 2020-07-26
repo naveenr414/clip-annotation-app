@@ -36,7 +36,6 @@ Mark {
   height: 60px;
   display: inline-block;
   margin-bottom: 5px;
-  margin-right: 4px;
 }
 .word-mention {
   border-radius: 5px;
@@ -46,6 +45,7 @@ Mark {
 }
 .hidden {
   visibility: hidden;
+  width: 0px;
 }
 
 .center {

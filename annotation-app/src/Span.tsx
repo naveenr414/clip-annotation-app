@@ -88,12 +88,18 @@ export default class Span extends React.Component<SpanProps, SpanState> {
       }
     }
     
+    if(this.props.text === '"' || this.props.text === '(' || this.props.text === ')' || this.props.text === "'") {
+      style.marginRight = 1;
+    }
+    else {
+      style.marginRight =4;
+    }
     style.fontSize = 20;
     
     
     let mention =
       !this.props.in_span ? (
-        <Chip className="hidden" />
+       <Chip className="hidden" />
       ) : (<Chip
           label={toNiceString(mention_text)}
           className="chip"
