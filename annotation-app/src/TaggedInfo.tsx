@@ -181,13 +181,13 @@ export default class TaggedInfo extends React.Component<Props, State> {
           openOnFocus={true}
           onHighlightChange={(event: any, value: any, reason: any) => {if(value!=="" && this.props.tags.length>0) {this.props.setCurrentEntity(value);}}}
         />
-        <div style={{display: 'flex'}}> 
+        <div> 
         <Button hidden ={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.save}>
           Save
-        </Button>
+        </Button> <br />
         <Button hidden={is_hidden} style={{ fontSize: 24 }} color="primary" onClick={this.undo}>
           Clear
-        </Button>
+        </Button> <br />
         {this.state.autocorrect.length>0 &&
         <Typography style={{ fontSize: 24, marginTop: 9}}> 
           Current Top Entity: <b> {this.state.autocorrect[0]} </b>

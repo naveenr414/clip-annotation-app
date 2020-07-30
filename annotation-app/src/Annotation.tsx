@@ -61,7 +61,7 @@ export default class Annotation extends React.Component<Props, State> {
       newQuestionID: "",
       currentEntity: "",
       currentSummary: "",
-      full_summary: false,
+      full_summary: true,
     }
     
     this.get_all_packets();
@@ -101,7 +101,7 @@ export default class Annotation extends React.Component<Props, State> {
   
   render_questions = () => {
     if(this.state.question_id !== "") {
-      return <Question packet_id={"-1"} question_id={this.state.question_id} setCurrentEntity={this.setCurrentEntity} nav_buttons={(<Grid item xs={6} hidden={this.state.helpOpen}>
+      return <Question packet_id={"-1"} question_id={this.state.question_id} setCurrentEntity={this.setCurrentEntity} nav_buttons={(<Grid item xs={6} hidden={this.state.helpOpen} >
                 
                 <Button style={{ fontSize: 24, marginRight: 10 }} color="primary" onClick={this.decrementNumber}>
                   Previous
@@ -109,7 +109,7 @@ export default class Annotation extends React.Component<Props, State> {
                 <Button style={{ fontSize: 24 }} color="primary" onClick={this.incrementNumber}>
                   Next
                 </Button>
-      </Grid>)} />
+      </Grid>)} wiki_info={this.getFooter()} />
     }
     
     if(this.state.question_list.length>this.state.pageNumber && !this.state.helpOpen) {
@@ -121,7 +121,7 @@ export default class Annotation extends React.Component<Props, State> {
                 <Button style={{ fontSize: 24}} color="primary" onClick={this.incrementNumber}>
                   Next
                 </Button>
-      </Grid>)} />
+      </Grid>)}  wiki_info={this.getFooter()} />
     }
     else {
       return [];
@@ -179,23 +179,14 @@ export default class Annotation extends React.Component<Props, State> {
   getFooter = () => {
     const footerStyle = {
       backgroundColor: "white",
-      fontSize: "20px",
-      borderTop: "2px solid red",
-      textAlign: "center",
+      fontSize: "16px",
+      textAlign: "left",
       padding: "5px",
-      position: 'fixed',
-      left: "0",
-      bottom: "0%",
-      height: "12%",
-      width: "100%",
-      overflow: "hidden",
     } as React.CSSProperties;
         
     const phantomStyle = {
       display: "block",
       padding: "5px",
-      height: "60px",
-      width: "94%",
     };
     
     if(this.state.helpOpen) {
@@ -212,9 +203,6 @@ export default class Annotation extends React.Component<Props, State> {
       if(footer_text.length>0) {
         footer_text+="...";
       }
-    }
-    else {
-      footerStyle.height = "20%";
     }
     
     if(footer_text === "") {
@@ -234,7 +222,7 @@ export default class Annotation extends React.Component<Props, State> {
     return (
       <div>
         <div style={phantomStyle} /> 
-        <div style={footerStyle}>   {label} <Typography style={{fontSize: 16}}> <b> {toNiceString(this.state.currentEntity)} </b> {footer_text}   </Typography> </div>
+        <div style={footerStyle}>  <Typography style={{fontSize: 20}}> <b> {toNiceString(this.state.currentEntity)} </b> {footer_text}   </Typography> </div>
       </div>
     );
   }
@@ -410,7 +398,6 @@ export default class Annotation extends React.Component<Props, State> {
               <br />
             </Grid>
           </Container>
-          {this.getFooter()}
         </div>
       );
     }

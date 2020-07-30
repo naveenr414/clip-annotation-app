@@ -49,6 +49,7 @@ interface QuestionProps {
   match?: any;
   setCurrentEntity: any;
   nav_buttons: any;
+  wiki_info: any;
 }
 
 export default class Question extends React.Component<
@@ -420,6 +421,8 @@ export default class Question extends React.Component<
     let tokens_with_mention = this.get_tokens_with_mention();
     return (
       <div className="Question">
+      <Grid container spacing={3}>
+      <Grid item xs={8}> 
         <Card variant="outlined">
           <CardHeader
             title={"Category: " + this.state.category +", Answer: "+this.state.answer}
@@ -435,15 +438,7 @@ export default class Question extends React.Component<
             >
             {this.props.nav_buttons}
               </Grid>
-            <TaggedInfo
-              callbackFunction={this.callbackFunction}
-              question_text={this.state.question_text}
-              tags={this.state.currently_tagged}
-              entity={this.state.current_entity}
-              tokens={token_list}
-              setCurrentEntity={this.props.setCurrentEntity}
-            />
-            <Divider />
+
           </CardContent>
 
           <Collapse
@@ -485,6 +480,24 @@ export default class Question extends React.Component<
           </Collapse>
 
         </Card>
+      </Grid>
+      
+      <Grid item xs={4}> 
+        <div style={{top: 0,   position: 'sticky', margin: 0}}> 
+                        <TaggedInfo
+              callbackFunction={this.callbackFunction}
+              question_text={this.state.question_text}
+              tags={this.state.currently_tagged}
+              entity={this.state.current_entity}
+              tokens={token_list}
+              setCurrentEntity={this.props.setCurrentEntity}
+            /> 
+            {this.props.wiki_info}
+         </div>
+
+      </Grid>
+      </Grid>
+        
       </div>
     );
   }
