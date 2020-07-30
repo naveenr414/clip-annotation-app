@@ -48,7 +48,11 @@ export default class Span extends React.Component<SpanProps, SpanState> {
   };
 
   changeUnbold = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
-    if(!this.props.in_span) {
+    if(this.props.mouseDown){
+        this.run_local(this.props.token_idx, this.props.add_to_tag)();
+    }
+    
+    else if(!this.props.in_span) {
       let ele = e.target as HTMLSpanElement;
       ele.style.backgroundColor = "white";
     }
@@ -65,7 +69,7 @@ export default class Span extends React.Component<SpanProps, SpanState> {
   }
  
   
-  render() {
+  render() {    
     var mention_text = this.props.title;
     if (!this.props.in_span || mention_text == null) {
       mention_text = "";

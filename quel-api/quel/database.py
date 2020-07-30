@@ -114,6 +114,7 @@ class Database:
         with self._session_scope as session:            
             text = text.replace("_"," ")
             text = unidecode(text)
+            text = text.replace(" -","-").replace("- ","-")
             upper_bound = text.lower()+chr(255)
             if(len(text)<=3):
                 start = time.time()
