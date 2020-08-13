@@ -1,0 +1,35 @@
+version: '3'
+services:
+
+  react-app:
+    build: ./annotation-app
+    expose: 
+      - 3000
+    container_name: react-app
+    volumes:
+      - ./annotation-app/src:/srv/app/fr-shohin-admin-client/src
+      - ./annotation-app/public:/srv/app/fr-shohin-admin-client/public
+    ports:
+      - 3000:3000
+    environment:
+      APP_SERVER_PORT: 3000
+      API_HOST: localhost 
+    command: 
+      npm start 
+
+  fastapi-server:
+    build: ./quel-api
+    container_name: fastapi-server
+    ports:
+      - 8000:8000
+    command: poetry run uvicorn quel.web:app --host 0.0.0.0 --port 8000
+
+  caddy-app:
+    container_name: caddy-app
+    image: caddy/caddy:alpine
+    volumes: 
+      - ./Caddyfile:/etc/caddy/Caddyfile 
+    ports:
+      - 2020:2020
+    command: caddy run 
+

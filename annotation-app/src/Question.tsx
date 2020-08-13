@@ -113,6 +113,13 @@ export default class Question extends React.Component<
           machine_tagged: result["machine_tagged"]
         });
       });
+    fetch(
+      "http://localhost:2000/api/?q=Shostakovich"
+    )
+      .then((res) => res.json())
+      .then((result) => {
+        alert(result);
+      });
   };
 
   constructor(props: QuestionProps) {

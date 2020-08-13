@@ -92,34 +92,63 @@ export default class TaggedInfo extends React.Component<Props, State> {
           
           let suggestions = res;
           
-          for(var i = 0;i<suggestions.length;i++) {
-            suggestions[i] = toNiceString(suggestions[i]+" ");
-          }
-          
-          if(suggestions.length == 0 || this.props.tags.length == 0) {
-            suggestions = ["No Entity Found"]
+          if(suggestions.length<5) {
+            let target_string = "";
+            let split_string = current_target.split("_");
+            for(var i = 0;i<split_string.length;i++) {
+              target_string+="%2B"+split_string[i];
+              if(i+1<split_string.length) {
+                target_string+="%20";
+              }
+            }
+            target_string+="&nhits=5";
+            fetch("/api/?q="+target_string).then((res2)=>res2.json()).then((res2)=>{
+              for(var i = 0;i<5;i++) {
+                if(i<res2["hits"].length) {
+                  let name = res2["hits"][i].doc.clean_name;
+                  if(!suggestions.includes(name)){
+                    suggestions.push(name);
+                  }
+                  
+                }
+              }
+              
+              for(var i = 0;i<suggestions.length;i++) {
+                suggestions[i] = toNiceString(suggestions[i]+" ");
+              }
+              
+              if(suggestions.length == 0 || this.props.tags.length == 0) {
+                suggestions = ["No Entity Found"]
+              }
+              else {
+                suggestions.push("No Entity Found");
+                this.props.setCurrentEntity(suggestions[0]);
+              }
+              suggestions = Array.from(new Set(suggestions));
+              this.setState({ autocorrect: suggestions },function() {
+                return 0;
+              });
+            });
           }
           else {
-            this.props.setCurrentEntity(suggestions[0]);
-          }
-          /*
-          if(suggestions.length>0 && this.props.tags.length>0) {
-            if(this.props.setCurrentEntity) {
-              this.props.setCurrentEntity(suggestions[0]);
+            for(var i = 0;i<suggestions.length;i++) {
+              suggestions[i] = toNiceString(suggestions[i]+" ");
             }
             
-            suggestions = suggestions.concat(["No Entity Found"]);
+            if(suggestions.length == 0 || this.props.tags.length == 0) {
+              suggestions = ["No Entity Found"]
+            }
+            else {
+              suggestions.push("No Entity Found");
+              this.props.setCurrentEntity(suggestions[0]);
+            }
+            this.setState({ autocorrect: suggestions },function() {
+              return 0;
+            });
           }
-          else {
-            suggestions = ["No Entity Found"];
-          }
-          */
           
+
           
-          
-          this.setState({ autocorrect: suggestions },function() {
-            return 0;
-          });
           
         });
     }

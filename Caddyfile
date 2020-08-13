@@ -1,5 +1,7 @@
 :2020 {
-  reverse_proxy /api/* 127.0.0.1:8000
+  reverse_proxy /api/qanta/* 127.0.0.1:8000
+  reverse_proxy /api/entity/* 127.0.0.1:8000
+  reverse_proxy /api/* 127.0.0.1:2000
   reverse_proxy /token 127.0.0.1:8000
   reverse_proxy /token/* 127.0.0.1:8000
   reverse_proxy 127.0.0.1:3000
