@@ -92,9 +92,9 @@ export default class TaggedInfo extends React.Component<Props, State> {
           
           let suggestions = res;
           
-          if(suggestions.length<5) {
+          if(suggestions.length<5 && current_target.length>0) {
             let target_string = "";
-            let split_string = current_target.split("_");
+            let split_string = current_target.replace(/_$/,'').split("_");
             for(var i = 0;i<split_string.length;i++) {
               target_string+="%2B"+split_string[i];
               if(i+1<split_string.length) {

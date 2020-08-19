@@ -1,6 +1,7 @@
 import json
 from typing import List, Tuple
 from collections import defaultdict
+import pickle
 
 import click
 
@@ -60,10 +61,23 @@ def merge_question_sentences(tokenizations: List[Tuple[int, int]], sentences: Li
     return tokens
 
 
-def write_entities(db, entity_location="data/all_wiki.json"):
+def write_entities(db, entity_location="data/all_wiki.json",redirect_location="data/all_wiki_redirects.csv"):
     with open(entity_location) as f:
         entities = json.load(f)
-    db.write_entities(entities)
+
+    with open(redirect_location) as f:
+        redirects = {}
+        line = f.readline()
+        while line != '':   
+            splitted = line.split('","')
+            first,second = splitted[0],splitted[1]
+            first = first[1:]
+            second = second[:-1]
+            redirects[first] = second
+            line = f.readline()
+    print("Redirects length {}".format(len(redirects)))
+    
+    db.write_entities(entities,redirects)
 
 
 def write_mentions(db, tagme_location="data/all_tagme.json",blink_location="data/all_blink.json",nel_location="data/all_nel.json"):
@@ -78,6 +92,7 @@ def write_mentions(db, tagme_location="data/all_tagme.json",blink_location="data
     with open(nel_location) as f:
         mentions = json.load(f)
     db.write_mentions_character(mentions, "nel")
+
 
 
 @click.command()

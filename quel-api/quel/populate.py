@@ -61,10 +61,23 @@ def merge_question_sentences(tokenizations: List[Tuple[int, int]], sentences: Li
     return tokens
 
 
-def write_entities(db, entity_location="data/all_wiki.json"):
+def write_entities(db, entity_location="data/all_wiki.json",redirect_location="data/all_wiki_redirects.csv"):
     with open(entity_location) as f:
         entities = json.load(f)
-    db.write_entities(entities)
+
+    with open(redirect_location) as f:
+        redirects = {}
+        line = f.readline()
+        while line != '':   
+            splitted = line.split('","')
+            first,second = splitted[0],splitted[1]
+            first = first[1:]
+            second = second[:-1]
+            redirects[first] = second
+            line = f.readline()
+    print("Redirects length {}".format(len(redirects)))
+    
+    db.write_entities(entities,redirects)
 
 
 def write_mentions(db, tagme_location="data/all_tagme.json",blink_location="data/all_blink.json",nel_location="data/all_nel.json"):
@@ -80,63 +93,6 @@ def write_mentions(db, tagme_location="data/all_tagme.json",blink_location="data
         mentions = json.load(f)
     db.write_mentions_character(mentions, "nel")
 
-def create_prefixes(wiki_location="data/all_wiki.json",redirect_location="data/all_wiki_redirects.csv"):
-    f = json.loads(open("all_wiki.json").read())
-    print("Loaded in f")
-    without_description = [{'clean_name':i['clean_name'],'popularity':i["popularity"],'name':i["name"]} for i in f]
-    print("Got clean name")
-
-    def format_entity(entity):
-        # &quot;, &amp;, &lt;, and &gt;
-        entity = entity.lower().replace(" ","_")
-        specials = ["&quot;","&amp;","&lt;","&gt;","&apos;"]
-        actuals = ['"',"&","<",">","'"]
-        for i in range(len(specials)):
-            entity = entity.replace(specials[i],actuals[i])
-
-        if entity in ["<unk_wid>"]:
-            entity = "no_entity_found"
-                   
-        e = ""
-        for i in entity:
-            if ord(i)>255:
-                e+="\\u"+("0000"+hex(ord(i))[2:])[-4:]
-            else:
-                e+=i
-        return e
-
-
-    g = open("all_wiki_redirects.csv",encoding='utf-8').read().split("\n")
-    redirects = []
-    for i in g:
-        redirect,name = i.split(",")[0],i.split(",")[1]
-        name = name[1:-1]
-        redirect = redirect[1:-1]
-        name = format_entity(name)
-        redirects.append({'clean_name':unidecode(redirect.lower().replace("_"," ")),'name':name})
-
-    without_description+=redirects
-    def fast_search(l,prefix_num):
-        start = time.time()
-        prefixes = {}
-        for num,info in enumerate(l):
-            if num%10000 == 0:
-                print("{} out of {}".format(num,len(l)))
-            i = info["clean_name"]
-            for j in range(len(i)-prefix_num+1):
-                prefix = i[j:j+prefix_num]
-                if prefix not in prefixes:
-                    prefixes[prefix] = set()
-                prefixes[prefix].add(num)
-        print("Took {} time to init".format(time.time()-start))
-        return prefixes
-    prefixes = fast_search(without_description,3)
-    w = open("quel/prefixes.p","w")
-    w.write(pickle.dumps(prefixes))
-    w.close()
-    w = open("quel/wiki_pages.p","w")
-    w.write(pickle.dumps(without_description))
-    w.close()
 
 
 @click.command()
