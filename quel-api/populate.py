@@ -65,15 +65,17 @@ def write_entities(db, entity_location="data/all_wiki.json",redirect_location="d
     with open(entity_location) as f:
         entities = json.load(f)
 
-    with open(redirect_location) as f:
+    with open(redirect_location,encoding='utf-8') as f:
         redirects = {}
         line = f.readline()
         while line != '':   
-            splitted = line.split('","')
+            splitted = line.replace("\n","").split('","')
             first,second = splitted[0],splitted[1]
-            first = first[1:]
-            second = second[:-1]
-            redirects[first] = second
+            first = first[1:].lower().replace("_"," ").strip()
+            second = second[:-1].lower().replace("_"," ").strip()
+
+            if first!=second:
+                redirects[first] = second
             line = f.readline()
     print("Redirects length {}".format(len(redirects)))
     

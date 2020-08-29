@@ -156,6 +156,7 @@ class Database:
         with self._session_scope as session:
             start = time.time()
             text= text.lower()
+            print(text)
             results = session.query(Entity).filter(Entity.name==text).limit(1)
             summary = [i.summary for i in results]+["No summary found"]
             print("Took {} time to find summary".format(time.time()-start))
@@ -196,17 +197,14 @@ class Database:
     def write_entities(self,entities,redirects):
         start = time.time()
 
-        popularity_list = {}
         with self._session_scope as session:
             entity_list = []
-
             k = 0
             for i in entities:
                 name = i['name']
                 clean_name = i['clean_name']
                 summary = i['summary']
                 popularity = i['popularity']
-                popularity_list[clean_name] = popularity
                 actual_summary =summary
                 if"\n\n" in actual_summary and len(actual_summary.split("\n\n")[1])>3:
                     actual_summary = actual_summary.split("\n\n")[1]
@@ -220,18 +218,17 @@ class Database:
 
                 if(k%(2*10**6) == 0):
                     print("Writing {}".format(k))
+                    print("Last entity {}".format(entity_list[-1]))
                     session.bulk_insert_mappings(Entity, entity_list)
 
                     entity_list = []
 
+
             for i in redirects:
                 name = i
-                clean_redirect = format_entity(redirects[i])
-                clean_name = format_entity(i+"_redirects_to "+redirects[i]).split('"')[0]
+                clean_name = unidecode(i)+" redirects to "+unidecode(redirects[i])
                 summary = ""
                 popularity = 0
-                if clean_redirect in popularity_list:
-                    popularity = popularity_list[clean_redirect]
                 entity_list.append({'name':format_entity(name),'popularity':popularity,'summary':summary,'clean_name':clean_name})        
                 k+=1
 
@@ -240,9 +237,12 @@ class Database:
 
                 if(k%(2*10**6) == 0):
                     print("Writing {}".format(k))
+                    print("Last redirect {}".format(entity_list[-1]))
                     session.bulk_insert_mappings(Entity, entity_list)
 
                     entity_list = []
+
+      
 
             print("Final write")
             session.bulk_insert_mappings(Entity, entity_list)
